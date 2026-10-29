@@ -4,7 +4,7 @@ export default function WAFloat() {
     <a
       href="https://wa.me/918073552837?text=Hi! I want to book a decoration."
       target="_blank" rel="noopener noreferrer"
-      className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center text-2xl transition-transform hover:scale-110"
+      className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-2xl items-center justify-center text-2xl transition-transform hover:scale-110 hidden md:flex"
       style={{ background: '#25d366' }}
       aria-label="Chat on WhatsApp"
     >

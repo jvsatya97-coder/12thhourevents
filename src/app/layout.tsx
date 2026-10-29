@@ -4,6 +4,7 @@ import { CityProvider } from '@/context/CityContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import WAFloat from '@/components/WAFloat';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = {
   title: '12th Hour Events | Birthday & Party Decoration in Delhi NCR',
@@ -46,6 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main>{children}</main>
           <Footer />
           <WAFloat />
+          <MobileBottomNav />
         </CityProvider>
       </body>
     </html>

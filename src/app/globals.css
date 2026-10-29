@@ -120,7 +120,200 @@ body {
 ::-webkit-scrollbar-track { background: #f1f1f1; }
 ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
 
-/* Mobile bottom bar spacing */
+/* ─── Mobile bottom navigation ─── */
+.mobile-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: #fff;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  align-items: stretch;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.mobile-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 8px 4px;
+  font-size: 10px;
+  font-weight: 500;
+  color: #888;
+  text-decoration: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+  transition: color 0.15s;
+  min-height: 56px;
+}
+
+.mobile-nav-item.active {
+  color: #ff6b00;
+}
+
+.mobile-nav-item:not(.active):hover {
+  color: #555;
+}
+
+.mobile-nav-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.mobile-nav-book {
+  background: linear-gradient(135deg, #ff6b00, #ff9800);
+  color: white !important;
+  border-radius: 0;
+  flex: 1.2;
+}
+
+/* Mobile bottom bar spacing — push content above sticky nav */
 @media (max-width: 768px) {
   .pb-mobile { padding-bottom: 5rem; }
+}
+
+/* ─── Floating WhatsApp button (desktop) ─── */
+.wa-float {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 90;
+  background: #25d366;
+  color: white;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  box-shadow: 0 4px 16px rgba(37,211,102,0.4);
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.wa-float:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(37,211,102,0.5);
+}
+@media (max-width: 768px) {
+  .wa-float { display: none; }
+}
+
+/* ─── Category filter chips ─── */
+.filter-chips {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+}
+.filter-chips::-webkit-scrollbar { display: none; }
+.filter-chip {
+  flex-shrink: 0;
+  padding: 0.4rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: 1.5px solid #e5e7eb;
+  background: white;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.filter-chip.active,
+.filter-chip:hover {
+  background: #ff6b00;
+  border-color: #ff6b00;
+  color: white;
+}
+
+/* ─── Testimonials carousel ─── */
+.testimonials-scroll {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 1rem;
+  scroll-snap-type: x mandatory;
+}
+.testimonials-scroll::-webkit-scrollbar { display: none; }
+.testimonial-card {
+  flex: 0 0 280px;
+  scroll-snap-align: start;
+}
+@media (max-width: 768px) {
+  .testimonial-card { flex: 0 0 85vw; }
+}
+
+/* ─── Service image cards ─── */
+.service-img-card {
+  position: relative;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  aspect-ratio: 1/1;
+  background: linear-gradient(135deg, #1a1a2e, #0f3460);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: block;
+  text-decoration: none;
+}
+.service-img-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+}
+.service-img-card .overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 60%);
+}
+.service-img-card .label {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 0.75rem;
+  right: 0.75rem;
+  color: white;
+  font-weight: 700;
+  font-size: 0.9rem;
+  line-height: 1.2;
+}
+.service-img-card .emoji-bg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+}
+
+/* ─── Product card improvements ─── */
+.product-card-rating {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.72rem;
+  color: #f59e0b;
+  font-weight: 600;
+}
+.product-card-rating span { color: #888; font-weight: 400; }
+
+/* ─── Search bar ─── */
+.search-bar-input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 3rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 9999px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.search-bar-input:focus {
+  border-color: #ff6b00;
 }

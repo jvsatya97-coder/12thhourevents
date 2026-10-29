@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import SearchContent from './SearchContent';
 
 export const metadata: Metadata = {
@@ -7,5 +8,13 @@ export const metadata: Metadata = {
 };
 
 export default function SearchPage() {
-  return <SearchContent />;
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-500">Loading search…</p>
+      </div>
+    }>
+      <SearchContent />
+    </Suspense>
+  );
 }
