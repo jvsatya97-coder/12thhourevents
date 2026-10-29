@@ -27,8 +27,8 @@ export const SERVICES = [
   { slug: 'anniversary-decoration', name: 'Anniversary Decoration', cat: 'anniv',        emoji: '❤️' },
   { slug: 'room-decoration',        name: 'Room Decoration',        cat: 'room',         emoji: '🛏️' },
   { slug: 'baby-shower',            name: 'Baby Shower',            cat: 'baby',         emoji: '👶' },
+  { slug: 'welcome-baby',           name: 'Welcome Baby',           cat: 'welcomebaby',  emoji: '🍼' },
   { slug: 'bachelorette-party',     name: 'Bachelorette Party',     cat: 'bachelorette', emoji: '💃' },
-  { slug: 'first-night-decoration', name: 'First Night Decoration', cat: 'firstnight',   emoji: '🌹' },
   { slug: 'corporate-events',       name: 'Corporate Events',       cat: 'corporate',    emoji: '🏢' },
-  { slug: 'activities',             name: 'Kids Activities',        cat: 'act-artists',  emoji: '🎪' },
+  { slug: 'activities',             name: '🌟 Kids Activities',     cat: 'act-artists',  emoji: '🎪' },
 ];

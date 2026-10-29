@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useCity } from '@/context/CityContext';
 import { SERVICES, CITIES } from '@/lib/config';
 import CityModal from './CityModal';
@@ -10,6 +11,13 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [cityModalOpen, setCityModalOpen] = useState(false);
   const [servOpen, setServOpen] = useState(false);
+  const [searchQ, setSearchQ] = useState('');
+  const router = useRouter();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQ.trim()) { router.push(`/search?q=${encodeURIComponent(searchQ.trim())}`); setSearchQ(''); }
+  };
 
   return (
     <>
@@ -22,7 +30,19 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-4">
+            {/* Search bar */}
+            <form onSubmit={handleSearch} className="relative">
+              <input
+                value={searchQ}
+                onChange={e => setSearchQ(e.target.value)}
+                type="text"
+                placeholder="Search decorations..."
+                className="w-44 lg:w-56 border border-gray-200 rounded-full px-4 py-1.5 text-sm outline-none focus:border-orange-400 focus:w-64 transition-all duration-200 pr-8"
+              />
+              <button type="submit" className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-orange-500 text-sm">🔍</button>
+            </form>
+
             <div className="relative group">
               <button className="nav-link flex items-center gap-1">
                 Services <span className="text-xs">▼</span>
@@ -36,7 +56,6 @@ export default function Navbar() {
               </div>
             </div>
             <Link href="/contact" className="nav-link">Contact</Link>
-            <Link href="/search" className="nav-link">🔍 Search</Link>
             <button onClick={() => setCityModalOpen(true)} className="flex items-center gap-1 text-sm font-medium text-orange-600 border border-orange-200 rounded-full px-3 py-1 hover:bg-orange-50">
               📍 {cityName}
             </button>

@@ -26,9 +26,9 @@ const DEFAULT_REVIEWS = [
 
 export function generateServiceMetadata(p: Props): Metadata {
   return {
-    title: `${p.name} in Delhi NCR | 12th Hour Events`,
+    title: `${p.name} | 12th Hour Events — Pan India`,
     description: p.desc,
-    openGraph: { title: `${p.name} in Delhi NCR`, description: p.desc, type: 'website' },
+    openGraph: { title: `${p.name} | 12th Hour Events`, description: p.desc, type: 'website' },
   };
 }
 

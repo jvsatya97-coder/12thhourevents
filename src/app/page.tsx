@@ -79,8 +79,25 @@ export default function Home() {
           <h2 className="section-title">Our <span className="grad-text">Services</span></h2>
           <p className="section-sub">Everything you need for the perfect celebration</p>
 
-          <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
-            {SERVICES.map((s, i) => (
+          {/* Kids Activities highlight banner */}
+          <div className="mb-4">
+            <Link href="/activities"
+              className="flex items-center justify-between bg-gradient-to-r from-purple-600 to-pink-500 rounded-2xl px-5 py-4 text-white hover:opacity-95 transition shadow-md shadow-purple-200">
+              <div className="flex items-center gap-3">
+                <span className="text-4xl">🎪</span>
+                <div>
+                  <div className="font-extrabold text-lg leading-tight">🌟 Kids Activities</div>
+                  <div className="text-sm text-white/80">Clowns · Magicians · Face Painting · Balloon Artists & more</div>
+                </div>
+              </div>
+              <div className="flex-shrink-0 bg-white text-purple-600 font-bold text-sm px-4 py-1.5 rounded-full">
+                Book Now →
+              </div>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+            {SERVICES.filter(s => s.slug !== 'activities').map((s, i) => (
               <Link key={s.slug} href={`/${s.slug}`}
                 className={`service-img-card bg-gradient-to-br ${SERVICE_COLORS[i % SERVICE_COLORS.length]}`}>
                 <div className="overlay" />
