@@ -12,9 +12,18 @@ export default function ProductContent({ id }: { id: string }) {
   const { city, cityName } = useCity();
 
   useEffect(() => {
+    if (!id) return;
+    setLoading(true);
+    const decodedId = (() => { try { return decodeURIComponent(id); } catch { return id; } })();
     fetchProducts().then(products => {
-      const found = products.find(p => p.id === id);
+      // Try exact match first, then decoded, then case-insensitive
+      const found = products.find(p => p.id === id)
+        || products.find(p => p.id === decodedId)
+        || products.find(p => p.id.toLowerCase().trim() === decodedId.toLowerCase().trim());
       setProduct(found || null);
+      setLoading(false);
+    }).catch(() => {
+      setProduct(null);
       setLoading(false);
     });
   }, [id]);
@@ -36,7 +45,11 @@ export default function ProductContent({ id }: { id: string }) {
     <div className="max-w-3xl mx-auto px-4 py-20 text-center">
       <div className="text-5xl mb-4">😕</div>
       <h1 className="text-2xl font-bold text-gray-700 mb-3">Package not found</h1>
-      <a href="https://wa.me/918073552837" className="btn-pink inline-flex">Chat with us on WhatsApp</a>
+      <p className="text-gray-500 text-sm mb-6">This package may have been updated. Browse all packages below.</p>
+      <div className="flex gap-3 justify-center flex-wrap">
+        <a href="/birthday-decoration" className="btn-pink inline-flex">Browse Packages</a>
+        <a href="https://wa.me/918073552837" className="btn-wa inline-flex">Chat on WhatsApp</a>
+      </div>
     </div>
   );
 

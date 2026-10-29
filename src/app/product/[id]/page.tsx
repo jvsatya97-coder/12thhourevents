@@ -6,10 +6,11 @@ export const metadata: Metadata = {
   description: 'View decoration package details and book on WhatsApp.',
 };
 
-export default function ProductPage({ params }: { params: { id: string } }) {
+export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   return (
     <div>
-      <ProductContent id={params.id} />
+      <ProductContent id={id} />
     </div>
   );
 }

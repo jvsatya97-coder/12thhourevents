@@ -14,7 +14,7 @@ export default function ProductCard({ p }: { p: Product }) {
   };
 
   return (
-    <Link href={`/product/${p.id}`} className="card block group">
+    <Link href={`/product/${encodeURIComponent(p.id)}`} className="card block group">
       <div className="relative overflow-hidden" style={{ aspectRatio: '4/3' }}>
         {p.img ? (
           <img src={p.img} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" referrerPolicy="no-referrer" />
