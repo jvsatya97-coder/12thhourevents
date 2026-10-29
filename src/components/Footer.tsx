@@ -19,7 +19,7 @@ export default function Footer() {
             <ul className="space-y-1">
               {SERVICES.map(s => (
                 <li key={s.slug}>
-                  <Link href={`/${s.slug}`} className="text-sm text-gray-400 hover:text-pink-400">{s.name}</Link>
+                  <Link href={`/${s.slug}`} className="text-sm text-gray-400 hover:text-orange-400">{s.name}</Link>
                 </li>
               ))}
             </ul>
@@ -29,16 +29,16 @@ export default function Footer() {
             <div className="grid grid-cols-2 gap-1">
               {CITIES.slice(0, 8).map(c => (
                 <Link key={c.slug} href={`/birthday-decoration-${c.slug}`}
-                  className="text-sm text-gray-400 hover:text-pink-400">{c.name}</Link>
+                  className="text-sm text-gray-400 hover:text-orange-400">{c.name}</Link>
               ))}
             </div>
           </div>
           <div>
             <h4 className="font-bold text-white mb-3">Quick Links</h4>
             <ul className="space-y-1">
-              <li><Link href="/contact" className="text-sm text-gray-400 hover:text-pink-400">Contact Us</Link></li>
-              <li><Link href="/search" className="text-sm text-gray-400 hover:text-pink-400">Search</Link></li>
-              <li><a href="https://wa.me/918073552837" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-400 hover:text-pink-400">WhatsApp Us</a></li>
+              <li><Link href="/contact" className="text-sm text-gray-400 hover:text-orange-400">Contact Us</Link></li>
+              <li><Link href="/search" className="text-sm text-gray-400 hover:text-orange-400">Search</Link></li>
+              <li><a href="https://wa.me/918073552837" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-400 hover:text-orange-400">WhatsApp Us</a></li>
             </ul>
           </div>
         </div>

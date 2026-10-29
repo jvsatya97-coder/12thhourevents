@@ -32,15 +32,15 @@ export default function BookingModal({ product, onClose }: Props) {
           <h2 className="text-lg font-bold">📋 Book This Package</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
         </div>
-        <div className="bg-pink-50 rounded-xl p-3 mb-4 text-sm">
+        <div className="bg-orange-50 rounded-xl p-3 mb-4 text-sm">
           <p className="font-semibold text-gray-800">{product.name}</p>
-          <p className="text-pink-600 font-bold">{price}</p>
+          <p className="text-orange-600 font-bold">{price}</p>
           <p className="text-gray-500">{cityName}</p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-3">
-          <input value={name} onChange={e => setName(e.target.value)} required placeholder="Your Name" className="w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400" />
-          <input value={phone} onChange={e => setPhone(e.target.value)} required placeholder="Phone Number" type="tel" className="w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400" />
-          <input value={date} onChange={e => setDate(e.target.value)} type="date" placeholder="Event Date" className="w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400" />
+          <input value={name} onChange={e => setName(e.target.value)} required placeholder="Your Name" className="w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-orange-400" />
+          <input value={phone} onChange={e => setPhone(e.target.value)} required placeholder="Phone Number" type="tel" className="w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-orange-400" />
+          <input value={date} onChange={e => setDate(e.target.value)} type="date" placeholder="Event Date" className="w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-orange-400" />
           <button type="submit" disabled={loading} className="btn-wa w-full justify-center">
             {loading ? 'Sending...' : '📲 Confirm on WhatsApp'}
           </button>

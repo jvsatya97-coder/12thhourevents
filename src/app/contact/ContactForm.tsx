@@ -15,15 +15,15 @@ export default function ContactForm() {
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
-          <input id="cname" placeholder="Enter your name" className="w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400" />
+          <input id="cname" placeholder="Enter your name" className="w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-orange-400" />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-          <input id="cphone" placeholder="Enter phone number" className="w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400" />
+          <input id="cphone" placeholder="Enter phone number" className="w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-orange-400" />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
-          <textarea id="cmsg" rows={3} placeholder="What decoration are you looking for?" className="w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 resize-none" />
+          <textarea id="cmsg" rows={3} placeholder="What decoration are you looking for?" className="w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-orange-400 resize-none" />
         </div>
         <button onClick={handleSubmit} className="btn-wa w-full justify-center">
           📲 Send via WhatsApp

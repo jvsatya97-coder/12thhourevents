@@ -1,5 +1,26 @@
 import { SHEET_URL, LEADS_URL, WA_NUM } from './config';
 
+/** Convert Google Drive share/view URLs to direct image URLs */
+export function toImgUrl(url: string): string {
+  if (!url) return '';
+  // Handle https://drive.google.com/file/d/FILE_ID/view or /view?usp=...
+  const driveMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (driveMatch) {
+    return `https://drive.google.com/uc?export=view&id=${driveMatch[1]}`;
+  }
+  // Handle https://drive.google.com/open?id=FILE_ID
+  const openMatch = url.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/);
+  if (openMatch) {
+    return `https://drive.google.com/uc?export=view&id=${openMatch[1]}`;
+  }
+  // Handle https://drive.google.com/uc?id=FILE_ID (already direct but missing export)
+  const ucMatch = url.match(/drive\.google\.com\/uc\?(?:.*&)?id=([a-zA-Z0-9_-]+)/);
+  if (ucMatch) {
+    return `https://drive.google.com/uc?export=view&id=${ucMatch[1]}`;
+  }
+  return url;
+}
+
 export interface Product {
   id: string; name: string; cat: string; sub: string;
   price: string; orig: string; disc: number; emoji: string;
@@ -21,13 +42,13 @@ export async function fetchProducts(): Promise<Product[]> {
         else if (lk.startsWith('orig_')) co[lk.slice(5)] = v;
       });
       const imgs: string[] = [];
-      const main = String(p.img || '').trim();
+      const main = toImgUrl(String(p.img || '').trim());
       if (main) imgs.push(main);
       for (let i = 1; i <= 5; i++) {
-        const e = String(p[`img${i}`] || '').trim();
+        const e = toImgUrl(String(p[`img${i}`] || '').trim());
         if (e && !imgs.includes(e)) imgs.push(e);
       }
-      if (p.imgs) String(p.imgs).split(',').forEach((u: string) => { u = u.trim(); if (u && !imgs.includes(u)) imgs.push(u); });
+      if (p.imgs) String(p.imgs).split(',').forEach((u: string) => { u = toImgUrl(u.trim()); if (u && !imgs.includes(u)) imgs.push(u); });
       return {
         id: String(p.id || '').trim(),
         name: String(p.name || '').trim(),

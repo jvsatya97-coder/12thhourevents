@@ -50,7 +50,7 @@ export default function ProductContent({ id }: { id: string }) {
         <div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-gray-800 mb-3">{product.name}</h1>
           <div className="flex items-center gap-3 mb-4">
-            <span className="text-3xl font-bold text-pink-600">{price || '—'}</span>
+            <span className="text-3xl font-bold text-orange-600">{price || '—'}</span>
             {orig && orig !== price && <span className="text-gray-400 text-lg line-through">{orig}</span>}
             {product.disc > 0 && <span className="disc-badge">{product.disc}% OFF</span>}
           </div>

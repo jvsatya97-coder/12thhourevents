@@ -18,7 +18,7 @@ export default function SearchContent() {
 
   return (
     <div>
-      <div className="bg-gradient-to-r from-pink-600 to-purple-600 py-12 text-white">
+      <div className="bg-gradient-to-r from-orange-500 to-amber-500 py-12 text-white">
         <div className="max-w-2xl mx-auto px-4 text-center">
           <h1 className="text-3xl font-extrabold mb-4">Search Packages 🔍</h1>
           <input

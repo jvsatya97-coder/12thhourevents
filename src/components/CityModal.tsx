@@ -16,7 +16,7 @@ export default function CityModal({ onClose }: { onClose: () => void }) {
           {CITIES.map(c => (
             <button key={c.slug} onClick={() => { setCity(c.slug); onClose(); }}
               className={`px-3 py-2 rounded-xl text-sm font-medium border transition-all text-left ${
-                city === c.slug ? 'bg-pink-600 text-white border-pink-600' : 'bg-gray-50 text-gray-700 border-gray-200 hover:border-pink-300 hover:bg-pink-50'
+                city === c.slug ? 'bg-orange-600 text-white border-orange-600' : 'bg-gray-50 text-gray-700 border-gray-200 hover:border-orange-300 hover:bg-orange-50'
               }`}>
               {c.name}
             </button>

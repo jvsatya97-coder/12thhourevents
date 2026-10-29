@@ -11,7 +11,7 @@ export default function ProductGrid({ cat, limit, title }: Props) {
 
   useEffect(() => {
     fetchProducts().then(all => {
-      let filtered = cat ? all.filter(p => p.cat === cat) : all;
+      let filtered = cat ? all.filter(p => p.cat.toLowerCase().trim() === cat.toLowerCase().trim()) : all;
       if (limit) filtered = filtered.slice(0, limit);
       setProducts(filtered);
       setLoading(false);
@@ -33,7 +33,7 @@ export default function ProductGrid({ cat, limit, title }: Props) {
     </div>
   );
 
-  if (!products.length) return <p className="text-center text-gray-500 py-8">No packages found. <a href="https://wa.me/918073552837" className="text-pink-600 underline">Contact us on WhatsApp</a> for a custom quote!</p>;
+  if (!products.length) return <p className="text-center text-gray-500 py-8">No packages found. <a href="https://wa.me/918073552837" className="text-orange-600 underline">Contact us on WhatsApp</a> for a custom quote!</p>;
 
   return (
     <div>

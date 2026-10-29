@@ -61,7 +61,7 @@ export default function ServicePageTemplate({ cat, name, emoji, slug, headline, 
               {faqs.map((f, i) => (
                 <details key={i} className="card p-5 group">
                   <summary className="font-semibold text-gray-800 cursor-pointer list-none flex justify-between items-center">
-                    {f.q} <span className="text-pink-400 ml-2 group-open:rotate-180 transition-transform">▾</span>
+                    {f.q} <span className="text-orange-400 ml-2 group-open:rotate-180 transition-transform">▾</span>
                   </summary>
                   <p className="mt-3 text-gray-600 text-sm leading-relaxed">{f.a}</p>
                 </details>
@@ -78,7 +78,7 @@ export default function ServicePageTemplate({ cat, name, emoji, slug, headline, 
           <div className="flex flex-wrap justify-center gap-3 mt-6">
             {CITIES.map(c => (
               <Link key={c.slug} href={`/${slug}-${c.slug}`}
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-pink-100 hover:text-pink-700 transition">
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-orange-100 hover:text-orange-700 transition">
                 {name} in {c.name}
               </Link>
             ))}

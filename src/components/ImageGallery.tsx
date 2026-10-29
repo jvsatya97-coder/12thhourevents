@@ -17,7 +17,7 @@ export default function ImageGallery({ imgs, name }: { imgs: string[]; name: str
         <div className="flex gap-2 overflow-x-auto pb-1">
           {imgs.map((img, i) => (
             <button key={i} onClick={() => setActive(i)}
-              className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${i === active ? 'border-pink-500' : 'border-transparent opacity-60 hover:opacity-100'}`}>
+              className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${i === active ? 'border-orange-500' : 'border-transparent opacity-60 hover:opacity-100'}`}>
               <img src={img} alt={`thumb ${i}`} className="w-full h-full object-cover" />
             </button>
           ))}

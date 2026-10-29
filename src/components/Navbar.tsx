@@ -29,7 +29,7 @@ export default function Navbar() {
               </button>
               <div className="absolute top-full left-0 bg-white shadow-xl rounded-xl p-2 w-56 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity z-50">
                 {SERVICES.map(s => (
-                  <Link key={s.slug} href={`/${s.slug}`} className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-pink-50 text-sm text-gray-700 hover:text-pink-600">
+                  <Link key={s.slug} href={`/${s.slug}`} className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-orange-50 text-sm text-gray-700 hover:text-orange-600">
                     {s.emoji} {s.name}
                   </Link>
                 ))}
@@ -37,7 +37,7 @@ export default function Navbar() {
             </div>
             <Link href="/contact" className="nav-link">Contact</Link>
             <Link href="/search" className="nav-link">🔍 Search</Link>
-            <button onClick={() => setCityModalOpen(true)} className="flex items-center gap-1 text-sm font-medium text-pink-600 border border-pink-200 rounded-full px-3 py-1 hover:bg-pink-50">
+            <button onClick={() => setCityModalOpen(true)} className="flex items-center gap-1 text-sm font-medium text-orange-600 border border-orange-200 rounded-full px-3 py-1 hover:bg-orange-50">
               📍 {cityName}
             </button>
             <a href="https://wa.me/918073552837" target="_blank" rel="noopener noreferrer" className="btn-pink text-sm py-2 px-4">
@@ -47,7 +47,7 @@ export default function Navbar() {
 
           {/* Mobile hamburger */}
           <div className="flex items-center gap-2 md:hidden">
-            <button onClick={() => setCityModalOpen(true)} className="text-xs text-pink-600 border border-pink-200 rounded-full px-2 py-1">
+            <button onClick={() => setCityModalOpen(true)} className="text-xs text-orange-600 border border-orange-200 rounded-full px-2 py-1">
               📍 {cityName}
             </button>
             <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2 text-gray-700">
@@ -64,7 +64,7 @@ export default function Navbar() {
             </button>
             {servOpen && SERVICES.map(s => (
               <Link key={s.slug} href={`/${s.slug}`} onClick={() => setMobileOpen(false)}
-                className="pl-4 py-1 text-sm text-gray-600 hover:text-pink-600">
+                className="pl-4 py-1 text-sm text-gray-600 hover:text-orange-600">
                 {s.emoji} {s.name}
               </Link>
             ))}

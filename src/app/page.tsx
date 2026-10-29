@@ -57,7 +57,7 @@ export default function Home() {
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
             {SERVICES.map(s => (
               <Link key={s.slug} href={`/${s.slug}`}
-                className="card p-4 text-center hover:border-pink-200 border border-transparent">
+                className="card p-4 text-center hover:border-orange-200 border border-transparent">
                 <div className="text-4xl mb-2">{s.emoji}</div>
                 <div className="font-semibold text-sm text-gray-700">{s.name}</div>
               </Link>
@@ -79,7 +79,7 @@ export default function Home() {
       </section>
 
       {/* Why Us */}
-      <section className="py-16 bg-gradient-to-br from-pink-50 to-purple-50">
+      <section className="py-16 bg-gradient-to-br from-orange-50 to-amber-50">
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="section-title">Why Choose <span className="grad-text">12th Hour?</span></h2>
           <p className="section-sub">The trusted name in party decoration</p>
@@ -103,7 +103,7 @@ export default function Home() {
           <div className="flex flex-wrap justify-center gap-3">
             {CITIES.map(c => (
               <Link key={c.slug} href={`/birthday-decoration-${c.slug}`}
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium hover:bg-pink-100 hover:text-pink-700 transition">
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium hover:bg-orange-100 hover:text-orange-700 transition">
                 📍 {c.name}
               </Link>
             ))}

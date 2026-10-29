@@ -46,7 +46,7 @@ export default function CityServiceTemplate({ cat, serviceName, serviceSlug, emo
           <div className="flex flex-wrap justify-center gap-3">
             {SERVICES.filter(s => s.slug !== serviceSlug).map(s => (
               <Link key={s.slug} href={`/${s.slug}-${citySlug}`}
-                className="px-4 py-2 bg-white border rounded-full text-sm hover:border-pink-300 hover:text-pink-600 transition">
+                className="px-4 py-2 bg-white border rounded-full text-sm hover:border-orange-300 hover:text-orange-600 transition">
                 {s.emoji} {s.name} in {cityName}
               </Link>
             ))}
