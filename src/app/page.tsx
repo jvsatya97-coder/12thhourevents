@@ -40,6 +40,18 @@ const WHY = [
   { emoji: '📞', title: 'WhatsApp Booking', desc: 'Book in 2 minutes, no app needed.' },
 ];
 
+// Real background images for service cards (Unsplash, free to use)
+const SERVICE_IMAGES: Record<string, string> = {
+  'birthday-decoration':    'https://images.unsplash.com/photo-1464349153735-7db50ed83c84?w=400&q=60',
+  'theme-decoration':       'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=400&q=60',
+  'anniversary-decoration': 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=400&q=60',
+  'room-decoration':        'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&q=60',
+  'baby-shower':            'https://images.unsplash.com/photo-1544126592-807ade215a0b?w=400&q=60',
+  'welcome-baby':           'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=400&q=60',
+  'bachelorette-party':     'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=400&q=60',
+  'corporate-events':       'https://images.unsplash.com/photo-1511578314322-379afb476865?w=400&q=60',
+};
+
 // Service card backgrounds (gradient pairs)
 const SERVICE_COLORS = [
   'from-purple-600 to-pink-500',
@@ -82,16 +94,20 @@ export default function Home() {
           {/* Kids Activities highlight banner */}
           <div className="mb-4">
             <Link href="/activities"
-              className="flex items-center justify-between bg-gradient-to-r from-purple-600 to-pink-500 rounded-2xl px-5 py-4 text-white hover:opacity-95 transition shadow-md shadow-purple-200">
-              <div className="flex items-center gap-3">
-                <span className="text-4xl">🎪</span>
+              className="relative flex items-center justify-between rounded-2xl px-5 py-3 text-white hover:opacity-95 transition shadow-md shadow-purple-200 overflow-hidden"
+              style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #db2777 100%)' }}>
+              {/* background party image overlay */}
+              <div className="absolute inset-0 opacity-20"
+                style={{ backgroundImage: "url('https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800&q=60')", backgroundSize: 'cover', backgroundPosition: 'center' }} />
+              <div className="relative flex items-center gap-3">
+                <span className="text-3xl">🎪</span>
                 <div>
-                  <div className="font-extrabold text-lg leading-tight">🌟 Kids Activities</div>
-                  <div className="text-sm text-white/80">Clowns · Magicians · Face Painting · Balloon Artists & more</div>
+                  <div className="font-extrabold text-base leading-tight">🌟 Kids Activities</div>
+                  <div className="text-xs text-white/80">Clowns · Magicians · Face Painting & more</div>
                 </div>
               </div>
-              <div className="flex-shrink-0 bg-white text-purple-600 font-bold text-sm px-4 py-1.5 rounded-full">
-                Book Now →
+              <div className="relative flex-shrink-0 bg-white text-purple-600 font-bold text-xs px-3 py-1.5 rounded-full">
+                Book →
               </div>
             </Link>
           </div>
@@ -99,12 +115,12 @@ export default function Home() {
           <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
             {SERVICES.filter(s => s.slug !== 'activities').map((s, i) => (
               <Link key={s.slug} href={`/${s.slug}`}
-                className={`service-img-card bg-gradient-to-br ${SERVICE_COLORS[i % SERVICE_COLORS.length]}`}>
+                className={`service-img-card bg-gradient-to-br ${SERVICE_COLORS[i % SERVICE_COLORS.length]}`}
+                style={SERVICE_IMAGES[s.slug] ? { backgroundImage: `url('${SERVICE_IMAGES[s.slug]}')`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}>
                 <div className="overlay" />
-                <div className="emoji-bg opacity-30 text-6xl">{s.emoji}</div>
                 <div className="label">
-                  <div className="text-xl mb-1">{s.emoji}</div>
-                  <div>{s.name}</div>
+                  <div className="text-xl mb-0.5">{s.emoji}</div>
+                  <div className="text-xs md:text-sm">{s.name}</div>
                 </div>
               </Link>
             ))}
