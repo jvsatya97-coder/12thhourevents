@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import ProductGrid from '@/components/ProductGrid';
+import ServiceHero from '@/components/ServiceHero';
 import { CITIES } from '@/lib/config';
 
 interface Props {
@@ -17,6 +18,19 @@ const TRUST = [
   { emoji: '🛡️', label: '100% Satisfaction' },
 ];
 
+// Background photos per service
+const SERVICE_BG: Record<string, string> = {
+  'birthday-decoration':    'https://images.unsplash.com/photo-1464349153735-7db50ed83c84?w=1200&q=70',
+  'theme-decoration':       'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=1200&q=70',
+  'anniversary-decoration': 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=1200&q=70',
+  'room-decoration':        'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1200&q=70',
+  'baby-shower':            'https://images.unsplash.com/photo-1544126592-807ade215a0b?w=1200&q=70',
+  'welcome-baby':           'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=1200&q=70',
+  'bachelorette-party':     'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=1200&q=70',
+  'corporate-events':       'https://images.unsplash.com/photo-1511578314322-379afb476865?w=1200&q=70',
+  'activities':             'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=1200&q=70',
+};
+
 const SERVICE_REVIEWS: Record<string, { name: string; city: string; text: string }[]> = {};
 const DEFAULT_REVIEWS = [
   { name: 'Anjali R.', city: 'Delhi', text: 'The team was professional and transformed our space beautifully. Everything looked exactly as discussed. Highly recommend!' },
@@ -32,8 +46,9 @@ export function generateServiceMetadata(p: Props): Metadata {
   };
 }
 
-export default function ServicePageTemplate({ cat, name, emoji, slug, headline, desc, faqs }: Props) {
+export default function ServicePageTemplate({ cat, name, emoji, slug, desc, faqs }: Props) {
   const reviews = SERVICE_REVIEWS[cat] || DEFAULT_REVIEWS;
+  const bgImage = SERVICE_BG[slug];
 
   const schemaFAQ = {
     "@context": "https://schema.org",
@@ -50,30 +65,10 @@ export default function ServicePageTemplate({ cat, name, emoji, slug, headline, 
       {/* JSON-LD */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaFAQ) }} />
 
-      {/* Hero */}
-      <section className="hero-bg text-white py-12 md:py-16">
-        <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
-          <div className="text-5xl md:text-6xl mb-4">{emoji}</div>
-          <h1 className="text-3xl md:text-5xl font-extrabold mb-3">{headline}</h1>
-          <p className="text-gray-300 text-base md:text-lg mb-8 max-w-2xl mx-auto">{desc}</p>
-          <div className="flex flex-wrap gap-3 justify-center">
-            <a href="https://wa.me/918073552837?text=Hi! I want to book a decoration." target="_blank" rel="noopener noreferrer" className="btn-pink px-7 py-3 text-base">
-              📲 Book Now — WhatsApp
-            </a>
-            <a href="tel:+918073552837" className="border border-white/30 text-white px-7 py-3 rounded-full font-semibold hover:bg-white/10 transition text-base">
-              📞 Call Us
-            </a>
-          </div>
-          {/* Trust mini-badges in hero */}
-          <div className="flex flex-wrap justify-center gap-4 mt-8 text-sm text-gray-300">
-            <span>✅ Same-Day Available</span>
-            <span>⭐ 4.9 Rated</span>
-            <span>🎉 5000+ Events</span>
-          </div>
-        </div>
-      </section>
+      {/* Category chips + city-aware hero with photo bg + search */}
+      <ServiceHero name={name} emoji={emoji} desc={desc} bgImage={bgImage} />
 
-      {/* Trust banner — green highlighted */}
+      {/* Trust banner — green */}
       <section className="bg-emerald-500 py-2.5 overflow-hidden">
         <div className="flex gap-0 overflow-x-auto px-4 max-w-7xl mx-auto" style={{ scrollbarWidth: 'none' }}>
           {TRUST.map((t, i) => (
