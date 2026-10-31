@@ -92,22 +92,24 @@ export default function Home() {
           <p className="section-sub">Everything you need for the perfect celebration</p>
 
           {/* Kids Activities highlight banner */}
-          <div className="mb-4">
+          <div className="mb-5">
             <Link href="/activities"
-              className="relative flex items-center justify-between rounded-2xl px-5 py-3 text-white hover:opacity-95 transition shadow-md shadow-purple-200 overflow-hidden"
+              className="relative flex items-center justify-between rounded-2xl px-6 py-5 text-white hover:opacity-95 transition shadow-lg shadow-purple-200 overflow-hidden"
               style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #db2777 100%)' }}>
               {/* background party image overlay */}
-              <div className="absolute inset-0 opacity-20"
-                style={{ backgroundImage: "url('https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800&q=60')", backgroundSize: 'cover', backgroundPosition: 'center' }} />
-              <div className="relative flex items-center gap-3">
-                <span className="text-3xl">🎪</span>
+              <div className="absolute inset-0 opacity-25"
+                style={{ backgroundImage: "url('https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=900&q=60')", backgroundSize: 'cover', backgroundPosition: 'center' }} />
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-900/60 to-transparent" />
+              <div className="relative flex items-center gap-4">
+                <span className="text-5xl">🎪</span>
                 <div>
-                  <div className="font-extrabold text-base leading-tight">🌟 Kids Activities</div>
-                  <div className="text-xs text-white/80">Clowns · Magicians · Face Painting & more</div>
+                  <div className="font-extrabold text-xl leading-tight">🌟 Kids Activities</div>
+                  <div className="text-sm text-white/85 mt-0.5">Clowns · Magicians · Face Painting · Balloon Artists & more</div>
+                  <div className="text-xs text-white/70 mt-1">Available Pan India · Same-Day Booking</div>
                 </div>
               </div>
-              <div className="relative flex-shrink-0 bg-white text-purple-600 font-bold text-xs px-3 py-1.5 rounded-full">
-                Book →
+              <div className="relative flex-shrink-0 bg-white text-purple-600 font-bold text-sm px-5 py-2 rounded-full shadow-md">
+                Book Now →
               </div>
             </Link>
           </div>
