@@ -31,4 +31,5 @@ export const SERVICES = [
   { slug: 'bachelorette-party',     name: 'Bachelorette Party',     cat: 'bachelorette', emoji: '💃' },
   { slug: 'corporate-events',       name: 'Corporate Events',       cat: 'corporate',    emoji: '🏢' },
   { slug: 'activities',             name: '🌟 Kids Activities',     cat: 'act-artists',  emoji: '🎪' },
+  { slug: 'pinterest-edition',      name: '📌 Pinterest Edition',   cat: 'pinterest',    emoji: '📌' },
 ];
