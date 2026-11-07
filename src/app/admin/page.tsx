@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { SHEET_URL, SERVICES, CITIES } from '@/lib/config';
 
-const CLOUDINARY_CLOUD = 'thksowin';
+const CLOUDINARY_CLOUD = 'w1ficzbb';
 const CLOUDINARY_PRESET = '12he_products';
 const ADMIN_PIN = '12he2024';
 
