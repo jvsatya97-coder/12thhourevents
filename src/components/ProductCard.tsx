@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
-import { Product, getPrice, getOrig, openWhatsApp } from '@/lib/products';
+import { useState } from 'react';
+import { Product, getPrice, getOrig, openWhatsApp, getImgFallbacks } from '@/lib/products';
 import { useCity } from '@/context/CityContext';
 
 // Deterministic "review" count and rating based on product id
@@ -17,6 +18,19 @@ export default function ProductCard({ p }: { p: Product }) {
   const price = getPrice(p, city);
   const orig = getOrig(p, city);
   const { reviews, rating } = pseudoRating(p.id);
+  const [imgSrc, setImgSrc] = useState(p.img);
+  const [fallbackIdx, setFallbackIdx] = useState(0);
+  const [imgError, setImgError] = useState(false);
+
+  const handleImgError = () => {
+    const fallbacks = getImgFallbacks(p.img);
+    if (fallbackIdx < fallbacks.length) {
+      setImgSrc(fallbacks[fallbackIdx]);
+      setFallbackIdx(f => f + 1);
+    } else {
+      setImgError(true);
+    }
+  };
 
   const handleBook = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -27,17 +41,19 @@ export default function ProductCard({ p }: { p: Product }) {
     <Link href={`/product/${encodeURIComponent(p.id)}`} className="card block group relative">
       {/* Image */}
       <div className="relative overflow-hidden" style={{ aspectRatio: '4/3' }}>
-        {p.img ? (
+        {imgSrc && !imgError ? (
           <img
-            src={p.img}
+            src={imgSrc}
             alt={p.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             loading="lazy"
             referrerPolicy="no-referrer"
+            onError={handleImgError}
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center text-5xl">
-            {p.emoji}
+          <div className="w-full h-full bg-gradient-to-br from-orange-100 to-amber-100 flex flex-col items-center justify-center gap-1">
+            <span className="text-5xl">{p.emoji}</span>
+            <span className="text-xs text-orange-400 font-medium">View Package</span>
           </div>
         )}
         {/* Discount badge */}
@@ -48,6 +64,12 @@ export default function ProductCard({ p }: { p: Product }) {
         {p.sub && (
           <div className="absolute bottom-2 left-2 bg-black/50 backdrop-blur-sm text-white text-[10px] font-medium px-2 py-0.5 rounded-full">
             {p.sub}
+          </div>
+        )}
+        {/* Multiple images indicator */}
+        {p.imgs.length > 1 && (
+          <div className="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+            📷 {p.imgs.length}
           </div>
         )}
       </div>

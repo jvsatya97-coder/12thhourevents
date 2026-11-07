@@ -1,27 +1,48 @@
 import { SHEET_URL, LEADS_URL, WA_NUM } from './config';
 
-/** Convert Google Drive share/view URLs to a working thumbnail URL */
+/** Extract Google Drive file ID from any Drive URL format */
+function getDriveId(url: string): string | null {
+  if (!url) return null;
+  // https://drive.google.com/file/d/FILE_ID/view
+  const fileMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (fileMatch) return fileMatch[1];
+  // https://drive.google.com/open?id=FILE_ID
+  const openMatch = url.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/);
+  if (openMatch) return openMatch[1];
+  // https://drive.google.com/uc?id=FILE_ID or uc?export=view&id=...
+  const ucMatch = url.match(/drive\.google\.com\/uc\?(?:.*&)?id=([a-zA-Z0-9_-]+)/);
+  if (ucMatch) return ucMatch[1];
+  // Already has ?id= (thumbnail or other)
+  const idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (idMatch) return idMatch[1];
+  return null;
+}
+
+/**
+ * Convert any Google Drive URL to the most reliable image URL.
+ * Uses uc?export=view which works for publicly shared files without quota issues.
+ */
 export function toImgUrl(url: string): string {
   if (!url) return '';
-  // Handle https://drive.google.com/file/d/FILE_ID/view or /view?usp=...
-  const driveMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
-  if (driveMatch) {
-    // Use thumbnail API — this works without cookies or redirects
-    return `https://drive.google.com/thumbnail?id=${driveMatch[1]}&sz=w600`;
+  const id = getDriveId(url);
+  if (id) {
+    return `https://drive.google.com/uc?export=view&id=${id}`;
   }
-  // Handle https://drive.google.com/open?id=FILE_ID
-  const openMatch = url.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/);
-  if (openMatch) {
-    return `https://drive.google.com/thumbnail?id=${openMatch[1]}&sz=w600`;
-  }
-  // Handle https://drive.google.com/uc?id=FILE_ID or uc?export=view&id=...
-  const ucMatch = url.match(/drive\.google\.com\/uc\?(?:.*&)?id=([a-zA-Z0-9_-]+)/);
-  if (ucMatch) {
-    return `https://drive.google.com/thumbnail?id=${ucMatch[1]}&sz=w600`;
-  }
-  // Already a thumbnail URL — keep as-is
-  if (url.includes('drive.google.com/thumbnail')) return url;
+  // Not a Drive URL — return as-is (Unsplash, CDN, etc.)
   return url;
+}
+
+/**
+ * Returns fallback URLs to try if the primary image fails to load.
+ * Drive images sometimes need a different URL format.
+ */
+export function getImgFallbacks(url: string): string[] {
+  const id = getDriveId(url);
+  if (!id) return [];
+  return [
+    `https://drive.google.com/thumbnail?id=${id}&sz=w600`,
+    `https://lh3.googleusercontent.com/d/${id}`,
+  ];
 }
 
 export interface Product {
@@ -61,10 +82,12 @@ export async function fetchProducts(): Promise<Product[]> {
         const imgs: string[] = [];
         const main = toImgUrl(String(p.img || '').trim());
         if (main) imgs.push(main);
-        for (let i = 1; i <= 5; i++) {
+        // Support img1 through img9 columns in the sheet
+        for (let i = 1; i <= 9; i++) {
           const e = toImgUrl(String(p[`img${i}`] || '').trim());
           if (e && !imgs.includes(e)) imgs.push(e);
         }
+        // Support comma-separated imgs column
         if (p.imgs) String(p.imgs).split(',').forEach((u: string) => {
           const converted = toImgUrl(u.trim());
           if (converted && !imgs.includes(converted)) imgs.push(converted);
