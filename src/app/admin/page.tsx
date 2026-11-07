@@ -23,7 +23,7 @@ type ImgEntry = { url: string; uploading: boolean; error: string };
 type CityPrice = { price: string; orig: string };
 type HistoryItem = {
   id: string; name: string; cat: string; sub: string; emoji: string;
-  price: string; img: string; savedAt: number;
+  price: string; img: string; savedAt: number; active?: boolean;
 };
 
 interface FormData {
@@ -59,6 +59,16 @@ function clearHistory() {
   try { localStorage.removeItem('12he_admin_history'); } catch { /* ignore */ }
 }
 
+function updateHistoryItem(id: string, patch: Partial<HistoryItem>) {
+  try {
+    const raw = localStorage.getItem('12he_admin_history');
+    const list: HistoryItem[] = raw ? JSON.parse(raw) : [];
+    const updated = list.map(item => item.id === id ? { ...item, ...patch } : item);
+    localStorage.setItem('12he_admin_history', JSON.stringify(updated));
+    return updated;
+  } catch { return []; }
+}
+
 const emptyForm = (): FormData => ({
   id: '', name: '', cat: 'bday', sub: '', emoji: '🎉',
   price: '', orig: '', disc: '0',
@@ -84,6 +94,16 @@ export default function AdminPage() {
   useEffect(() => {
     setHistory(loadHistory());
   }, [tab]);
+
+  const toggleActive = async (item: HistoryItem) => {
+    try {
+      await fetch(`${SHEET_URL}?action=toggleActive&id=${encodeURIComponent(item.id)}`, { mode: 'no-cors' });
+      const updated = updateHistoryItem(item.id, { active: !item.active });
+      setHistory(updated);
+    } catch {
+      alert('Could not toggle. Check your internet connection.');
+    }
+  };
 
   const set = (k: keyof FormData, v: string | boolean) => {
     setForm(f => ({ ...f, [k]: v }));
@@ -214,6 +234,7 @@ export default function AdminPage() {
         price: form.price,
         img: goodImgs[0]?.url || '',
         savedAt: Date.now(),
+        active: true,
       });
 
       setSaved(true);
@@ -351,16 +372,23 @@ export default function AdminPage() {
                     </p>
                     <p className="text-sm font-bold text-orange-600 mt-1">₹{Number(item.price).toLocaleString('en-IN')}</p>
                   </div>
-                  <div className="text-right flex-none">
+                  <div className="text-right flex-none space-y-1">
                     <p className="text-[10px] text-gray-400">
                       {new Date(item.savedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
                     </p>
                     <p className="text-[10px] text-gray-400">
                       {new Date(item.savedAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
                     </p>
-                    <span className="inline-block mt-1 bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                      Saved ✓
-                    </span>
+                    <button
+                      onClick={() => toggleActive(item)}
+                      className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full transition ${
+                        item.active !== false
+                          ? 'bg-green-100 text-green-700 hover:bg-red-100 hover:text-red-600'
+                          : 'bg-red-100 text-red-600 hover:bg-green-100 hover:text-green-700'
+                      }`}
+                    >
+                      {item.active !== false ? '● Live' : '○ Hidden'}
+                    </button>
                   </div>
                 </div>
               ))}
