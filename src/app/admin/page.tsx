@@ -25,6 +25,12 @@ type HistoryItem = {
   id: string; name: string; cat: string; sub: string; emoji: string;
   price: string; img: string; savedAt: number; active?: boolean;
 };
+// Metadata stored locally per product id
+type ProductMeta = {
+  uploadedAt: number;   // first save timestamp
+  editedAt?: number;    // last edit timestamp
+  editCount: number;    // how many times edited
+};
 // Raw product row from sheet
 type SheetProduct = Record<string, string>;
 
@@ -72,6 +78,45 @@ function updateHistoryItem(id: string, patch: Partial<HistoryItem>) {
     localStorage.setItem('12he_admin_history', JSON.stringify(updated));
     return updated;
   } catch { return []; }
+}
+
+// ── Product metadata (upload time, edit history) ──────────────────────────
+function loadMeta(): Record<string, ProductMeta> {
+  try { return JSON.parse(localStorage.getItem('12he_product_meta') || '{}'); } catch { return {}; }
+}
+function saveMeta(meta: Record<string, ProductMeta>) {
+  try { localStorage.setItem('12he_product_meta', JSON.stringify(meta)); } catch { /* ignore */ }
+}
+function recordUpload(id: string) {
+  const meta = loadMeta();
+  meta[id] = { uploadedAt: Date.now(), editCount: 0 };
+  saveMeta(meta);
+}
+function recordEdit(id: string) {
+  const meta = loadMeta();
+  const existing = meta[id] || { uploadedAt: Date.now(), editCount: 0 };
+  meta[id] = { ...existing, editedAt: Date.now(), editCount: (existing.editCount || 0) + 1 };
+  saveMeta(meta);
+}
+function getMetaFor(id: string): ProductMeta | null {
+  return loadMeta()[id] || null;
+}
+
+function fmtDate(ts: number) {
+  return new Date(ts).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+function fmtTime(ts: number) {
+  return new Date(ts).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+}
+function timeAgo(ts: number) {
+  const diff = Date.now() - ts;
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  return `${days}d ago`;
 }
 
 const emptyForm = (): FormData => ({
@@ -132,7 +177,10 @@ export default function AdminPage() {
   const [allProducts, setAllProducts] = useState<SheetProduct[]>([]);
   const [productsLoading, setProductsLoading] = useState(false);
   const [searchQ, setSearchQ] = useState('');
+  const [filterCat, setFilterCat] = useState('all');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'live' | 'hidden'>('all');
   const [editingProduct, setEditingProduct] = useState<SheetProduct | null>(null);
+  const [productMeta, setProductMeta] = useState<Record<string, ProductMeta>>({});
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState<FormData>(emptyForm());
@@ -144,6 +192,7 @@ export default function AdminPage() {
   // Load all products when edit tab opens
   const loadAllProducts = useCallback(async () => {
     setProductsLoading(true);
+    setProductMeta(loadMeta());
     try {
       const res = await fetch(`${SHEET_URL}?showAll=true&_=${Date.now()}`);
       const data = await res.json();
@@ -238,6 +287,7 @@ export default function AdminPage() {
 
     try {
       await fetch(`${SHEET_URL}?${new URLSearchParams(params).toString()}`, { mode: 'no-cors' });
+      if (form.isEdit) { recordEdit(productId); } else { recordUpload(productId); }
       saveToHistory({
         id: productId, name: form.name, cat: form.cat, sub: form.sub,
         emoji: form.emoji, price: form.price, img: goodImgs[0]?.url || '',
@@ -291,11 +341,16 @@ export default function AdminPage() {
   );
 
   const subcats = SUBCAT_MAP[form.cat] || [];
-  const filteredProducts = allProducts.filter(p =>
-    !searchQ || p.name?.toLowerCase().includes(searchQ.toLowerCase()) ||
-    p.cat?.toLowerCase().includes(searchQ.toLowerCase()) ||
-    p.sub?.toLowerCase().includes(searchQ.toLowerCase())
-  );
+  const filteredProducts = allProducts.filter(p => {
+    if (filterCat !== 'all' && p.cat !== filterCat) return false;
+    if (filterStatus === 'live' && p.active === 'false') return false;
+    if (filterStatus === 'hidden' && p.active !== 'false') return false;
+    if (searchQ) {
+      const q = searchQ.toLowerCase();
+      return p.name?.toLowerCase().includes(q) || p.cat?.toLowerCase().includes(q) || p.sub?.toLowerCase().includes(q);
+    }
+    return true;
+  });
 
   // ── Main admin ─────────────────────────────────────────────────────────
   return (
@@ -346,12 +401,41 @@ export default function AdminPage() {
       {/* ── EDIT TAB — product list ──────────────────────────────────────── */}
       {tab === 'edit' && !editingProduct && (
         <div className="max-w-2xl mx-auto px-4 py-5">
-          <div className="relative mb-4">
+
+          {/* Search */}
+          <div className="relative mb-3">
             <span className="absolute left-3 top-3 text-gray-400">🔍</span>
             <input type="text" value={searchQ} onChange={e => setSearchQ(e.target.value)}
-              placeholder="Search products…"
+              placeholder="Search by name, category…"
               className="w-full border border-gray-200 rounded-xl pl-9 pr-4 py-3 text-sm outline-none focus:border-orange-400 bg-white"
             />
+          </div>
+
+          {/* Filters row */}
+          <div className="flex gap-2 mb-4 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
+            {/* Status filter */}
+            {(['all', 'live', 'hidden'] as const).map(s => (
+              <button key={s} onClick={() => setFilterStatus(s)}
+                className={`flex-none px-3 py-1.5 rounded-full text-xs font-semibold border transition ${
+                  filterStatus === s ? 'bg-orange-500 border-orange-500 text-white' : 'bg-white border-gray-200 text-gray-600'
+                }`}>
+                {s === 'all' ? 'All Status' : s === 'live' ? '● Live' : '○ Hidden'}
+              </button>
+            ))}
+            <div className="w-px bg-gray-200 flex-none mx-1" />
+            {/* Category filter */}
+            <button onClick={() => setFilterCat('all')}
+              className={`flex-none px-3 py-1.5 rounded-full text-xs font-semibold border transition ${
+                filterCat === 'all' ? 'bg-gray-800 border-gray-800 text-white' : 'bg-white border-gray-200 text-gray-600'
+              }`}>All Cats</button>
+            {SERVICES.map(s => (
+              <button key={s.cat} onClick={() => setFilterCat(s.cat)}
+                className={`flex-none px-3 py-1.5 rounded-full text-xs font-semibold border transition whitespace-nowrap ${
+                  filterCat === s.cat ? 'bg-gray-800 border-gray-800 text-white' : 'bg-white border-gray-200 text-gray-600'
+                }`}>
+                {s.emoji} {s.name.replace(' Decoration', '').replace(' Party', '').replace(' Events', '')}
+              </button>
+            ))}
           </div>
 
           {productsLoading ? (
@@ -362,6 +446,7 @@ export default function AdminPage() {
                   <div className="flex-1 space-y-2 py-1">
                     <div className="h-3 bg-gray-200 rounded w-3/4" />
                     <div className="h-3 bg-gray-200 rounded w-1/2" />
+                    <div className="h-3 bg-gray-200 rounded w-1/3" />
                   </div>
                 </div>
               ))}
@@ -369,38 +454,60 @@ export default function AdminPage() {
           ) : filteredProducts.length === 0 ? (
             <div className="text-center py-16 text-gray-400">
               <div className="text-5xl mb-3">📭</div>
-              <p className="font-semibold">{searchQ ? 'No products match' : 'No products found'}</p>
+              <p className="font-semibold">{searchQ || filterCat !== 'all' || filterStatus !== 'all' ? 'No products match filters' : 'No products found'}</p>
               <button onClick={loadAllProducts} className="mt-3 text-sm text-orange-500 underline">Refresh</button>
             </div>
           ) : (
             <div className="space-y-3">
-              <p className="text-xs text-gray-400 mb-1">{filteredProducts.length} products — tap one to edit</p>
-              {filteredProducts.map(p => (
-                <button key={p.id} onClick={() => startEdit(p)}
-                  className="w-full bg-white rounded-2xl p-4 shadow-sm flex gap-3 items-center text-left hover:shadow-md hover:border-orange-200 border border-transparent transition">
-                  {p.img ? (
-                    <img src={p.img} alt={p.name} className="w-14 h-14 rounded-xl object-cover flex-none" />
-                  ) : (
-                    <div className="w-14 h-14 rounded-xl bg-orange-50 flex items-center justify-center text-2xl flex-none">{p.emoji || '🎉'}</div>
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-gray-800 text-sm truncate">{p.emoji} {p.name}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {SERVICES.find(s => s.cat === p.cat)?.name || p.cat}
-                      {p.sub && ` · ${p.sub}`}
-                    </p>
-                    <p className="text-sm font-bold text-orange-600 mt-1">₹{Number(p.price || 0).toLocaleString('en-IN')}</p>
-                  </div>
-                  <div className="flex-none text-right">
-                    <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${
-                      p.active === 'false' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-700'
-                    }`}>
-                      {p.active === 'false' ? '○ Hidden' : '● Live'}
-                    </span>
-                    <p className="text-xs text-orange-500 mt-2 font-medium">Edit →</p>
-                  </div>
-                </button>
-              ))}
+              <p className="text-xs text-gray-400 mb-1">{filteredProducts.length} of {allProducts.length} products</p>
+              {filteredProducts.map(p => {
+                const meta = productMeta[p.id];
+                return (
+                  <button key={p.id} onClick={() => startEdit(p)}
+                    className="w-full bg-white rounded-2xl p-4 shadow-sm flex gap-3 items-start text-left hover:shadow-md hover:border-orange-200 border border-transparent transition">
+                    {p.img ? (
+                      <img src={p.img} alt={p.name} className="w-14 h-14 rounded-xl object-cover flex-none" />
+                    ) : (
+                      <div className="w-14 h-14 rounded-xl bg-orange-50 flex items-center justify-center text-2xl flex-none">{p.emoji || '🎉'}</div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-gray-800 text-sm truncate">{p.emoji} {p.name}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {SERVICES.find(s => s.cat === p.cat)?.name || p.cat}
+                        {p.sub && ` · ${p.sub}`}
+                      </p>
+                      <p className="text-sm font-bold text-orange-600 mt-1">₹{Number(p.price || 0).toLocaleString('en-IN')}</p>
+                      {/* Meta: upload & edit times */}
+                      {meta ? (
+                        <div className="mt-1.5 space-y-0.5">
+                          <p className="text-[10px] text-gray-400">
+                            📤 Uploaded {fmtDate(meta.uploadedAt)} at {fmtTime(meta.uploadedAt)}
+                            <span className="text-gray-300 mx-1">·</span>
+                            <span className="text-gray-400">{timeAgo(meta.uploadedAt)}</span>
+                          </p>
+                          {meta.editedAt && (
+                            <p className="text-[10px] text-blue-500">
+                              ✏️ Last edited {fmtDate(meta.editedAt)} at {fmtTime(meta.editedAt)}
+                              <span className="text-blue-300 mx-1">·</span>
+                              {meta.editCount} edit{meta.editCount !== 1 ? 's' : ''}
+                            </p>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-[10px] text-gray-300 mt-1">No edit history on this device</p>
+                      )}
+                    </div>
+                    <div className="flex-none text-right">
+                      <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${
+                        p.active === 'false' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-700'
+                      }`}>
+                        {p.active === 'false' ? '○ Hidden' : '● Live'}
+                      </span>
+                      <p className="text-xs text-orange-500 mt-2 font-medium">Edit →</p>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
