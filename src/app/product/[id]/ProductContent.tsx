@@ -4,9 +4,11 @@ import { Product, fetchProducts, getPrice, getOrig, openWhatsApp } from '@/lib/p
 import { useCity } from '@/context/CityContext';
 import ImageGallery from '@/components/ImageGallery';
 import BookingModal from '@/components/BookingModal';
+import ProductCard from '@/components/ProductCard';
 
 export default function ProductContent({ id }: { id: string }) {
   const [product, setProduct] = useState<Product | null>(null);
+  const [similar, setSimilar] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [bookingOpen, setBookingOpen] = useState(false);
   const { city, cityName } = useCity();
@@ -21,6 +23,21 @@ export default function ProductContent({ id }: { id: string }) {
         || products.find(p => p.id === decodedId)
         || products.find(p => p.id.toLowerCase().trim() === decodedId.toLowerCase().trim());
       setProduct(found || null);
+
+      // Similar products: same category, exclude current, up to 8
+      if (found) {
+        const others = products.filter(
+          p => p.id !== found.id && p.cat === found.cat
+        );
+        // Shuffle deterministically by id so it feels curated
+        const shuffled = [...others].sort((a, b) => {
+          const ha = a.id.split('').reduce((acc, c) => acc * 31 + c.charCodeAt(0), 0);
+          const hb = b.id.split('').reduce((acc, c) => acc * 31 + c.charCodeAt(0), 0);
+          return ha - hb;
+        });
+        setSimilar(shuffled.slice(0, 8));
+      }
+
       setLoading(false);
     }).catch(() => {
       setProduct(null);
@@ -99,6 +116,55 @@ export default function ProductContent({ id }: { id: string }) {
         </div>
       </div>
       {bookingOpen && <BookingModal product={product} onClose={() => setBookingOpen(false)} />}
+
+      {/* ── Similar Products ── */}
+      {similar.length > 0 && (
+        <div className="mt-12 border-t border-gray-100 pt-8">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-xl font-extrabold text-gray-800">
+              ✨ You May Also Like
+            </h2>
+            <a
+              href={`/${product.cat}`}
+              className="text-sm font-semibold text-orange-500 hover:text-orange-700 transition"
+            >
+              See all →
+            </a>
+          </div>
+
+          {/* Horizontal scroll on mobile, 4-col grid on desktop */}
+          <div className="similar-scroll">
+            {similar.map(p => (
+              <div key={p.id} className="similar-card-wrap">
+                <ProductCard p={p} />
+              </div>
+            ))}
+          </div>
+
+          <style>{`
+            .similar-scroll {
+              display: grid;
+              grid-template-columns: repeat(4, 1fr);
+              gap: 16px;
+            }
+            @media (max-width: 768px) {
+              .similar-scroll {
+                display: flex;
+                overflow-x: auto;
+                gap: 12px;
+                padding-bottom: 8px;
+                scroll-snap-type: x mandatory;
+                -webkit-overflow-scrolling: touch;
+              }
+              .similar-scroll::-webkit-scrollbar { display: none; }
+              .similar-card-wrap {
+                flex: 0 0 160px;
+                scroll-snap-align: start;
+              }
+            }
+          `}</style>
+        </div>
+      )}
     </div>
   );
 }

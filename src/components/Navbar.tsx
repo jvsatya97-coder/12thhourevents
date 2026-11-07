@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useCity } from '@/context/CityContext';
 import { SERVICES, CITIES } from '@/lib/config';
 import CityModal from './CityModal';
+import AnimatedLogo from './AnimatedLogo';
 
 export default function Navbar() {
   const { cityName } = useCity();
@@ -40,7 +41,7 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 font-extrabold text-xl flex-shrink-0">
-            <span className="text-2xl">🎉</span>
+            <AnimatedLogo />
             <span className="grad-text">12th Hour</span>
           </Link>
 
