@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useState } from 'react';
-import { Product, getPrice, getOrig, openWhatsApp, getImgFallbacks } from '@/lib/products';
+import { Product, getPrice, getOrig, openWhatsApp, getImgFallbacks, toThumbUrl } from '@/lib/products';
 import { useCity } from '@/context/CityContext';
 
 // Deterministic "review" count and rating based on product id
@@ -18,7 +18,7 @@ export default function ProductCard({ p }: { p: Product }) {
   const price = getPrice(p, city);
   const orig = getOrig(p, city);
   const { reviews, rating } = pseudoRating(p.id);
-  const [imgSrc, setImgSrc] = useState(p.img);
+  const [imgSrc, setImgSrc] = useState(toThumbUrl(p.img));
   const [fallbackIdx, setFallbackIdx] = useState(0);
   const [imgError, setImgError] = useState(false);
 
@@ -40,12 +40,12 @@ export default function ProductCard({ p }: { p: Product }) {
   return (
     <Link href={`/product/${encodeURIComponent(p.id)}`} className="card block group relative">
       {/* Image */}
-      <div className="relative overflow-hidden" style={{ aspectRatio: '4/3' }}>
+      <div className="relative overflow-hidden" style={{ aspectRatio: '1/1' }}>
         {imgSrc && !imgError ? (
           <img
             src={imgSrc}
             alt={p.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
             loading="lazy"
             referrerPolicy="no-referrer"
             onError={handleImgError}

@@ -1,48 +1,84 @@
 import { SHEET_URL, LEADS_URL, WA_NUM } from './config';
 
-/** Extract Google Drive file ID from any Drive URL format */
+/**
+ * Transform any image URL to a consistent, optimized version.
+ * - Cloudinary: injects c_fill,w_600,h_600,g_auto (smart square crop)
+ * - Google Drive: converts to uc?export=view
+ * - Everything else: returned as-is
+ */
+export function toImgUrl(url: string): string {
+  if (!url) return '';
+  const u = url.trim();
+
+  // ── Cloudinary ──────────────────────────────────────────────────────────
+  // Matches: https://res.cloudinary.com/CLOUD/image/upload/[optional transforms]/...
+  const cloudinaryMatch = u.match(
+    /^(https:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\/)(?:([^/]+)\/)?(.+)$/
+  );
+  if (cloudinaryMatch) {
+    const [, base, existingTransform, rest] = cloudinaryMatch;
+    // If already has our transform, return as-is
+    if (existingTransform?.includes('c_fill')) return u;
+    // Drop any existing transforms (they may conflict), inject our own
+    return `${base}c_fill,w_600,h_600,g_auto,q_auto,f_auto/${rest}`;
+  }
+
+  // ── Google Drive ────────────────────────────────────────────────────────
+  const driveId = getDriveId(u);
+  if (driveId) {
+    return `https://drive.google.com/uc?export=view&id=${driveId}`;
+  }
+
+  // ── Everything else (direct URLs, imgbb, postimages, etc.) ──────────────
+  return u;
+}
+
+/** Make a thumbnail version of a Cloudinary URL (smaller, faster for card grids) */
+export function toThumbUrl(url: string): string {
+  if (!url) return '';
+  const cloudinaryMatch = url.match(
+    /^(https:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\/)(?:[^/]+\/)?(.+)$/
+  );
+  if (cloudinaryMatch) {
+    return `${cloudinaryMatch[1]}c_fill,w_400,h_400,g_auto,q_auto,f_auto/${cloudinaryMatch[2]}`;
+  }
+  return toImgUrl(url);
+}
+
+/** Extract Google Drive file ID from any Drive URL */
 function getDriveId(url: string): string | null {
-  if (!url) return null;
-  // https://drive.google.com/file/d/FILE_ID/view
-  const fileMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (!url || !url.includes('drive.google.com')) return null;
+  const fileMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
   if (fileMatch) return fileMatch[1];
-  // https://drive.google.com/open?id=FILE_ID
-  const openMatch = url.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/);
-  if (openMatch) return openMatch[1];
-  // https://drive.google.com/uc?id=FILE_ID or uc?export=view&id=...
-  const ucMatch = url.match(/drive\.google\.com\/uc\?(?:.*&)?id=([a-zA-Z0-9_-]+)/);
-  if (ucMatch) return ucMatch[1];
-  // Already has ?id= (thumbnail or other)
   const idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
   if (idMatch) return idMatch[1];
   return null;
 }
 
 /**
- * Convert any Google Drive URL to the most reliable image URL.
- * Uses uc?export=view which works for publicly shared files without quota issues.
- */
-export function toImgUrl(url: string): string {
-  if (!url) return '';
-  const id = getDriveId(url);
-  if (id) {
-    return `https://drive.google.com/uc?export=view&id=${id}`;
-  }
-  // Not a Drive URL — return as-is (Unsplash, CDN, etc.)
-  return url;
-}
-
-/**
  * Returns fallback URLs to try if the primary image fails to load.
- * Drive images sometimes need a different URL format.
  */
 export function getImgFallbacks(url: string): string[] {
+  if (!url) return [];
+
+  // Cloudinary: try without our transforms (original URL)
+  const cloudinaryMatch = url.match(
+    /^(https:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\/)c_fill[^/]*\/(.+)$/
+  );
+  if (cloudinaryMatch) {
+    return [`${cloudinaryMatch[1]}${cloudinaryMatch[2]}`];
+  }
+
+  // Google Drive fallbacks
   const id = getDriveId(url);
-  if (!id) return [];
-  return [
-    `https://drive.google.com/thumbnail?id=${id}&sz=w600`,
-    `https://lh3.googleusercontent.com/d/${id}`,
-  ];
+  if (id) {
+    return [
+      `https://drive.google.com/thumbnail?id=${id}&sz=w600`,
+      `https://lh3.googleusercontent.com/d/${id}`,
+    ];
+  }
+
+  return [];
 }
 
 export interface Product {
@@ -57,9 +93,7 @@ let _cache: Product[] | null = null;
 let _fetching: Promise<Product[]> | null = null;
 
 export async function fetchProducts(): Promise<Product[]> {
-  // Return cached data immediately if available
   if (_cache !== null) return _cache;
-  // If a fetch is already in progress, wait for it (don't double-fetch)
   if (_fetching) return _fetching;
 
   _fetching = (async () => {
@@ -79,10 +113,12 @@ export async function fetchProducts(): Promise<Product[]> {
           if (lk.startsWith('price_')) cp[lk.slice(6)] = v;
           else if (lk.startsWith('orig_')) co[lk.slice(5)] = v;
         });
+
         const imgs: string[] = [];
         const main = toImgUrl(String(p.img || '').trim());
         if (main) imgs.push(main);
-        // Support img1 through img9 columns in the sheet
+
+        // Support img1 through img9 columns
         for (let i = 1; i <= 9; i++) {
           const e = toImgUrl(String(p[`img${i}`] || '').trim());
           if (e && !imgs.includes(e)) imgs.push(e);
@@ -92,6 +128,7 @@ export async function fetchProducts(): Promise<Product[]> {
           const converted = toImgUrl(u.trim());
           if (converted && !imgs.includes(converted)) imgs.push(converted);
         });
+
         return {
           id: String(p.id || '').trim(),
           name: String(p.name || '').trim(),

@@ -42,7 +42,7 @@ export default function ImageGallery({ imgs, name }: { imgs: string[]; name: str
   const [lightbox, setLightbox] = useState(false);
 
   if (!imgs.length) return (
-    <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center" style={{ aspectRatio: '4/3' }}>
+    <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center" style={{ aspectRatio: '1/1' }}>
       <span className="text-6xl">🎉</span>
     </div>
   );
@@ -53,11 +53,11 @@ export default function ImageGallery({ imgs, name }: { imgs: string[]; name: str
   return (
     <div>
       {/* Main image */}
-      <div className="rounded-2xl overflow-hidden mb-3 relative group cursor-zoom-in" style={{ aspectRatio: '4/3' }}>
+      <div className="rounded-2xl overflow-hidden mb-3 relative group cursor-zoom-in" style={{ aspectRatio: '1/1' }}>
         <DriveImg
           src={imgs[active]}
           alt={`${name} ${active + 1}`}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover object-top"
           onClick={() => setLightbox(true)}
         />
 
