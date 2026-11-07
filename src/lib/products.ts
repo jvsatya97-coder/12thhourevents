@@ -141,8 +141,8 @@ export async function fetchProducts(): Promise<Product[]> {
           disc: parseInt(String(p.disc || '0')) || 0,
           emoji: String(p.emoji || '🎉').trim(),
           img: main, imgs,
-          incs: Array.isArray(p.incs) ? p.incs : String(p.Inclusions || '').split(',').map((x: string) => x.trim()).filter(Boolean),
-          excs: Array.isArray(p.excs) ? p.excs : String(p.Exclusions || '').split(',').map((x: string) => x.trim()).filter(Boolean),
+          incs: Array.isArray(p.incs) ? p.incs : String(p.Inclusions || p.inclusions || '').split(/[\n,]+/).map((x: string) => x.trim()).filter(Boolean),
+          excs: Array.isArray(p.excs) ? p.excs : String(p.Exclusions || p.exclusions || '').split(/[\n,]+/).map((x: string) => x.trim()).filter(Boolean),
           city_prices: cp, city_orig: co,
         };
       }).filter((p: Product) => p.id && p.name);
