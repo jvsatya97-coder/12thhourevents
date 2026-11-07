@@ -39,7 +39,7 @@ export default function ProductGrid({ cat, limit, title, showFilters = false }: 
     <div className="product-grid py-4">
       {[...Array(limit || 4)].map((_, i) => (
         <div key={i} className="card animate-pulse">
-          <div className="bg-gray-200" style={{ aspectRatio: '4/3' }} />
+          <div className="bg-gray-200" style={{ aspectRatio: '1/1' }} />
           <div className="p-4 space-y-2">
             <div className="h-4 bg-gray-200 rounded w-3/4" />
             <div className="h-4 bg-gray-200 rounded w-1/2" />
