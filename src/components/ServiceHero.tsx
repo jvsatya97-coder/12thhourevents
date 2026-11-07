@@ -12,6 +12,15 @@ interface Props {
   bgImage?: string;
 }
 
+const QUICK_SEARCHES: Record<string, string[]> = {
+  'Birthday Decoration': ['Balloon arch', 'Unicorn theme', 'Car theme', 'Princess'],
+  'Anniversary Decoration': ['Rose setup', 'Candle setup', 'Flower wall', 'Romantic'],
+  'Room Decoration': ['Surprise setup', 'LED lights', 'Balloon ceiling', 'Fairy lights'],
+  'Baby Shower': ['Blue theme', 'Pink theme', 'Gender neutral', 'Boho'],
+  'Theme Decoration': ['Unicorn', 'Superhero', 'Jungle', 'Mermaid'],
+  'Bachelorette Party': ['Sash setup', 'Bride tribe', 'Pink glam', 'Boho'],
+};
+
 export default function ServiceHero({ name, emoji, desc, bgImage }: Props) {
   const { cityName } = useCity();
   const [query, setQuery] = useState('');
@@ -22,9 +31,11 @@ export default function ServiceHero({ name, emoji, desc, bgImage }: Props) {
     if (query.trim()) router.push(`/search?q=${encodeURIComponent(query.trim())}`);
   };
 
+  const quickTerms = QUICK_SEARCHES[name] || [];
+
   return (
     <>
-      {/* Category chips row — above hero */}
+      {/* Category chips row */}
       <div className="bg-white border-b border-gray-100 py-2.5 overflow-hidden">
         <div className="flex gap-2 overflow-x-auto px-4 max-w-7xl mx-auto" style={{ scrollbarWidth: 'none' }}>
           {SERVICES.map(s => (
@@ -36,44 +47,51 @@ export default function ServiceHero({ name, emoji, desc, bgImage }: Props) {
         </div>
       </div>
 
-      {/* Hero with background photo */}
-      <section className="relative text-white overflow-hidden" style={{ minHeight: '320px' }}>
-        {/* Background image */}
+      {/* Hero */}
+      <section className="relative text-white overflow-hidden" style={{ minHeight: '340px' }}>
         {bgImage && (
           <div className="absolute inset-0"
             style={{ backgroundImage: `url('${bgImage}')`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
         )}
-        {/* Dark overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/55 to-black/75" />
 
         <div className="relative z-10 max-w-4xl mx-auto px-4 py-10 md:py-14 text-center">
-          <div className="text-5xl md:text-6xl mb-3">{emoji}</div>
+          <div className="text-5xl md:text-6xl mb-3 drop-shadow-lg">{emoji}</div>
           <h1 className="text-3xl md:text-5xl font-extrabold mb-2 drop-shadow-lg">
             {name} in {cityName}
           </h1>
-          <p className="text-gray-200 text-sm md:text-base mb-6 max-w-xl mx-auto">{desc}</p>
+          <p className="text-gray-200 text-sm md:text-base mb-5 max-w-xl mx-auto leading-relaxed">{desc}</p>
 
-          {/* Search bar — partyone style */}
-          <form onSubmit={handleSearch} className="flex items-center bg-white rounded-full shadow-xl overflow-hidden max-w-lg mx-auto mb-6">
-            <span className="pl-4 text-gray-400 text-lg">🔍</span>
-            <input
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              type="text"
+          {/* Search bar */}
+          <form onSubmit={handleSearch} className="flex items-center bg-white rounded-full shadow-2xl shadow-black/30 overflow-hidden max-w-lg mx-auto mb-3">
+            <span className="pl-4 text-gray-400 text-lg flex-shrink-0">🔍</span>
+            <input value={query} onChange={e => setQuery(e.target.value)} type="text"
               placeholder={`Search ${name.toLowerCase()} packages...`}
-              className="flex-1 px-3 py-3 text-sm text-gray-800 outline-none bg-transparent"
-            />
+              className="flex-1 px-3 py-3 text-sm text-gray-800 outline-none bg-transparent" />
             <button type="submit"
               className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 text-sm font-bold transition-colors flex-shrink-0">
               Search
             </button>
           </form>
 
+          {/* Quick search chips */}
+          {quickTerms.length > 0 && (
+            <div className="flex flex-wrap justify-center gap-2 mb-5">
+              {quickTerms.map(term => (
+                <button key={term} type="button"
+                  onClick={() => router.push(`/search?q=${encodeURIComponent(term)}`)}
+                  className="text-xs text-white/75 border border-white/25 rounded-full px-3 py-1 hover:bg-white/15 transition backdrop-blur-sm">
+                  {term}
+                </button>
+              ))}
+            </div>
+          )}
+
           {/* CTA buttons */}
-          <div className="flex flex-wrap gap-3 justify-center">
+          <div className="flex flex-wrap gap-3 justify-center mb-5">
             <a href="https://wa.me/918073552837?text=Hi! I want to book a decoration."
               target="_blank" rel="noopener noreferrer"
-              className="btn-pink px-6 py-2.5 text-sm">
+              className="btn-pink px-6 py-2.5 text-sm shadow-lg shadow-orange-500/30">
               📲 Book Now — WhatsApp
             </a>
             <a href="tel:+918073552837"
@@ -82,11 +100,11 @@ export default function ServiceHero({ name, emoji, desc, bgImage }: Props) {
             </a>
           </div>
 
-          {/* Trust badges */}
-          <div className="flex flex-wrap justify-center gap-3 mt-5 text-xs text-white/80">
+          {/* Trust pills */}
+          <div className="flex flex-wrap justify-center gap-3 text-xs text-white/80">
             <span className="bg-white/10 backdrop-blur rounded-full px-3 py-1">✅ Same-Day Available</span>
-            <span className="bg-white/10 backdrop-blur rounded-full px-3 py-1">⭐ 4.9 Rated</span>
-            <span className="bg-white/10 backdrop-blur rounded-full px-3 py-1">🎉 5000+ Events</span>
+            <span className="bg-white/10 backdrop-blur rounded-full px-3 py-1">⭐ 4.9 Rated · 5000+ Events</span>
+            <span className="bg-white/10 backdrop-blur rounded-full px-3 py-1">💰 No Hidden Charges</span>
           </div>
         </div>
       </section>

@@ -28,7 +28,8 @@ const SERVICE_BG: Record<string, string> = {
   'welcome-baby':           'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=1200&q=70',
   'bachelorette-party':     'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=1200&q=70',
   'corporate-events':       'https://images.unsplash.com/photo-1511578314322-379afb476865?w=1200&q=70',
-  'activities':             'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=1200&q=70',
+  'activities':             'https://images.unsplash.com/photo-1472162072942-cd5147eb3902?w=1200&q=70',
+  'pinterest-edition':      'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=1200&q=70',
 };
 
 const SERVICE_REVIEWS: Record<string, { name: string; city: string; text: string }[]> = {};
