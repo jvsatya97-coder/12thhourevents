@@ -11,16 +11,15 @@ export function toImgUrl(url: string): string {
   const u = url.trim();
 
   // ── Cloudinary ──────────────────────────────────────────────────────────
-  // Matches: https://res.cloudinary.com/CLOUD/image/upload/[optional transforms]/...
-  const cloudinaryMatch = u.match(
-    /^(https:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\/)(?:([^/]+)\/)?(.+)$/
-  );
-  if (cloudinaryMatch) {
-    const [, base, existingTransform, rest] = cloudinaryMatch;
-    // If already has our transform, return as-is
-    if (existingTransform?.includes('c_fill')) return u;
-    // Drop any existing transforms (they may conflict), inject our own
-    return `${base}c_fill,w_600,h_600,g_auto,q_auto,f_auto/${rest}`;
+  if (u.includes('res.cloudinary.com')) {
+    // Insert transforms right after /upload/, preserving version number (v123456/)
+    return u.replace(
+      /(\/image\/upload\/)((?:v\d+\/)?)(.+)/,
+      (_full, prefix, version, rest) => {
+        if (rest.startsWith('c_fill')) return _full; // already transformed
+        return `${prefix}c_fill,w_600,h_600,g_auto,q_auto,f_auto/${version}${rest}`;
+      }
+    );
   }
 
   // ── Google Drive ────────────────────────────────────────────────────────
@@ -36,11 +35,16 @@ export function toImgUrl(url: string): string {
 /** Make a thumbnail version of a Cloudinary URL (smaller, faster for card grids) */
 export function toThumbUrl(url: string): string {
   if (!url) return '';
-  const cloudinaryMatch = url.match(
-    /^(https:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\/)(?:[^/]+\/)?(.+)$/
-  );
-  if (cloudinaryMatch) {
-    return `${cloudinaryMatch[1]}c_fill,w_400,h_400,g_auto,q_auto,f_auto/${cloudinaryMatch[2]}`;
+  if (url.includes('res.cloudinary.com')) {
+    // Same approach as toImgUrl but 400x400 for card grids
+    return url.replace(
+      /(\/image\/upload\/)((?:v\d+\/)?)(.+)/,
+      (_full, prefix, version, rest) => {
+        // Strip any existing transforms first, then apply thumb size
+        const cleanRest = rest.startsWith('c_fill') ? rest.replace(/^[^/]+\//, '') : rest;
+        return `${prefix}c_fill,w_400,h_400,g_auto,q_auto,f_auto/${version}${cleanRest}`;
+      }
+    );
   }
   return toImgUrl(url);
 }
@@ -61,12 +65,10 @@ function getDriveId(url: string): string | null {
 export function getImgFallbacks(url: string): string[] {
   if (!url) return [];
 
-  // Cloudinary: try without our transforms (original URL)
-  const cloudinaryMatch = url.match(
-    /^(https:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\/)c_fill[^/]*\/(.+)$/
-  );
-  if (cloudinaryMatch) {
-    return [`${cloudinaryMatch[1]}${cloudinaryMatch[2]}`];
+  // Cloudinary: try original URL without transforms as fallback
+  if (url.includes('res.cloudinary.com') && url.includes('c_fill')) {
+    const original = url.replace(/(\/image\/upload\/)c_fill[^/]*\//, '$1');
+    return [original];
   }
 
   // Google Drive fallbacks
