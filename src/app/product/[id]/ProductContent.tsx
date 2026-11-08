@@ -5,6 +5,7 @@ import { useCity } from '@/context/CityContext';
 import ImageGallery from '@/components/ImageGallery';
 import BookingModal from '@/components/BookingModal';
 import ProductCard from '@/components/ProductCard';
+import CategoryBar from '@/components/CategoryBar';
 import { SERVICES } from '@/lib/config';
 
 export default function ProductContent({ id }: { id: string }) {
@@ -75,7 +76,10 @@ export default function ProductContent({ id }: { id: string }) {
   const orig = getOrig(product, city);
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-10 pb-mobile">
+    <div className="pb-mobile">
+      {/* All-categories sticky nav bar */}
+      <CategoryBar />
+    <div className="max-w-5xl mx-auto px-4 py-10">
       <div className="grid md:grid-cols-2 gap-8">
         <ImageGallery imgs={product.imgs} name={product.name} />
         <div>
@@ -166,6 +170,7 @@ export default function ProductContent({ id }: { id: string }) {
           `}</style>
         </div>
       )}
+    </div>
     </div>
   );
 }

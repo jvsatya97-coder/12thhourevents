@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import ProductGrid from '@/components/ProductGrid';
+import CategoryBar from '@/components/CategoryBar';
 import { SERVICES } from '@/lib/config';
 
 interface Props {
@@ -33,10 +34,12 @@ export default function CityServiceTemplate({ cat, serviceName, serviceSlug, emo
         </div>
       </section>
 
+      <CategoryBar />
+
       <section className="py-14 max-w-7xl mx-auto px-4">
         <h2 className="section-title">{serviceName} <span className="grad-text">Packages</span></h2>
         <p className="section-sub">Prices shown for {cityName}</p>
-        <ProductGrid cat={cat} />
+        <ProductGrid cat={cat} showFilters={true} />
       </section>
 
       {/* Other services */}

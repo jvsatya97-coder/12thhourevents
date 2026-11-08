@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import ProductGrid from '@/components/ProductGrid';
 import ServiceHero from '@/components/ServiceHero';
+import CategoryBar from '@/components/CategoryBar';
 import { CITIES } from '@/lib/config';
 
 interface Props {
@@ -68,6 +69,9 @@ export default function ServicePageTemplate({ cat, name, emoji, slug, desc, faqs
 
       {/* Category chips + city-aware hero with photo bg + search */}
       <ServiceHero name={name} emoji={emoji} desc={desc} bgImage={bgImage} />
+
+      {/* All-categories sticky nav bar */}
+      <CategoryBar />
 
       {/* Trust banner — green */}
       <section className="bg-emerald-500 py-2.5 overflow-hidden">

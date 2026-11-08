@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useCity } from '@/context/CityContext';
 import { SERVICES, CITIES } from '@/lib/config';
 import ServiceHero from '@/components/ServiceHero';
+import CategoryBar from '@/components/CategoryBar';
 import ProductCard from '@/components/ProductCard';
 import { fetchProducts, Product } from '@/lib/products';
 
@@ -85,6 +86,9 @@ export default function ThemeDecorationClient() {
         desc="Bring any theme to life — Mermaid, Superhero, Barbie, K-Pop, Space and 50+ more. Immersive setups that wow your guests."
         bgImage="https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=1200&q=70"
       />
+
+      {/* All-categories sticky nav bar */}
+      <CategoryBar />
 
       {/* Trust banner */}
       <section className="bg-emerald-500 py-2.5 overflow-hidden">
