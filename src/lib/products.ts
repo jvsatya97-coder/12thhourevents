@@ -85,6 +85,7 @@ export function getImgFallbacks(url: string): string[] {
 
 export interface Product {
   id: string; name: string; cat: string; sub: string;
+  cats2?: string;  // optional second category slug
   price: string; orig: string; disc: number; emoji: string;
   img: string; imgs: string[]; incs: string[]; excs: string[];
   city_prices: Record<string, string>; city_orig: Record<string, string>;
@@ -131,11 +132,13 @@ export async function fetchProducts(): Promise<Product[]> {
           if (converted && !imgs.includes(converted)) imgs.push(converted);
         });
 
+        const cats2 = String(p.cats2 || '').trim();
         return {
           id: String(p.id || '').trim(),
           name: String(p.name || '').trim(),
           cat: String(p.cat || '').trim(),
           sub: String(p.sub || '').trim(),
+          cats2: cats2 || undefined,
           price: String(p.price || '').trim().replace(/,/g, ''),
           orig: String(p.orig || '').trim().replace(/,/g, ''),
           disc: parseInt(String(p.disc || '0')) || 0,
@@ -147,8 +150,18 @@ export async function fetchProducts(): Promise<Product[]> {
         };
       }).filter((p: Product) => p.id && p.name);
 
-      _cache = products;
-      return products;
+      // Expand products that have a cats2 — add a copy under the second category
+      // The copy keeps the same id so product pages still work, but has cat = cats2
+      const expanded: Product[] = [];
+      for (const p of products) {
+        expanded.push(p);
+        if (p.cats2) {
+          expanded.push({ ...p, cat: p.cats2, cats2: undefined });
+        }
+      }
+
+      _cache = expanded;
+      return expanded;
     } catch {
       _cache = [];
       return [];

@@ -7,7 +7,7 @@ const CLOUDINARY_PRESET = '12he_products';
 const ADMIN_PIN = '12he2024';
 
 const SUBCAT_MAP: Record<string, string[]> = {
-  bday:         ['Basic', 'Standard', 'Premium', 'Luxury', 'Balloon Arch', 'Theme', 'Outdoor'],
+  bday:         ['Basic', 'Standard', 'Premium', 'Luxury', 'Wall Decor', 'Ring Decor', 'Balloon Arch', 'Balloon Ceiling', 'Table Setup', 'Theme', 'Outdoor', 'Balloon Bouquet'],
   theme:        ['Mermaid', 'Cars', 'Superhero', 'Butterfly', 'Jungle', '1st Birthday', 'Peppa Pig', 'Hello Kitty', 'Rainbow', 'Barbie', 'K-Pop', 'Space', 'Unicorn', 'Princess', 'Dinosaur', 'Frozen', 'Harry Potter', 'Minions', 'Disney Princess', 'Mickey Mouse'],
   anniv:        ['Romantic', 'Rose Setup', 'Candle Setup', 'Flower Wall', 'Luxury'],
   room:         ['Surprise', 'LED Lights', 'Balloon Ceiling', 'Fairy Lights', 'Premium'],
@@ -36,6 +36,7 @@ type SheetProduct = Record<string, string>;
 
 interface FormData {
   id: string; name: string; cat: string; sub: string;
+  cats2: string;  // optional second category slug
   emoji: string; price: string; orig: string; disc: string;
   inclusions: string; exclusions: string;
   images: ImgEntry[];
@@ -139,7 +140,7 @@ function parseSheetDate(str: string): number {
 }
 
 const emptyForm = (): FormData => ({
-  id: '', name: '', cat: 'bday', sub: '', emoji: '🎉',
+  id: '', name: '', cat: 'bday', sub: '', cats2: '', emoji: '🎉',
   price: '', orig: '', disc: '0',
   inclusions: '', exclusions: '',
   images: [],
@@ -169,6 +170,7 @@ function productToForm(p: SheetProduct): FormData {
     name: p.name || '',
     cat: p.cat || 'bday',
     sub: p.sub || '',
+    cats2: p.cats2 || '',
     emoji: p.emoji || '🎉',
     price: p.price || '',
     orig: p.orig || '',
@@ -305,6 +307,7 @@ export default function AdminPage() {
     const params: Record<string, string> = {
       action: form.isEdit ? 'editProduct' : 'addProduct',
       id: productId, name: form.name, cat: form.cat, sub: form.sub,
+      cats2: form.cats2 || '',
       emoji: form.emoji, price: form.price, orig: form.orig || form.price,
       disc: form.disc || '0',
       img:  goodImgs[0]?.url || '', img1: goodImgs[1]?.url || '',
@@ -346,6 +349,21 @@ export default function AdminPage() {
       const updated = updateHistoryItem(item.id, { active: !item.active });
       setHistory(updated);
     } catch { alert('Could not toggle. Check your internet connection.'); }
+  };
+
+  // Toggle active directly from Edit tab product card
+  const toggleActiveEdit = async (p: SheetProduct, e: React.MouseEvent) => {
+    e.stopPropagation(); // don't open the edit form
+    const isCurrentlyLive = p.active !== 'false';
+    // Optimistically update UI
+    setAllProducts(prev => prev.map(x => x.id === p.id ? { ...x, active: isCurrentlyLive ? 'false' : 'true' } : x));
+    try {
+      await fetch(`${SHEET_URL}?action=toggleActive&id=${encodeURIComponent(p.id)}`, { mode: 'no-cors' });
+    } catch {
+      // Revert on failure
+      setAllProducts(prev => prev.map(x => x.id === p.id ? { ...x, active: p.active } : x));
+      alert('Could not toggle. Check your internet connection.');
+    }
   };
 
   // Start editing a product from the product list
@@ -543,13 +561,18 @@ export default function AdminPage() {
                         <p className="text-[10px] text-gray-300 mt-1">No timestamp yet — will show after next edit</p>
                       )}
                     </div>
-                    <div className="flex-none text-right">
-                      <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${
-                        p.active === 'false' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-700'
-                      }`}>
+                    <div className="flex-none flex flex-col items-end gap-2">
+                      <button
+                        onClick={(e) => toggleActiveEdit(p, e)}
+                        title={p.active === 'false' ? 'Click to make Live' : 'Click to Hide'}
+                        className={`text-[10px] font-bold px-2.5 py-1.5 rounded-full border transition active:scale-95 ${
+                          p.active === 'false'
+                            ? 'bg-red-50 text-red-600 border-red-200 hover:bg-green-50 hover:text-green-700 hover:border-green-200'
+                            : 'bg-green-50 text-green-700 border-green-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200'
+                        }`}>
                         {p.active === 'false' ? '○ Hidden' : '● Live'}
-                      </span>
-                      <p className="text-xs text-orange-500 mt-2 font-medium">Edit →</p>
+                      </button>
+                      <p className="text-xs text-orange-500 font-medium">Edit →</p>
                     </div>
                   </button>
                 );
@@ -678,7 +701,7 @@ export default function AdminPage() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Category *</label>
-                <select value={form.cat} onChange={e => { set('cat', e.target.value); setForm(f => ({ ...f, sub: '' })); }}
+                <select value={form.cat} onChange={e => { set('cat', e.target.value); setForm(f => ({ ...f, sub: '', cats2: f.cats2 === e.target.value ? '' : f.cats2 })); }}
                   className="w-full border border-gray-200 rounded-xl px-3 py-3 text-sm mt-1 outline-none focus:border-orange-400 bg-white">
                   {SERVICES.map(s => <option key={s.cat} value={s.cat}>{s.emoji} {s.name}</option>)}
                 </select>
@@ -691,6 +714,14 @@ export default function AdminPage() {
                   {subcats.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Also Show In <span className="text-gray-400 font-normal normal-case">(optional — 2nd category)</span></label>
+              <select value={form.cats2} onChange={e => set('cats2', e.target.value)}
+                className="w-full border border-gray-200 rounded-xl px-3 py-3 text-sm mt-1 outline-none focus:border-orange-400 bg-white">
+                <option value="">— None —</option>
+                {SERVICES.filter(s => s.cat !== form.cat).map(s => <option key={s.cat} value={s.cat}>{s.emoji} {s.name}</option>)}
+              </select>
             </div>
             <div>
               <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Emoji</label>
