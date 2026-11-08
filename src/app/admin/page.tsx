@@ -119,6 +119,25 @@ function timeAgo(ts: number) {
   return `${days}d ago`;
 }
 
+/**
+ * Parse a date string saved by Apps Script v5, e.g.:
+ *   "08 Nov 2026, 09:15 am"  or  "08-Nov-2026 09:15"
+ * Falls back gracefully — returns 0 if unparseable.
+ */
+function parseSheetDate(str: string): number {
+  if (!str) return 0;
+  try {
+    // Apps Script toLocaleString en-IN returns e.g. "08/11/2026, 09:15:00"
+    // But we format it ourselves as "08 Nov 2026, 09:15 am"
+    const ts = Date.parse(str);
+    if (!isNaN(ts)) return ts;
+    // try replacing comma
+    const ts2 = Date.parse(str.replace(',', ''));
+    if (!isNaN(ts2)) return ts2;
+    return 0;
+  } catch { return 0; }
+}
+
 const emptyForm = (): FormData => ({
   id: '', name: '', cat: 'bday', sub: '', emoji: '🎉',
   price: '', orig: '', disc: '0',
@@ -185,10 +204,6 @@ export default function AdminPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState<FormData>(emptyForm());
 
-  useEffect(() => {
-    if (tab === 'history') setHistory(loadHistory());
-  }, [tab]);
-
   // Load all products when edit tab opens
   const loadAllProducts = useCallback(async () => {
     setProductsLoading(true);
@@ -197,12 +212,33 @@ export default function AdminPage() {
       const res = await fetch(`${SHEET_URL}?showAll=true&_=${Date.now()}`);
       const data = await res.json();
       setAllProducts(data.products || []);
+      // Also populate history from sheet (all-device view)
+      // Sort by uploaded_at desc, fall back to savedAt in localStorage
+      const sheetItems: HistoryItem[] = (data.products || [])
+        .filter((p: SheetProduct) => p.id && p.name)
+        .map((p: SheetProduct) => ({
+          id: p.id, name: p.name, cat: p.cat, sub: p.sub,
+          emoji: p.emoji || '🎉', price: p.price, img: p.img || '',
+          savedAt: p.uploaded_at ? parseSheetDate(p.uploaded_at) : 0,
+          active: p.active !== 'false',
+        }))
+        .filter((i: HistoryItem) => i.savedAt > 0)
+        .sort((a: HistoryItem, b: HistoryItem) => b.savedAt - a.savedAt);
+      if (sheetItems.length > 0) setHistory(sheetItems);
     } catch {
       setAllProducts([]);
     } finally {
       setProductsLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    if (tab === 'history') {
+      // Load localStorage history as a quick initial view, then refresh from sheet
+      setHistory(loadHistory());
+      loadAllProducts();
+    }
+  }, [tab, loadAllProducts]);
 
   useEffect(() => {
     if (tab === 'edit' && !editingProduct) loadAllProducts();
@@ -461,7 +497,16 @@ export default function AdminPage() {
             <div className="space-y-3">
               <p className="text-xs text-gray-400 mb-1">{filteredProducts.length} of {allProducts.length} products</p>
               {filteredProducts.map(p => {
-                const meta = productMeta[p.id];
+                // Prefer sheet-stored timestamps (v5+); fall back to localStorage for older products
+                const sheetUploadTs = parseSheetDate(p.uploaded_at || '');
+                const sheetEditTs   = parseSheetDate(p.edited_at || '');
+                const sheetEditCount = parseInt(p.edit_count || '0') || 0;
+                const localMeta = productMeta[p.id];
+                const uploadTs  = sheetUploadTs || localMeta?.uploadedAt || 0;
+                const editTs    = sheetEditTs   || localMeta?.editedAt   || 0;
+                const editCount = sheetEditTs ? sheetEditCount : (localMeta?.editCount || 0);
+                const fromSheet = sheetUploadTs > 0;
+
                 return (
                   <button key={p.id} onClick={() => startEdit(p)}
                     className="w-full bg-white rounded-2xl p-4 shadow-sm flex gap-3 items-start text-left hover:shadow-md hover:border-orange-200 border border-transparent transition">
@@ -477,24 +522,25 @@ export default function AdminPage() {
                         {p.sub && ` · ${p.sub}`}
                       </p>
                       <p className="text-sm font-bold text-orange-600 mt-1">₹{Number(p.price || 0).toLocaleString('en-IN')}</p>
-                      {/* Meta: upload & edit times */}
-                      {meta ? (
+                      {/* Meta: upload & edit times — from sheet (all devices) or localStorage fallback */}
+                      {uploadTs > 0 ? (
                         <div className="mt-1.5 space-y-0.5">
                           <p className="text-[10px] text-gray-400">
-                            📤 Uploaded {fmtDate(meta.uploadedAt)} at {fmtTime(meta.uploadedAt)}
+                            📤 Uploaded {fmtDate(uploadTs)} at {fmtTime(uploadTs)}
                             <span className="text-gray-300 mx-1">·</span>
-                            <span className="text-gray-400">{timeAgo(meta.uploadedAt)}</span>
+                            <span className="text-gray-400">{timeAgo(uploadTs)}</span>
+                            {fromSheet && <span className="text-gray-300 ml-1">🌐</span>}
                           </p>
-                          {meta.editedAt && (
+                          {editTs > 0 && (
                             <p className="text-[10px] text-blue-500">
-                              ✏️ Last edited {fmtDate(meta.editedAt)} at {fmtTime(meta.editedAt)}
+                              ✏️ Last edited {fmtDate(editTs)} at {fmtTime(editTs)}
                               <span className="text-blue-300 mx-1">·</span>
-                              {meta.editCount} edit{meta.editCount !== 1 ? 's' : ''}
+                              {editCount} edit{editCount !== 1 ? 's' : ''}
                             </p>
                           )}
                         </div>
                       ) : (
-                        <p className="text-[10px] text-gray-300 mt-1">No edit history on this device</p>
+                        <p className="text-[10px] text-gray-300 mt-1">No timestamp yet — will show after next edit</p>
                       )}
                     </div>
                     <div className="flex-none text-right">
@@ -517,15 +563,17 @@ export default function AdminPage() {
       {tab === 'history' && (
         <div className="max-w-2xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between mb-4">
-            <p className="text-sm text-gray-500">{history.length} product{history.length !== 1 ? 's' : ''} added from this device</p>
-            {history.length > 0 && (
-              <button onClick={() => { clearHistory(); setHistory([]); }} className="text-xs text-red-500 hover:text-red-700 font-medium">Clear history</button>
-            )}
+            <div>
+              <p className="text-sm text-gray-700 font-semibold">{history.length} product{history.length !== 1 ? 's' : ''} uploaded</p>
+              <p className="text-xs text-gray-400 mt-0.5">🌐 All devices · synced from sheet</p>
+            </div>
+            <button onClick={loadAllProducts} className="text-xs text-orange-500 font-medium border border-orange-200 px-3 py-1.5 rounded-full hover:bg-orange-50 transition">↻ Refresh</button>
           </div>
           {history.length === 0 ? (
             <div className="text-center py-16 text-gray-400">
               <div className="text-5xl mb-3">📭</div>
               <p className="font-semibold">No uploads yet</p>
+              <p className="text-xs mt-2">Timestamps will appear after saving products with the new Apps Script v5</p>
             </div>
           ) : (
             <div className="space-y-3">
