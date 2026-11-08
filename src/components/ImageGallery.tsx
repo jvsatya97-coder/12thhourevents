@@ -1,11 +1,18 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { getImgFallbacks } from '@/lib/products';
 
 function DriveImg({ src, alt, className, onClick }: { src: string; alt: string; className?: string; onClick?: () => void }) {
   const [imgSrc, setImgSrc] = useState(src);
   const [fallbackIdx, setFallbackIdx] = useState(0);
   const [error, setError] = useState(false);
+
+  // Reset when src prop changes (e.g. switching images in gallery/lightbox)
+  useEffect(() => {
+    setImgSrc(src);
+    setFallbackIdx(0);
+    setError(false);
+  }, [src]);
 
   const handleError = () => {
     const fallbacks = getImgFallbacks(src);
