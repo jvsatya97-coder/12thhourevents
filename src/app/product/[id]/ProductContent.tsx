@@ -5,6 +5,7 @@ import { useCity } from '@/context/CityContext';
 import ImageGallery from '@/components/ImageGallery';
 import BookingModal from '@/components/BookingModal';
 import ProductCard from '@/components/ProductCard';
+import { SERVICES } from '@/lib/config';
 
 export default function ProductContent({ id }: { id: string }) {
   const [product, setProduct] = useState<Product | null>(null);
@@ -125,7 +126,7 @@ export default function ProductContent({ id }: { id: string }) {
               ✨ You May Also Like
             </h2>
             <a
-              href={`/${product.cat}`}
+              href={`/${SERVICES.find(s => s.cat === product.cat)?.slug || product.cat}`}
               className="text-sm font-semibold text-orange-500 hover:text-orange-700 transition"
             >
               See all →

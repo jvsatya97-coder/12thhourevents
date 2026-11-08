@@ -8,7 +8,7 @@ const ADMIN_PIN = '12he2024';
 
 const SUBCAT_MAP: Record<string, string[]> = {
   bday:         ['Basic', 'Standard', 'Premium', 'Luxury', 'Balloon Arch', 'Theme', 'Outdoor'],
-  theme:        ['Unicorn', 'Superhero', 'Jungle', 'Mermaid', 'Princess', 'Cars', 'Frozen'],
+  theme:        ['Mermaid', 'Cars', 'Superhero', 'Butterfly', 'Jungle', '1st Birthday', 'Peppa Pig', 'Hello Kitty', 'Rainbow', 'Barbie', 'K-Pop', 'Space', 'Unicorn', 'Princess', 'Dinosaur', 'Frozen', 'Harry Potter', 'Minions', 'Disney Princess', 'Mickey Mouse'],
   anniv:        ['Romantic', 'Rose Setup', 'Candle Setup', 'Flower Wall', 'Luxury'],
   room:         ['Surprise', 'LED Lights', 'Balloon Ceiling', 'Fairy Lights', 'Premium'],
   baby:         ['Blue Theme', 'Pink Theme', 'Gender Neutral', 'Boho', 'Luxury'],
