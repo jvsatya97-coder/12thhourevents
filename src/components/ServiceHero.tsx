@@ -17,7 +17,7 @@ const QUICK_SEARCHES: Record<string, string[]> = {
   'Anniversary Decoration': ['Rose setup', 'Candle setup', 'Flower wall', 'Romantic'],
   'Room Decoration': ['Surprise setup', 'LED lights', 'Balloon ceiling', 'Fairy lights'],
   'Baby Shower': ['Blue theme', 'Pink theme', 'Gender neutral', 'Boho'],
-  'Theme Decoration': ['Unicorn', 'Superhero', 'Jungle', 'Mermaid'],
+  'Theme Decoration': ['Mermaid', 'Superhero', 'Barbie', 'K-Pop', 'Space', 'Unicorn'],
   'Bachelorette Party': ['Sash setup', 'Bride tribe', 'Pink glam', 'Boho'],
 };
 
