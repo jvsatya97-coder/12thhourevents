@@ -36,7 +36,8 @@ type SheetProduct = Record<string, string>;
 
 interface FormData {
   id: string; name: string; cat: string; sub: string;
-  cats2: string;  // optional second category slug
+  cats2: string;      // optional second category slug
+  sort_order: string; // '' = none, '1' = top, '2' = second, etc.
   emoji: string; price: string; orig: string; disc: string;
   inclusions: string; exclusions: string;
   images: ImgEntry[];
@@ -140,7 +141,7 @@ function parseSheetDate(str: string): number {
 }
 
 const emptyForm = (): FormData => ({
-  id: '', name: '', cat: 'bday', sub: '', cats2: '', emoji: '🎉',
+  id: '', name: '', cat: 'bday', sub: '', cats2: '', sort_order: '', emoji: '🎉',
   price: '', orig: '', disc: '0',
   inclusions: '', exclusions: '',
   images: [],
@@ -171,6 +172,7 @@ function productToForm(p: SheetProduct): FormData {
     cat: p.cat || 'bday',
     sub: p.sub || '',
     cats2: p.cats2 || '',
+    sort_order: p.sort_order || '',
     emoji: p.emoji || '🎉',
     price: p.price || '',
     orig: p.orig || '',
@@ -308,6 +310,7 @@ export default function AdminPage() {
       action: form.isEdit ? 'editProduct' : 'addProduct',
       id: productId, name: form.name, cat: form.cat, sub: form.sub,
       cats2: form.cats2 || '',
+      sort_order: form.sort_order || '',
       emoji: form.emoji, price: form.price, orig: form.orig || form.price,
       disc: form.disc || '0',
       img:  goodImgs[0]?.url || '', img1: goodImgs[1]?.url || '',
@@ -349,6 +352,19 @@ export default function AdminPage() {
       const updated = updateHistoryItem(item.id, { active: !item.active });
       setHistory(updated);
     } catch { alert('Could not toggle. Check your internet connection.'); }
+  };
+
+  // Set sort_order directly from Edit tab product card (without opening form)
+  const setPinOrder = async (p: SheetProduct, order: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setAllProducts(prev => prev.map(x => x.id === p.id ? { ...x, sort_order: order } : x));
+    try {
+      const params = new URLSearchParams({ action: 'editProduct', id: p.id, sort_order: order });
+      await fetch(`${SHEET_URL}?${params.toString()}`, { mode: 'no-cors' });
+    } catch {
+      setAllProducts(prev => prev.map(x => x.id === p.id ? { ...x, sort_order: p.sort_order } : x));
+      alert('Could not update pin order.');
+    }
   };
 
   // Toggle active directly from Edit tab product card
@@ -572,6 +588,20 @@ export default function AdminPage() {
                         }`}>
                         {p.active === 'false' ? '○ Hidden' : '● Live'}
                       </button>
+                      {/* Pin / sort order */}
+                      <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                        <span className="text-[10px] text-gray-400">📌</span>
+                        <input
+                          type="number"
+                          min="1"
+                          placeholder="—"
+                          value={p.sort_order || ''}
+                          onChange={e => setAllProducts(prev => prev.map(x => x.id === p.id ? { ...x, sort_order: e.target.value } : x))}
+                          onBlur={e => setPinOrder(p, e.target.value, e as unknown as React.MouseEvent)}
+                          className="w-10 text-center text-[10px] font-bold border border-gray-200 rounded-lg px-1 py-1 outline-none focus:border-orange-400 bg-white"
+                          title="Pin position (1 = top of page). Leave blank to remove pin."
+                        />
+                      </div>
                       <p className="text-xs text-orange-500 font-medium">Edit →</p>
                     </div>
                   </button>
@@ -723,10 +753,18 @@ export default function AdminPage() {
                 {SERVICES.filter(s => s.cat !== form.cat).map(s => <option key={s.cat} value={s.cat}>{s.emoji} {s.name}</option>)}
               </select>
             </div>
-            <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Emoji</label>
-              <input type="text" value={form.emoji} onChange={e => set('emoji', e.target.value)}
-                className="w-20 border border-gray-200 rounded-xl px-3 py-3 text-lg mt-1 outline-none focus:border-orange-400 text-center" />
+            <div className="flex gap-3">
+              <div>
+                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Emoji</label>
+                <input type="text" value={form.emoji} onChange={e => set('emoji', e.target.value)}
+                  className="w-20 border border-gray-200 rounded-xl px-3 py-3 text-lg mt-1 outline-none focus:border-orange-400 text-center" />
+              </div>
+              <div className="flex-1">
+                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">📌 Pin Position <span className="text-gray-400 font-normal normal-case">(1 = top)</span></label>
+                <input type="number" min="1" value={form.sort_order} onChange={e => set('sort_order', e.target.value)}
+                  placeholder="Leave blank = no pin"
+                  className="w-full border border-gray-200 rounded-xl px-3 py-3 text-sm mt-1 outline-none focus:border-orange-400" />
+              </div>
             </div>
           </div>
 

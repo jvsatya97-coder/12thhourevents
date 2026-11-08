@@ -16,13 +16,19 @@ export default function ProductGrid({ cat, limit, title, showFilters = false }: 
   useEffect(() => {
     fetchProducts().then(all => {
       const filtered = cat ? all.filter(p => p.cat.toLowerCase().trim() === cat.toLowerCase().trim()) : all;
+      // Sort: pinned (sort_order set) first by sort_order asc, then rest
+      const sorted = [...filtered].sort((a, b) => {
+        const ao = a.sort_order ?? Infinity;
+        const bo = b.sort_order ?? Infinity;
+        return ao - bo;
+      });
       // Collect unique subs
       const subSet = new Set<string>();
-      filtered.forEach(p => { if (p.sub) subSet.add(p.sub); });
+      sorted.forEach(p => { if (p.sub) subSet.add(p.sub); });
       const subList = ['All', ...Array.from(subSet)];
       setSubs(subList);
-      setAllProducts(filtered);
-      const display = limit ? filtered.slice(0, limit) : filtered;
+      setAllProducts(sorted);
+      const display = limit ? sorted.slice(0, limit) : sorted;
       setProducts(display);
       setLoading(false);
     });
@@ -30,6 +36,7 @@ export default function ProductGrid({ cat, limit, title, showFilters = false }: 
 
   useEffect(() => {
     if (!allProducts.length) return;
+    // allProducts is already sorted by sort_order; just filter
     let filtered = activeSub === 'All' ? allProducts : allProducts.filter(p => p.sub === activeSub);
     if (limit) filtered = filtered.slice(0, limit);
     setProducts(filtered);

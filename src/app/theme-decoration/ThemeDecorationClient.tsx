@@ -60,7 +60,10 @@ export default function ThemeDecorationClient() {
 
   useEffect(() => {
     fetchProducts().then(prods => {
-      setAllProducts(prods.filter(p => p.cat === 'theme'));
+      const themed = prods.filter(p => p.cat === 'theme');
+      // Sort pinned first
+      const sorted = [...themed].sort((a, b) => (a.sort_order ?? Infinity) - (b.sort_order ?? Infinity));
+      setAllProducts(sorted);
       setLoading(false);
     });
   }, []);
