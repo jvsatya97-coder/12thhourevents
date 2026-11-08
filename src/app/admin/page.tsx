@@ -355,14 +355,16 @@ export default function AdminPage() {
   };
 
   // Set sort_order directly from Edit tab product card (without opening form)
-  const setPinOrder = async (p: SheetProduct, order: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setAllProducts(prev => prev.map(x => x.id === p.id ? { ...x, sort_order: order } : x));
+  // Uses action=setPinOrder so Apps Script only touches the sort_order column
+  const setPinOrder = async (id: string, order: string, prevOrder: string) => {
+    // Send to sheet — use a dedicated lightweight action
+    // We pass name+cat too so editProduct can find the row even if only id differs
     try {
-      const params = new URLSearchParams({ action: 'editProduct', id: p.id, sort_order: order });
+      const params = new URLSearchParams({ action: 'setPinOrder', id, sort_order: order });
       await fetch(`${SHEET_URL}?${params.toString()}`, { mode: 'no-cors' });
     } catch {
-      setAllProducts(prev => prev.map(x => x.id === p.id ? { ...x, sort_order: p.sort_order } : x));
+      // Revert UI on failure
+      setAllProducts(prev => prev.map(x => x.id === id ? { ...x, sort_order: prevOrder } : x));
       alert('Could not update pin order.');
     }
   };
@@ -596,8 +598,16 @@ export default function AdminPage() {
                           min="1"
                           placeholder="—"
                           value={p.sort_order || ''}
-                          onChange={e => setAllProducts(prev => prev.map(x => x.id === p.id ? { ...x, sort_order: e.target.value } : x))}
-                          onBlur={e => setPinOrder(p, e.target.value, e as unknown as React.MouseEvent)}
+                          onChange={e => {
+                            const val = e.target.value;
+                            setAllProducts(prev => prev.map(x => x.id === p.id ? { ...x, sort_order: val } : x));
+                          }}
+                          onBlur={e => {
+                            const newVal = e.target.value;
+                            const prevVal = p.sort_order || '';
+                            if (newVal !== prevVal) setPinOrder(p.id, newVal, prevVal);
+                          }}
+                          onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
                           className="w-10 text-center text-[10px] font-bold border border-gray-200 rounded-lg px-1 py-1 outline-none focus:border-orange-400 bg-white"
                           title="Pin position (1 = top of page). Leave blank to remove pin."
                         />
