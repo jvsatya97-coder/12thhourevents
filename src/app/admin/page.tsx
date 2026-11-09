@@ -249,10 +249,22 @@ export default function AdminPage() {
   }, [tab, editingProduct, loadAllProducts]);
 
   const set = (k: keyof FormData, v: string | boolean) => {
-    setForm(f => ({ ...f, [k]: v }));
-    if (k === 'name' && typeof v === 'string' && v && !form.isEdit) {
-      setForm(f => ({ ...f, [k]: v as string, id: makeId(v as string, f.cat) }));
-    }
+    setForm(f => {
+      const updated = { ...f, [k]: v };
+      // Auto-calculate discount % when price or orig changes
+      if (k === 'price' || k === 'orig') {
+        const sale = parseFloat(k === 'price' ? String(v) : f.price);
+        const orig = parseFloat(k === 'orig'  ? String(v) : f.orig);
+        if (orig > sale && sale > 0) {
+          updated.disc = String(Math.round((orig - sale) / orig * 100));
+        }
+      }
+      // Auto-generate ID from name on add
+      if (k === 'name' && typeof v === 'string' && v && !f.isEdit) {
+        updated.id = makeId(v as string, f.cat);
+      }
+      return updated;
+    });
   };
 
   const setCityPrice = (slug: string, field: 'price' | 'orig', val: string) => {
@@ -800,11 +812,37 @@ export default function AdminPage() {
               </div>
               <div>
                 <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Discount %</label>
-                <input type="number" value={form.disc} onChange={e => set('disc', e.target.value)} placeholder="20"
-                  className="w-full border border-gray-200 rounded-xl px-3 py-3 text-sm mt-1 outline-none focus:border-orange-400" />
+                {(() => {
+                  const sale = parseFloat(form.price);
+                  const orig = parseFloat(form.orig);
+                  const auto = (orig > sale && sale > 0)
+                    ? Math.round((orig - sale) / orig * 100)
+                    : null;
+                  return (
+                    <div className="relative mt-1">
+                      <input
+                        type="number"
+                        value={form.disc}
+                        onChange={e => set('disc', e.target.value)}
+                        placeholder={auto !== null ? String(auto) : '0'}
+                        className="w-full border border-gray-200 rounded-xl px-3 py-3 text-sm outline-none focus:border-orange-400"
+                      />
+                      {auto !== null && (
+                        <button
+                          type="button"
+                          onClick={() => set('disc', String(auto))}
+                          className="absolute right-2 top-2 text-[10px] bg-green-100 text-green-700 font-bold px-1.5 py-0.5 rounded-lg hover:bg-green-200 transition"
+                          title="Click to use auto-calculated discount"
+                        >
+                          ={auto}%
+                        </button>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
             </div>
-            <p className="text-xs text-gray-400">💡 Default price shown when no city is selected.</p>
+            <p className="text-xs text-gray-400">💡 Discount % is auto-calculated from prices — click the green badge to apply it.</p>
 
             {/* City prices toggle */}
             <div className="border-t border-gray-100 pt-4">
