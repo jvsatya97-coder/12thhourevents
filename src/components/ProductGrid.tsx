@@ -42,7 +42,15 @@ export default function ProductGrid({ cat, limit, title, showFilters = false }: 
   // Load products once
   useEffect(() => {
     fetchProducts().then(all => {
-      const filtered = cat ? all.filter(p => p.cat.toLowerCase().trim() === cat.toLowerCase().trim()) : all;
+      let filtered = cat
+        ? all.filter(p => p.cat.toLowerCase().trim() === cat.toLowerCase().trim())
+        : all;
+      // When showing all categories (no cat filter), deduplicate by id
+      // so cats2 copies don't appear twice on the homepage
+      if (!cat) {
+        const seen = new Set<string>();
+        filtered = filtered.filter(p => { if (seen.has(p.id)) return false; seen.add(p.id); return true; });
+      }
       const sorted = sortProducts(filtered, 'featured', city);
       const subSet = new Set<string>();
       sorted.forEach(p => { if (p.sub) subSet.add(p.sub); });
