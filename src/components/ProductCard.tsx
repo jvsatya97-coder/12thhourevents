@@ -94,7 +94,7 @@ export default function ProductCard({ p }: { p: Product }) {
         {/* CTA */}
         <button
           onClick={handleBook}
-          className="w-full btn-wa text-xs md:text-sm py-2 justify-center"
+          className="w-full btn-pink text-xs md:text-sm py-2 justify-center"
         >
           📲 Book Now
         </button>
