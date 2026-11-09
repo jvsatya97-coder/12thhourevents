@@ -24,12 +24,12 @@ export const CITIES = [
 export const SERVICES = [
   { slug: 'birthday-decoration',    name: 'Birthday Decoration',    cat: 'bday',         emoji: '🎂' },
   { slug: 'theme-decoration',       name: 'Theme Decoration',       cat: 'theme',        emoji: '🎨' },
+  { slug: 'activities',             name: 'Kids Activities',        cat: 'act-artists',  emoji: '🌟' },
+  { slug: 'pinterest-edition',      name: 'Pinterest Edition',      cat: 'pinterest',    emoji: '📌' },
   { slug: 'anniversary-decoration', name: 'Anniversary Decoration', cat: 'anniv',        emoji: '❤️' },
-  { slug: 'balloon-decoration',      name: 'Balloon Decorations',     cat: 'balloon',      emoji: '🎈' },
+  { slug: 'balloon-decoration',     name: 'Balloon Decorations',    cat: 'balloon',      emoji: '🎈' },
   { slug: 'baby-shower',            name: 'Baby Shower',            cat: 'baby',         emoji: '👶' },
   { slug: 'welcome-baby',           name: 'Welcome Baby',           cat: 'welcomebaby',  emoji: '🍼' },
   { slug: 'bachelorette-party',     name: 'Bachelorette Party',     cat: 'bachelorette', emoji: '💃' },
   { slug: 'corporate-events',       name: 'Corporate Events',       cat: 'corporate',    emoji: '🏢' },
-  { slug: 'activities',             name: '🌟 Kids Activities',     cat: 'act-artists',  emoji: '🎪' },
-  { slug: 'pinterest-edition',      name: '📌 Pinterest Edition',   cat: 'pinterest',    emoji: '📌' },
 ];

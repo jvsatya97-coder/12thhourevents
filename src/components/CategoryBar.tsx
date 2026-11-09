@@ -19,7 +19,7 @@ export default function CategoryBar() {
               className={`cat-chip ${isActive ? 'cat-chip--active' : ''}`}
             >
               <span className="cat-chip-emoji">{s.emoji}</span>
-              <span className="cat-chip-label">{s.name.replace(/^[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}]\s*/u, '')}</span>
+              <span className="cat-chip-label">{s.name}</span>
             </Link>
           );
         })}
