@@ -10,7 +10,7 @@ const SUBCAT_MAP: Record<string, string[]> = {
   bday:         ['Basic', 'Standard', 'Premium', 'Luxury', 'Wall Decor', 'Ring Decor', 'Balloon Arch', 'Balloon Ceiling', 'Table Setup', 'Theme', 'Outdoor', 'Balloon Bouquet'],
   theme:        ['Mermaid', 'Cars', 'Superhero', 'Butterfly', 'Jungle', '1st Birthday', 'Peppa Pig', 'Hello Kitty', 'Rainbow', 'Barbie', 'K-Pop', 'Space', 'Unicorn', 'Princess', 'Dinosaur', 'Frozen', 'Harry Potter', 'Minions', 'Disney Princess', 'Mickey Mouse'],
   anniv:        ['Romantic', 'Rose Setup', 'Candle Setup', 'Flower Wall', 'Luxury'],
-  room:         ['Surprise', 'LED Lights', 'Balloon Ceiling', 'Fairy Lights', 'Premium'],
+  balloon:      ['Basic', 'Wall Decor', 'Ring Decor', 'Balloon Arch', 'Balloon Ceiling', 'Balloon Bouquet', 'Room Decoration', 'Surprise Room', 'LED Lights', 'Fairy Lights', 'Premium', 'Luxury'],
   baby:         ['Blue Theme', 'Pink Theme', 'Gender Neutral', 'Boho', 'Luxury'],
   welcomebaby:  ['Basic', 'Standard', 'Premium'],
   bachelorette: ['Pink Glam', 'Boho', 'Bride Tribe', 'Outdoor'],
