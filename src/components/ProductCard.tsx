@@ -1,9 +1,10 @@
 'use client';
 import Link from 'next/link';
 import { useState } from 'react';
-import { Product, getPrice, getOrig, openWhatsApp, getImgFallbacks, toThumbUrl } from '@/lib/products';
+import { Product, getPrice, getOrig, getImgFallbacks, toThumbUrl } from '@/lib/products';
 import { useCity } from '@/context/CityContext';
 import WishlistButton from '@/components/WishlistButton';
+import BookingModal from '@/components/BookingModal';
 
 // Deterministic "review" count and rating based on product id
 function pseudoRating(id: string) {
@@ -33,12 +34,15 @@ export default function ProductCard({ p }: { p: Product }) {
     }
   };
 
+  const [bookingOpen, setBookingOpen] = useState(false);
+
   const handleBook = (e: React.MouseEvent) => {
     e.preventDefault();
-    openWhatsApp(`Hi! I want to book "${p.name}" in ${cityName}. Price: ${price}`);
+    setBookingOpen(true);
   };
 
   return (
+    <>
     <Link href={`/product/${encodeURIComponent(p.id)}`} className="card block group relative">
       {/* Image */}
       <div className="relative overflow-hidden" style={{ aspectRatio: '1/1' }}>
@@ -100,9 +104,12 @@ export default function ProductCard({ p }: { p: Product }) {
           onClick={handleBook}
           className="w-full btn-pink text-xs md:text-sm py-2 justify-center"
         >
-          📲 Book Now
+          📋 Book Now
         </button>
       </div>
     </Link>
+
+    {bookingOpen && <BookingModal product={p} onClose={() => setBookingOpen(false)} />}
+    </>
   );
 }
