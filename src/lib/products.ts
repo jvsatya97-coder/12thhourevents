@@ -23,9 +23,11 @@ export function toImgUrl(url: string): string {
   }
 
   // ── Google Drive ────────────────────────────────────────────────────────
+  // Use lh3 CDN (=w600 suffix) as primary — works on mobile without Google login.
+  // The uc?export=view URL gets throttled/blocked on mobile by Google.
   const driveId = getDriveId(u);
   if (driveId) {
-    return `https://drive.google.com/uc?export=view&id=${driveId}`;
+    return `https://lh3.googleusercontent.com/d/${driveId}=w800`;
   }
 
   // ── Everything else (direct URLs, imgbb, postimages, etc.) ──────────────
@@ -71,12 +73,12 @@ export function getImgFallbacks(url: string): string[] {
     return [original];
   }
 
-  // Google Drive fallbacks
+  // Google Drive fallbacks (primary is now lh3 =w800; fall back to thumbnail then uc)
   const id = getDriveId(url);
   if (id) {
     return [
-      `https://drive.google.com/thumbnail?id=${id}&sz=w600`,
-      `https://lh3.googleusercontent.com/d/${id}`,
+      `https://drive.google.com/thumbnail?id=${id}&sz=w800`,
+      `https://drive.google.com/uc?export=view&id=${id}`,
     ];
   }
 
