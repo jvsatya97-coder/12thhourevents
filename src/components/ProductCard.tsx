@@ -35,10 +35,16 @@ export default function ProductCard({ p }: { p: Product }) {
   };
 
   const [bookingOpen, setBookingOpen] = useState(false);
+  const [enquireOpen, setEnquireOpen] = useState(false);
 
   const handleBook = (e: React.MouseEvent) => {
     e.preventDefault();
     setBookingOpen(true);
+  };
+
+  const handleEnquire = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setEnquireOpen(true);
   };
 
   return (
@@ -100,16 +106,21 @@ export default function ProductCard({ p }: { p: Product }) {
         </div>
 
         {/* CTA */}
-        <button
-          onClick={handleBook}
-          className="w-full btn-pink text-xs md:text-sm py-2 justify-center"
-        >
-          📋 Book Now
-        </button>
+        <div className="flex gap-2">
+          <button onClick={handleEnquire}
+            className="flex-1 border-2 border-orange-400 text-orange-500 font-semibold text-xs py-2 rounded-xl hover:bg-orange-50 transition-colors justify-center">
+            💬 Enquire
+          </button>
+          <button onClick={handleBook}
+            className="flex-1 btn-pink text-xs py-2 justify-center">
+            📋 Book
+          </button>
+        </div>
       </div>
     </Link>
 
-    {bookingOpen && <BookingModal product={p} onClose={() => setBookingOpen(false)} />}
+    {bookingOpen && <BookingModal product={p} onClose={() => setBookingOpen(false)} mode="book" />}
+    {enquireOpen && <BookingModal product={p} onClose={() => setEnquireOpen(false)} mode="enquire" />}
     </>
   );
 }

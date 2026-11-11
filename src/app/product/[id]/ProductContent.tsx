@@ -14,6 +14,7 @@ export default function ProductContent({ id }: { id: string }) {
   const [similar, setSimilar] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [bookingOpen, setBookingOpen] = useState(false);
+  const [enquireOpen, setEnquireOpen] = useState(false);
   const { city, cityName } = useCity();
 
   useEffect(() => {
@@ -117,12 +118,12 @@ export default function ProductContent({ id }: { id: string }) {
 
           {/* Desktop CTAs */}
           <div className="hidden md:flex gap-3 mb-6">
-            <button onClick={() => setBookingOpen(true)} className="btn-pink flex-1 justify-center">
-              📋 Book This Package
+            <button onClick={() => setEnquireOpen(true)}
+              className="flex-1 border-2 border-orange-400 text-orange-500 font-bold py-3 px-4 rounded-2xl hover:bg-orange-50 transition-colors justify-center flex items-center gap-2">
+              💬 Enquire Now
             </button>
-            <button onClick={() => openWhatsApp(`Hi! I want to know more about "${product.name}" in ${cityName}. Price: ${price}`)}
-              className="btn-wa flex-1 justify-center">
-              📲 WhatsApp
+            <button onClick={() => setBookingOpen(true)} className="btn-pink flex-1 justify-center">
+              📋 Book Now
             </button>
           </div>
 
@@ -145,16 +146,15 @@ export default function ProductContent({ id }: { id: string }) {
           )}
         </div>
       </div>
-      {bookingOpen && <BookingModal product={product} onClose={() => setBookingOpen(false)} />}
+      {bookingOpen && <BookingModal product={product} onClose={() => setBookingOpen(false)} mode="book" />}
+      {enquireOpen && <BookingModal product={product} onClose={() => setEnquireOpen(false)} mode="enquire" />}
 
       {/* Mobile sticky bottom bar */}
       <div className="fixed bottom-14 left-0 right-0 z-40 md:hidden bg-white border-t border-gray-200 px-4 py-2.5 shadow-[0_-4px_16px_rgba(0,0,0,0.08)]">
-        <div className="flex gap-2.5 max-w-lg mx-auto">
-          <button
-            onClick={() => openWhatsApp(`Hi! I want to know more about "${product.name}" in ${cityName}. Price: ${price}`)}
-            className="btn-wa flex-1 justify-center py-2.5 text-sm"
-          >
-            📲 WhatsApp
+        <div className="flex gap-2 max-w-lg mx-auto">
+          <button onClick={() => setEnquireOpen(true)}
+            className="flex-1 border-2 border-orange-400 text-orange-500 font-semibold py-2.5 text-sm rounded-2xl hover:bg-orange-50 transition-colors">
+            💬 Enquire
           </button>
           <button onClick={() => setBookingOpen(true)} className="btn-pink flex-1 justify-center py-2.5 text-sm">
             📋 Book Now

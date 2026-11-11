@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useCity } from '@/context/CityContext';
 import { Product, getPrice, submitLead, openWhatsApp } from '@/lib/products';
 
-interface Props { product: Product; onClose: () => void; }
+interface Props { product: Product; onClose: () => void; mode?: 'book' | 'enquire'; }
 
 const TIME_SLOTS = [
   'Morning (9 AM - 12 PM)',
@@ -12,7 +12,8 @@ const TIME_SLOTS = [
   'Night (8 PM - 11 PM)',
 ];
 
-export default function BookingModal({ product, onClose }: Props) {
+export default function BookingModal({ product, onClose, mode = 'book' }: Props) {
+  const isEnquiry = mode === 'enquire';
   const { city, cityName } = useCity();
   const [step, setStep] = useState(1); // 1 = details, 2 = success
   const [form, setForm] = useState({
@@ -57,11 +58,14 @@ export default function BookingModal({ product, onClose }: Props) {
       product: product.name,
       price,
       notes: form.notes,
-      source: 'website',
+      source: isEnquiry ? 'enquiry' : 'website',
     });
 
     // Open WhatsApp with all details
-    const msg = `Hi! I want to book:\n\n*Package:* ${product.name}\n*Price:* ${price}\n*City:* ${cityName}${form.date ? `\n*Date:* ${form.date}` : ''}${form.timeslot ? `\n*Time:* ${form.timeslot}` : ''}${form.venue ? `\n*Venue:* ${form.venue}` : ''}\n*Name:* ${form.name}\n*Phone:* ${form.phone}${form.notes ? `\n*Special Requests:* ${form.notes}` : ''}`;
+    const intro = isEnquiry
+      ? `Hi! I'd like to know more about:`
+      : `Hi! I want to book:`;
+    const msg = `${intro}\n\n*Package:* ${product.name}\n*Price:* ${price}\n*City:* ${cityName}${form.date ? `\n*Date:* ${form.date}` : ''}${form.timeslot ? `\n*Time:* ${form.timeslot}` : ''}${form.venue ? `\n*Venue:* ${form.venue}` : ''}\n*Name:* ${form.name}\n*Phone:* ${form.phone}${form.notes ? `\n*Special Requests:* ${form.notes}` : ''}`;
     openWhatsApp(msg);
     setLoading(false);
     setStep(2);
@@ -71,8 +75,8 @@ export default function BookingModal({ product, onClose }: Props) {
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
       <div className="relative bg-white rounded-2xl p-8 w-full max-w-sm shadow-2xl text-center" onClick={e => e.stopPropagation()}>
-        <div className="text-5xl mb-3">🎉</div>
-        <h2 className="text-xl font-extrabold text-gray-800 mb-2">Enquiry Sent!</h2>
+        <div className="text-5xl mb-3">{isEnquiry ? '💬' : '🎉'}</div>
+        <h2 className="text-xl font-extrabold text-gray-800 mb-2">{isEnquiry ? 'Enquiry Sent!' : 'Booking Requested!'}</h2>
         <p className="text-gray-500 text-sm mb-1">Our team will contact you soon.</p>
         <p className="text-gray-400 text-xs mb-6">Also check WhatsApp — we just sent you the details.</p>
         <button onClick={onClose} className="btn-pink w-full justify-center">Done</button>
@@ -88,7 +92,7 @@ export default function BookingModal({ product, onClose }: Props) {
 
         {/* Header */}
         <div className="sticky top-0 bg-white rounded-t-2xl px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-          <h2 className="text-lg font-extrabold text-gray-800">📋 Book This Package</h2>
+          <h2 className="text-lg font-extrabold text-gray-800">{isEnquiry ? '💬 Enquire About This' : '📋 Book This Package'}</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl w-8 h-8 flex items-center justify-center">✕</button>
         </div>
 
@@ -169,10 +173,12 @@ export default function BookingModal({ product, onClose }: Props) {
           </div>
 
           <button type="submit" disabled={loading}
-            className="btn-wa w-full justify-center !py-3 text-base font-bold">
-            {loading ? '⏳ Sending...' : '📲 Confirm on WhatsApp'}
+            className={`w-full justify-center !py-3 text-base font-bold ${isEnquiry ? 'btn-pink' : 'btn-wa'}`}>
+            {loading ? '⏳ Sending...' : isEnquiry ? '💬 Send Enquiry on WhatsApp' : '📲 Confirm on WhatsApp'}
           </button>
-          <p className="text-center text-xs text-gray-400">We'll confirm your booking within 2 hours</p>
+          <p className="text-center text-xs text-gray-400">
+            {isEnquiry ? 'We\'ll get back to you within 2 hours' : 'We\'ll confirm your booking within 2 hours'}
+          </p>
         </form>
       </div>
     </div>
