@@ -20,19 +20,21 @@ type Lead = {
   timestamp: string;
   name: string;
   phone: string;
-  date: string;
+  product: string;   // Product/Service
+  date: string;      // Event Date
+  timeslot: string;  // Time Slot
+  venue: string;     // Venue/Area
   city: string;
-  product: string;
-  price: string;
-  status: string;
-  assignee: string;
-  notes: string;
-  followup: string;
+  notes: string;     // Special Requests
   source: string;
+  status: string;
+  assignee: string;  // CRM: Assignee (col 12)
+  crmNotes: string;  // CRM: internal notes (col 13)
+  followup: string;  // CRM: follow-up date (col 14)
 };
 
 function statusMeta(s: string) {
-  return STATUS_OPTIONS.find(x => x.value === s) || STATUS_OPTIONS[0];
+  return STATUS_OPTIONS.find(x => x.value === s.toLowerCase()) || STATUS_OPTIONS[0];
 }
 
 function getLeadsFromSheet(url: string): Promise<Lead[]> {
@@ -352,7 +354,7 @@ function LeadsTable({ leads, onUpdate, onSelect, savingRow, isFollowupDue }: {
                   </td>
                   <td className="px-4 py-3 max-w-[180px]" onClick={() => onSelect(lead)}>
                     <p className="font-medium text-gray-800 text-xs line-clamp-2">{lead.product || '—'}</p>
-                    <p className="text-xs font-bold text-orange-600 mt-0.5">{lead.price}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">{lead.city}</p>
                   </td>
                   <td className="px-4 py-3 text-xs text-gray-600 capitalize" onClick={() => onSelect(lead)}>{lead.city || '—'}</td>
                   <td className="px-4 py-3 text-xs text-gray-600 whitespace-nowrap" onClick={() => onSelect(lead)}>{lead.date || '—'}</td>
@@ -424,7 +426,7 @@ function KanbanView({ leads, onUpdate, onSelect, savingRow }: {
                   <p className="text-xs text-gray-500">{lead.phone}</p>
                   <p className="text-xs text-gray-400 mt-1 line-clamp-1">{lead.product}</p>
                   <div className="flex items-center justify-between mt-2">
-                    <span className="text-xs font-bold text-orange-600">{lead.price}</span>
+                    <span className="text-xs text-gray-400 capitalize">{lead.city}</span>
                     <select value={lead.assignee || 'Unassigned'}
                       onChange={e => { e.stopPropagation(); onUpdate(lead, 'assignee', e.target.value); }}
                       onClick={e => e.stopPropagation()}
@@ -462,11 +464,11 @@ function LeadDrawer({ lead, onClose, onUpdate, onBook, savingRow }: {
   onBook: () => void;
   savingRow: number | null;
 }) {
-  const [notes, setNotes] = useState(lead.notes || '');
-  const sm = statusMeta(lead.status || 'new');
+  const [crmNotes, setCrmNotes] = useState(lead.crmNotes || '');
+  const sm = statusMeta(lead.status || 'New');
   const saving = savingRow === lead.row;
 
-  const saveNotes = () => { if (notes !== lead.notes) onUpdate('notes', notes); };
+  const saveCrmNotes = () => { if (crmNotes !== lead.crmNotes) onUpdate('crmNotes', crmNotes); };
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
@@ -501,14 +503,21 @@ function LeadDrawer({ lead, onClose, onUpdate, onBook, savingRow }: {
           </div>
 
           {/* Package */}
-          <div className="bg-gray-50 rounded-xl p-4">
+          <div className="bg-gray-50 rounded-xl p-4 space-y-1.5">
             <p className="text-xs text-gray-500 font-medium mb-1">Package Enquiry</p>
             <p className="font-bold text-gray-800">{lead.product || '—'}</p>
-            <div className="flex items-center gap-3 mt-1">
-              <span className="text-orange-600 font-extrabold text-lg">{lead.price}</span>
-              <span className="text-sm text-gray-500 capitalize">📍 {lead.city}</span>
-              {lead.date && <span className="text-sm text-gray-500">📅 {lead.date}</span>}
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-sm text-gray-500">
+              {lead.city && <span className="capitalize">📍 {lead.city}</span>}
+              {lead.date && <span>📅 {lead.date}</span>}
+              {lead.timeslot && <span>🕐 {lead.timeslot}</span>}
             </div>
+            {lead.venue && <p className="text-sm text-gray-500">🏠 {lead.venue}</p>}
+            {lead.notes && (
+              <div className="mt-2 bg-yellow-50 rounded-lg p-2.5 border border-yellow-200">
+                <p className="text-xs text-yellow-700 font-semibold mb-0.5">Special Requests</p>
+                <p className="text-sm text-gray-700">{lead.notes}</p>
+              </div>
+            )}
           </div>
 
           {/* Status */}
@@ -545,13 +554,13 @@ function LeadDrawer({ lead, onClose, onUpdate, onBook, savingRow }: {
             </div>
           </div>
 
-          {/* Notes */}
+          {/* CRM Notes */}
           <div>
-            <p className="text-xs text-gray-500 font-medium mb-1.5">Notes</p>
-            <textarea value={notes} onChange={e => setNotes(e.target.value)} onBlur={saveNotes} rows={4}
-              placeholder="Add notes about this lead, customer preferences, special requests..."
+            <p className="text-xs text-gray-500 font-medium mb-1.5">Internal CRM Notes</p>
+            <textarea value={crmNotes} onChange={e => setCrmNotes(e.target.value)} onBlur={saveCrmNotes} rows={4}
+              placeholder="Add internal notes (not visible to customer)..."
               className="w-full text-sm border-2 border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-orange-400 resize-none" />
-            <button onClick={saveNotes} className="mt-1.5 text-xs text-orange-600 font-semibold hover:underline">Save notes</button>
+            <button onClick={saveCrmNotes} className="mt-1.5 text-xs text-orange-600 font-semibold hover:underline">Save notes</button>
           </div>
 
           {/* Quick WhatsApp templates */}
@@ -560,7 +569,7 @@ function LeadDrawer({ lead, onClose, onUpdate, onBook, savingRow }: {
             <div className="space-y-2">
               {[
                 { label: '👋 Follow-up',    msg: `Hi ${lead.name}! This is 12th Hour Events. We got your enquiry for "${lead.product}". Would love to help plan your event! When's a good time to talk?` },
-                { label: '💰 Send Quote',   msg: `Hi ${lead.name}! Your quote for "${lead.product}" in ${lead.city} is ${lead.price}. This includes professional setup & decor. Book now to confirm your date! 🎉` },
+                { label: '💰 Send Quote',   msg: `Hi ${lead.name}! Your quote for "${lead.product}" in ${lead.city} is ready. This includes professional setup & decor. Book now to confirm your date! 🎉` },
                 { label: '✅ Confirm Booking', msg: `Hi ${lead.name}! Great news — your booking for "${lead.product}" on ${lead.date || 'your selected date'} is confirmed! 🎊 We'll be in touch with setup details soon.` },
                 { label: '🔔 Reminder',     msg: `Hi ${lead.name}! Reminder: your event is coming up on ${lead.date || 'soon'}. We're all set for "${lead.product}" — excited to make it special! 🎈` },
               ].map(t => (
@@ -592,11 +601,12 @@ function AdminBookingModal({ lead, onClose }: { lead: Lead; onClose: () => void 
     date: lead.date || '',
     city: lead.city || '',
     product: lead.product || '',
-    price: lead.price || '',
+    timeslot: lead.timeslot || '',
+    venue: lead.venue || '',
     notes: lead.notes || '',
     assignee: lead.assignee || 'Unassigned',
     advancePaid: '',
-    totalAmount: lead.price?.replace(/[^\d]/g, '') || '',
+    totalAmount: '',
   });
   const [done, setDone] = useState(false);
 
@@ -614,7 +624,7 @@ function AdminBookingModal({ lead, onClose }: { lead: Lead; onClose: () => void 
       await fetch(`${LEADS_URL}?${params}&callback=_`, { mode: 'no-cors' });
     } catch {}
     // Also send WhatsApp confirmation
-    const msg = `✅ BOOKING CONFIRMED\n\n*Customer:* ${form.name}\n*Phone:* ${form.phone}\n*Package:* ${form.product}\n*City:* ${form.city}\n*Date:* ${form.date || 'TBD'}\n*Price:* ₹${form.totalAmount}\n*Advance Paid:* ₹${form.advancePaid || '0'}\n*Assigned To:* ${form.assignee}\n*Notes:* ${form.notes || '—'}`;
+    const msg = `✅ BOOKING CONFIRMED\n\n*Customer:* ${form.name}\n*Phone:* ${form.phone}\n*Package:* ${form.product}\n*City:* ${form.city}\n*Date:* ${form.date || 'TBD'}\n*Time Slot:* ${form.timeslot || '—'}\n*Venue:* ${form.venue || '—'}\n*Total Amount:* ₹${form.totalAmount}\n*Advance Paid:* ₹${form.advancePaid || '0'}\n*Balance:* ₹${balance}\n*Assigned To:* ${form.assignee}\n*Special Requests:* ${form.notes || '—'}`;
     window.open(`https://wa.me/91${form.phone?.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`, '_blank');
     setDone(true);
   };
