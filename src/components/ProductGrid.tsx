@@ -89,12 +89,13 @@ export default function ProductGrid({ cat, limit, title, showFilters = false }: 
   if (loading) return (
     <div className="product-grid py-4">
       {[...Array(limit || 4)].map((_, i) => (
-        <div key={i} className="card animate-pulse">
-          <div className="bg-gray-200" style={{ aspectRatio: '1/1' }} />
-          <div className="p-4 space-y-2">
-            <div className="h-4 bg-gray-200 rounded w-3/4" />
-            <div className="h-4 bg-gray-200 rounded w-1/2" />
-            <div className="h-9 bg-gray-200 rounded" />
+        <div key={i} className="card overflow-hidden">
+          <div className="skeleton-shimmer" style={{ aspectRatio: '1/1' }} />
+          <div className="p-3 space-y-2.5">
+            <div className="skeleton-shimmer h-4 rounded-full w-3/4" />
+            <div className="skeleton-shimmer h-3 rounded-full w-1/2" />
+            <div className="skeleton-shimmer h-3.5 rounded-full w-2/5" />
+            <div className="skeleton-shimmer h-9 rounded-full mt-1" />
           </div>
         </div>
       ))}

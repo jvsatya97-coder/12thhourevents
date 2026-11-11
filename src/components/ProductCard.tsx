@@ -47,6 +47,7 @@ export default function ProductCard({ p }: { p: Product }) {
             alt={p.name}
             className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
             loading="lazy"
+            decoding="async"
             referrerPolicy="no-referrer"
             onError={handleImgError}
           />

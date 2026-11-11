@@ -6,6 +6,7 @@ import ImageGallery from '@/components/ImageGallery';
 import BookingModal from '@/components/BookingModal';
 import ProductCard from '@/components/ProductCard';
 import CategoryBar from '@/components/CategoryBar';
+import RecentlyViewed, { saveRecentlyViewed } from '@/components/RecentlyViewed';
 import { SERVICES } from '@/lib/config';
 
 export default function ProductContent({ id }: { id: string }) {
@@ -25,6 +26,7 @@ export default function ProductContent({ id }: { id: string }) {
         || products.find(p => p.id === decodedId)
         || products.find(p => p.id.toLowerCase().trim() === decodedId.toLowerCase().trim());
       setProduct(found || null);
+      if (found) saveRecentlyViewed(found.id);
 
       // Similar products: same category, exclude current, up to 8
       if (found) {
@@ -79,19 +81,42 @@ export default function ProductContent({ id }: { id: string }) {
     <div className="pb-mobile">
       {/* All-categories sticky nav bar */}
       <CategoryBar />
-    <div className="max-w-5xl mx-auto px-4 py-10">
-      <div className="grid md:grid-cols-2 gap-8">
+    <div className="max-w-5xl mx-auto px-4 py-6 md:py-10">
+      <div className="grid md:grid-cols-2 gap-6 md:gap-8">
         <ImageGallery imgs={product.imgs} name={product.name} />
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-gray-800 mb-3">{product.name}</h1>
-          <div className="flex items-center gap-3 mb-4">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-gray-800 mb-2">{product.name}</h1>
+
+          {/* Rating row */}
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-orange-400 text-sm">★★★★★</span>
+            <span className="text-sm font-semibold text-gray-700">4.9</span>
+            <span className="text-sm text-gray-400">(500+ bookings)</span>
+          </div>
+
+          <div className="flex items-center gap-3 mb-2">
             <span className="text-3xl font-bold text-orange-600">{price || '—'}</span>
             {orig && orig !== price && <span className="text-gray-400 text-lg line-through">{orig}</span>}
             {product.disc > 0 && <span className="disc-badge">{product.disc}% OFF</span>}
           </div>
-          <p className="text-sm text-gray-500 mb-4">📍 Price for {cityName}</p>
+          <p className="text-xs text-gray-400 mb-5">📍 Price shown for <strong>{cityName}</strong> · Inclusive of setup</p>
 
-          <div className="flex gap-3 mb-6">
+          {/* Trust badges */}
+          <div className="grid grid-cols-3 gap-2 mb-5">
+            {[
+              { icon: '⚡', text: 'Same-Day Setup' },
+              { icon: '🔒', text: 'Secure Booking' },
+              { icon: '💯', text: 'Satisfaction Guarantee' },
+            ].map((b, i) => (
+              <div key={i} className="flex flex-col items-center text-center bg-orange-50 rounded-xl px-2 py-2.5 border border-orange-100">
+                <span className="text-lg mb-0.5">{b.icon}</span>
+                <span className="text-[10px] font-semibold text-orange-700 leading-tight">{b.text}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop CTAs */}
+          <div className="hidden md:flex gap-3 mb-6">
             <button onClick={() => setBookingOpen(true)} className="btn-pink flex-1 justify-center">
               📋 Book This Package
             </button>
@@ -105,7 +130,7 @@ export default function ProductContent({ id }: { id: string }) {
             <div className="mb-4">
               <h3 className="font-bold text-gray-700 mb-2">✅ What&apos;s Included</h3>
               <ul className="space-y-1">
-                {product.incs.map((inc, i) => <li key={i} className="text-sm text-gray-600">• {inc}</li>)}
+                {product.incs.map((inc, i) => <li key={i} className="text-sm text-gray-600 flex items-start gap-1.5"><span className="text-green-500 mt-0.5 flex-shrink-0">✓</span>{inc}</li>)}
               </ul>
             </div>
           )}
@@ -114,13 +139,28 @@ export default function ProductContent({ id }: { id: string }) {
             <div>
               <h3 className="font-bold text-gray-700 mb-2">❌ Not Included</h3>
               <ul className="space-y-1">
-                {product.excs.map((exc, i) => <li key={i} className="text-sm text-gray-500">• {exc}</li>)}
+                {product.excs.map((exc, i) => <li key={i} className="text-sm text-gray-500 flex items-start gap-1.5"><span className="text-red-400 mt-0.5 flex-shrink-0">✕</span>{exc}</li>)}
               </ul>
             </div>
           )}
         </div>
       </div>
       {bookingOpen && <BookingModal product={product} onClose={() => setBookingOpen(false)} />}
+
+      {/* Mobile sticky bottom bar */}
+      <div className="fixed bottom-14 left-0 right-0 z-40 md:hidden bg-white border-t border-gray-200 px-4 py-2.5 shadow-[0_-4px_16px_rgba(0,0,0,0.08)]">
+        <div className="flex gap-2.5 max-w-lg mx-auto">
+          <button
+            onClick={() => openWhatsApp(`Hi! I want to know more about "${product.name}" in ${cityName}. Price: ${price}`)}
+            className="btn-wa flex-1 justify-center py-2.5 text-sm"
+          >
+            📲 WhatsApp
+          </button>
+          <button onClick={() => setBookingOpen(true)} className="btn-pink flex-1 justify-center py-2.5 text-sm">
+            📋 Book Now
+          </button>
+        </div>
+      </div>
 
       {/* ── Similar Products ── */}
       {similar.length > 0 && (
@@ -170,6 +210,9 @@ export default function ProductContent({ id }: { id: string }) {
           `}</style>
         </div>
       )}
+
+      {/* Recently Viewed */}
+      <RecentlyViewed excludeId={product.id} />
     </div>
     </div>
   );

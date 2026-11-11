@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import WAFloat from '@/components/WAFloat';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import BackToTop from '@/components/BackToTop';
 
 export const metadata: Metadata = {
   title: '12th Hour Events | Birthday & Party Decoration — Pan India',
@@ -29,8 +30,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
+        {/* Critical preconnects for fast image loading */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://res.cloudinary.com" />
+        <link rel="preconnect" href="https://lh3.googleusercontent.com" />
+        <link rel="dns-prefetch" href="https://drive.google.com" />
+        <link rel="dns-prefetch" href="https://script.google.com" />
+        {/* Font: preload critical weights */}
+        <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800&display=swap" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="icon" href="/favicon.png" type="image/png" sizes="64x64" />
@@ -85,6 +93,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Footer />
           <WAFloat />
           <MobileBottomNav />
+          <BackToTop />
         </CityProvider>
       </body>
     </html>

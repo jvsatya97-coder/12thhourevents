@@ -334,3 +334,80 @@ body {
 .search-bar-input:focus {
   border-color: #ff6b00;
 }
+
+/* ─── Smooth scrolling ─── */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ─── Shimmer skeleton animation ─── */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 37%, #f0f0f0 63%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+
+/* ─── Back to top button ─── */
+.back-to-top {
+  position: fixed;
+  bottom: 5.5rem;
+  right: 1rem;
+  z-index: 40;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: white;
+  border: 1.5px solid #e5e7eb;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+}
+.back-to-top.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+.back-to-top:hover {
+  background: #ff6b00;
+  border-color: #ff6b00;
+  color: white;
+  transform: translateY(-2px);
+}
+@media (min-width: 768px) {
+  .back-to-top {
+    bottom: 6rem;
+    right: 1.5rem;
+  }
+}
+
+/* ─── Page transition fade ─── */
+main {
+  animation: pageFadeIn 0.25s ease;
+}
+@keyframes pageFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Image loading blur-up ─── */
+img {
+  image-rendering: auto;
+}
+.img-blur-up {
+  filter: blur(8px);
+  transition: filter 0.4s ease;
+}
+.img-blur-up.loaded {
+  filter: none;
+}

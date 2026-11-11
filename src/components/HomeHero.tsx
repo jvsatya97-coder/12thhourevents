@@ -17,13 +17,18 @@ export default function HomeHero() {
 
   return (
     <section className="relative text-white overflow-hidden" style={{ minHeight: '520px' }}>
-      {/* Background photo */}
-      <div className="absolute inset-0"
-        style={{
-          backgroundImage: "url('https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=1400&q=70')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center top',
-        }} />
+      {/* Background photo — use <img> tag so browser can prioritise LCP */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=1400&q=70"
+          alt=""
+          aria-hidden="true"
+          className="w-full h-full object-cover object-center"
+          fetchPriority="high"
+          decoding="async"
+        />
+      </div>
       {/* Overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/55 to-black/80" />
 
