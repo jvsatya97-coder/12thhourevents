@@ -62,6 +62,11 @@ export default function MobileBottomNav() {
           <span>Search</span>
         </button>
 
+        <Link href="/wishlist" className={`mobile-nav-item ${pathname === '/wishlist' ? 'active' : ''}`}>
+          <span className="mobile-nav-icon">❤️</span>
+          <span>Saved</span>
+        </Link>
+
         <button onClick={() => setCityModalOpen(true)} className="mobile-nav-item">
           <span className="mobile-nav-icon">📍</span>
           <span className="truncate max-w-[60px]">{cityName.split(' ')[0]}</span>

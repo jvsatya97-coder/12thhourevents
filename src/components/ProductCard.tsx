@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Product, getPrice, getOrig, openWhatsApp, getImgFallbacks, toThumbUrl } from '@/lib/products';
 import { useCity } from '@/context/CityContext';
+import WishlistButton from '@/components/WishlistButton';
 
 // Deterministic "review" count and rating based on product id
 function pseudoRating(id: string) {
@@ -61,6 +62,8 @@ export default function ProductCard({ p }: { p: Product }) {
         {p.disc > 0 && (
           <div className="absolute top-2 left-2 disc-badge">{p.disc}% OFF</div>
         )}
+        {/* Wishlist heart */}
+        <WishlistButton id={p.id} />
         {/* Category chip */}
         {p.sub && (
           <div className="absolute bottom-2 left-2 bg-black/50 backdrop-blur-sm text-white text-[10px] font-medium px-2 py-0.5 rounded-full">

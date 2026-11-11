@@ -411,3 +411,31 @@ img {
 .img-blur-up.loaded {
   filter: none;
 }
+
+/* ─── Wishlist button ─── */
+@keyframes heartPop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.4); }
+  70%  { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+.wishlist-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(4px);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.15s;
+}
+.wishlist-btn:hover { background: rgba(0,0,0,0.5); transform: scale(1.1); }
+.wishlist-btn.wishlisted { background: rgba(255,255,255,0.9); }
+.wishlist-btn.pop svg { animation: heartPop 0.5s ease; }

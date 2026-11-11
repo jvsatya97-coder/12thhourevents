@@ -457,12 +457,18 @@ export default function AdminPage() {
             </div>
           )}
         </div>
-        {(tab === 'add' || editingProduct) && (
-          <button onClick={handleSubmit} disabled={saving}
-            className="bg-orange-500 hover:bg-orange-600 disabled:opacity-60 text-white font-bold px-5 py-2.5 rounded-xl transition text-sm">
-            {saving ? 'Saving…' : form.isEdit ? '✏️ Update' : '💾 Save'}
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          <a href="/admin/leads"
+            className="text-xs font-bold px-3 py-2 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors border border-blue-200">
+            📊 Leads CRM
+          </a>
+          {(tab === 'add' || editingProduct) && (
+            <button onClick={handleSubmit} disabled={saving}
+              className="bg-orange-500 hover:bg-orange-600 disabled:opacity-60 text-white font-bold px-5 py-2.5 rounded-xl transition text-sm">
+              {saving ? 'Saving…' : form.isEdit ? '✏️ Update' : '💾 Save'}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Tabs — hide when editing */}
