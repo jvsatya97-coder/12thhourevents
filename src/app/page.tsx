@@ -12,6 +12,8 @@ import EventCountdown from '@/components/EventCountdown';
 import BudgetEstimator from '@/components/BudgetEstimator';
 import InspirationGallery from '@/components/InspirationGallery';
 import ReferralCard from '@/components/ReferralCard';
+import MidnightSetup from '@/components/MidnightSetup';
+import ThemeStylePicker from '@/components/ThemeStylePicker';
 
 export const metadata: Metadata = {
   title: '12th Hour Events | Party & Birthday Decoration Service — Pan India',
@@ -171,6 +173,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Theme Style Picker */}
+      <ThemeStylePicker />
+
       {/* Popular packages */}
       <section className="py-12 md:py-16">
         <div className="max-w-7xl mx-auto px-4">
@@ -198,6 +203,9 @@ export default function Home() {
 
       {/* Photo Inspiration Gallery */}
       <InspirationGallery />
+
+      {/* Midnight / Secret Setup */}
+      <MidnightSetup />
 
       {/* Trending packages section */}
       <TrendingSection />
