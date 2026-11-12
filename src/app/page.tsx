@@ -14,10 +14,6 @@ import InspirationGallery from '@/components/InspirationGallery';
 import ReferralCard from '@/components/ReferralCard';
 import MidnightSetup from '@/components/MidnightSetup';
 import ThemeStylePicker from '@/components/ThemeStylePicker';
-import TrustBar from '@/components/TrustBar';
-import CinematicGrid from '@/components/CinematicGrid';
-import CinematicShowcase from '@/components/CinematicShowcase';
-import PremiumTestimonials from '@/components/PremiumTestimonials';
 
 export const metadata: Metadata = {
   title: '12th Hour Events | Party & Birthday Decoration Service — Pan India',
@@ -122,9 +118,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Trust / Partner marquee */}
-      <TrustBar />
-
       {/* Services */}
       <section className="py-12 md:py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4">
@@ -190,9 +183,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Cinematic Showcase — premium full-bleed tabbed feature */}
-      <CinematicShowcase />
-
       {/* Theme Style Picker */}
       <ThemeStylePicker />
 
@@ -223,9 +213,6 @@ export default function Home() {
 
       {/* Photo Inspiration Gallery */}
       <InspirationGallery />
-
-      {/* Cinematic Bento Grid */}
-      <CinematicGrid />
 
       {/* Midnight / Secret Setup */}
       <MidnightSetup />
