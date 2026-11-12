@@ -16,6 +16,8 @@ import MidnightSetup from '@/components/MidnightSetup';
 import ThemeStylePicker from '@/components/ThemeStylePicker';
 import TrustBar from '@/components/TrustBar';
 import CinematicGrid from '@/components/CinematicGrid';
+import CinematicShowcase from '@/components/CinematicShowcase';
+import PremiumTestimonials from '@/components/PremiumTestimonials';
 
 export const metadata: Metadata = {
   title: '12th Hour Events | Party & Birthday Decoration Service — Pan India',
@@ -187,6 +189,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Cinematic Showcase — premium full-bleed tabbed feature */}
+      <CinematicShowcase />
 
       {/* Theme Style Picker */}
       <ThemeStylePicker />
