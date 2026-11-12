@@ -6,7 +6,6 @@ import Footer from '@/components/Footer';
 import WAFloat from '@/components/WAFloat';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import BackToTop from '@/components/BackToTop';
-import BookingTicker from '@/components/BookingTicker';
 
 export const metadata: Metadata = {
   title: '12th Hour Events | Birthday & Party Decoration — Pan India',
@@ -90,7 +89,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <CityProvider>
           <Navbar />
-          <BookingTicker />
           <main>{children}</main>
           <Footer />
           <WAFloat />
