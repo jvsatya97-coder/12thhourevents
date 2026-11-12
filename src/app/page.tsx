@@ -7,6 +7,8 @@ import OccasionBar from '@/components/OccasionBar';
 import ScrollReveal from '@/components/ScrollReveal';
 import TransformationGallery from '@/components/TransformationGallery';
 import SameDayCountdown from '@/components/SameDayCountdown';
+import TrendingSection from '@/components/TrendingSection';
+import EventCountdown from '@/components/EventCountdown';
 
 export const metadata: Metadata = {
   title: '12th Hour Events | Party & Birthday Decoration Service — Pan India',
@@ -177,9 +179,12 @@ export default function Home() {
           <ScrollReveal delay={100} className="mb-6">
             <OccasionBar />
           </ScrollReveal>
-          {/* Same-day countdown */}
+          {/* Same-day countdown + Event countdown side by side */}
           <ScrollReveal delay={150} className="mb-6">
-            <SameDayCountdown />
+            <div className="grid md:grid-cols-2 gap-4">
+              <SameDayCountdown />
+              <EventCountdown />
+            </div>
           </ScrollReveal>
           <ProductGrid limit={8} />
           <div className="text-center mt-8">
@@ -187,6 +192,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Trending packages section */}
+      <TrendingSection />
 
       {/* How It Works */}
       <section className="py-12 md:py-16 bg-gradient-to-br from-orange-50 to-amber-50">

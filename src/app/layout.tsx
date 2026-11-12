@@ -3,7 +3,8 @@ import './globals.css';
 import { CityProvider } from '@/context/CityContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import WAFloat from '@/components/WAFloat';
+import WAChat from '@/components/WAChat';
+import CityDealsBanner from '@/components/CityDealsBanner';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import BackToTop from '@/components/BackToTop';
 
@@ -89,9 +90,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <CityProvider>
           <Navbar />
+          <CityDealsBanner />
           <main>{children}</main>
           <Footer />
-          <WAFloat />
+          <WAChat />
           <MobileBottomNav />
           <BackToTop />
         </CityProvider>
