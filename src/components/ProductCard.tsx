@@ -12,14 +12,17 @@ function pseudoRating(id: string) {
   for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) & 0xffffffff;
   const reviews = 12 + (Math.abs(h) % 89);   // 12–100
   const rating = (4.7 + (Math.abs(h >> 4) % 3) * 0.1).toFixed(1); // 4.7–4.9
-  return { reviews, rating };
+  // Show urgency on ~30% of cards (those where hash mod 10 < 3)
+  const showUrgency = (Math.abs(h >> 8) % 10) < 3;
+  const slots = 1 + (Math.abs(h >> 12) % 4); // 1–4 slots
+  return { reviews, rating, showUrgency, slots };
 }
 
 export default function ProductCard({ p }: { p: Product }) {
   const { city, cityName } = useCity();
   const price = getPrice(p, city);
   const orig = getOrig(p, city);
-  const { reviews, rating } = pseudoRating(p.id);
+  const { reviews, rating, showUrgency, slots } = pseudoRating(p.id);
   const [imgSrc, setImgSrc] = useState(toThumbUrl(p.img));
   const [fallbackIdx, setFallbackIdx] = useState(0);
   const [imgError, setImgError] = useState(false);
@@ -84,6 +87,12 @@ export default function ProductCard({ p }: { p: Product }) {
         {p.imgs.length > 1 && (
           <div className="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
             📷 {p.imgs.length}
+          </div>
+        )}
+        {/* Urgency badge */}
+        {showUrgency && (
+          <div className="absolute top-2 right-2 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
+            🔥 {slots} left
           </div>
         )}
       </div>

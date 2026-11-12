@@ -4,10 +4,12 @@ import { useCity } from '@/context/CityContext';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { SERVICES } from '@/lib/config';
+import PackageFinder from '@/components/PackageFinder';
 
 export default function HomeHero() {
   const { cityName } = useCity();
   const [query, setQuery] = useState('');
+  const [finderOpen, setFinderOpen] = useState(false);
   const router = useRouter();
 
   const handleSearch = (e: React.FormEvent) => {
@@ -81,11 +83,13 @@ export default function HomeHero() {
             className="btn-pink text-base px-8 py-3.5 shadow-lg shadow-orange-500/30">
             📲 Get Free Quote — WhatsApp
           </a>
-          <Link href="/birthday-decoration"
-            className="border-2 border-white/40 text-white px-8 py-3.5 rounded-full font-semibold hover:bg-white/15 transition text-base backdrop-blur-sm">
-            View Packages →
-          </Link>
+          <button
+            onClick={() => setFinderOpen(true)}
+            className="border-2 border-white/40 text-white px-8 py-3.5 rounded-full font-semibold hover:bg-white/15 transition text-base backdrop-blur-sm flex items-center gap-2">
+            🎯 Find My Package →
+          </button>
         </div>
+        {finderOpen && <PackageFinder onClose={() => setFinderOpen(false)} />}
 
         {/* Trust strip */}
         <div className="flex flex-wrap justify-center gap-3 md:gap-6 text-sm text-white/80">

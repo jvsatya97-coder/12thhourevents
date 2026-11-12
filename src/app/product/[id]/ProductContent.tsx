@@ -7,6 +7,7 @@ import BookingModal from '@/components/BookingModal';
 import ProductCard from '@/components/ProductCard';
 import CategoryBar from '@/components/CategoryBar';
 import RecentlyViewed, { saveRecentlyViewed } from '@/components/RecentlyViewed';
+import ShareButton from '@/components/ShareButton';
 import { SERVICES } from '@/lib/config';
 
 export default function ProductContent({ id }: { id: string }) {
@@ -93,6 +94,9 @@ export default function ProductContent({ id }: { id: string }) {
             <span className="text-orange-400 text-sm">★★★★★</span>
             <span className="text-sm font-semibold text-gray-700">4.9</span>
             <span className="text-sm text-gray-400">(500+ bookings)</span>
+            <span className="ml-auto">
+              <ShareButton title={product.name} text={`Check out this party decoration package: ${product.name}`} />
+            </span>
           </div>
 
           <div className="flex items-center gap-3 mb-2">

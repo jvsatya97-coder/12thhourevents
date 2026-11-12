@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { SERVICES, CITIES } from '@/lib/config';
 import ProductGrid from '@/components/ProductGrid';
 import HomeHero from '@/components/HomeHero';
+import OccasionBar from '@/components/OccasionBar';
+import ScrollReveal from '@/components/ScrollReveal';
 
 export const metadata: Metadata = {
   title: '12th Hour Events | Party & Birthday Decoration Service — Pan India',
@@ -165,8 +167,14 @@ export default function Home() {
       {/* Popular packages */}
       <section className="py-12 md:py-16">
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="section-title">Popular <span className="grad-text">Packages</span></h2>
-          <p className="section-sub">Top picks loved by thousands of customers</p>
+          <ScrollReveal>
+            <h2 className="section-title">Popular <span className="grad-text">Packages</span></h2>
+            <p className="section-sub">Top picks loved by thousands of customers</p>
+          </ScrollReveal>
+          {/* Quick occasion filter */}
+          <ScrollReveal delay={100} className="mb-6">
+            <OccasionBar />
+          </ScrollReveal>
           <ProductGrid limit={8} />
           <div className="text-center mt-8">
             <Link href="/birthday-decoration" className="btn-pink px-8 py-3">Explore All Packages →</Link>
@@ -177,12 +185,15 @@ export default function Home() {
       {/* How It Works */}
       <section className="py-12 md:py-16 bg-gradient-to-br from-orange-50 to-amber-50">
         <div className="max-w-5xl mx-auto px-4">
-          <h2 className="section-title">How It <span className="grad-text">Works</span></h2>
-          <p className="section-sub">Book your dream decoration in 3 simple steps</p>
+          <ScrollReveal>
+            <h2 className="section-title">How It <span className="grad-text">Works</span></h2>
+            <p className="section-sub">Book your dream decoration in 3 simple steps</p>
+          </ScrollReveal>
           <div className="grid md:grid-cols-3 gap-4 md:gap-6 relative">
             <div className="hidden md:block absolute top-10 left-[calc(16.67%+1.5rem)] right-[calc(16.67%+1.5rem)] h-0.5 bg-orange-200 z-0" />
             {STEPS.map((step, i) => (
-              <div key={i} className="card p-6 text-center relative z-10">
+              <ScrollReveal key={i} delay={i * 120}>
+              <div className="card p-6 text-center relative z-10 h-full">
                 <div className="w-11 h-11 rounded-full bg-gradient-to-br from-orange-500 to-amber-500 text-white text-sm font-bold flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-200">
                   {step.n}
                 </div>
@@ -190,6 +201,7 @@ export default function Home() {
                 <h3 className="font-bold text-gray-800 mb-2">{step.title}</h3>
                 <p className="text-sm text-gray-500 leading-relaxed">{step.desc}</p>
               </div>
+              </ScrollReveal>
             ))}
           </div>
           <div className="text-center mt-8">
@@ -204,17 +216,21 @@ export default function Home() {
       {/* Why Us */}
       <section className="py-12 md:py-16">
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="section-title">Why Choose <span className="grad-text">12th Hour?</span></h2>
-          <p className="section-sub">The trusted name in party decoration across India</p>
+          <ScrollReveal>
+            <h2 className="section-title">Why Choose <span className="grad-text">12th Hour?</span></h2>
+            <p className="section-sub">The trusted name in party decoration across India</p>
+          </ScrollReveal>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
             {WHY.map((w, i) => (
-              <div key={i} className="flex items-start gap-3 p-4 md:p-5 rounded-2xl bg-gray-50 hover:bg-orange-50 transition-colors border border-transparent hover:border-orange-100">
+              <ScrollReveal key={i} delay={i * 60}>
+              <div className="flex items-start gap-3 p-4 md:p-5 rounded-2xl bg-gray-50 hover:bg-orange-50 transition-colors border border-transparent hover:border-orange-100">
                 <div className="text-2xl md:text-3xl flex-shrink-0 mt-0.5">{w.emoji}</div>
                 <div>
                   <h3 className="font-bold text-gray-800 mb-0.5 text-sm md:text-base">{w.title}</h3>
                   <p className="text-xs md:text-sm text-gray-500 leading-relaxed">{w.desc}</p>
                 </div>
               </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
