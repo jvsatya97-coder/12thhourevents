@@ -15,6 +15,48 @@ export function saveRecentlyViewed(id: string) {
   } catch {}
 }
 
+function RecentCard({ p, city }: { p: Product; city: string }) {
+  const fallbacks = getImgFallbacks(p.img);
+  const allSrcs = [toThumbUrl(p.img), ...fallbacks].filter(Boolean);
+  const [srcIdx, setSrcIdx] = useState(0);
+  const [failed, setFailed] = useState(false);
+
+  const currentSrc = allSrcs[srcIdx];
+
+  const handleError = () => {
+    if (srcIdx + 1 < allSrcs.length) {
+      setSrcIdx(i => i + 1);
+    } else {
+      setFailed(true);
+    }
+  };
+
+  const price = p.city_prices?.[city]
+    ? `₹${parseInt(p.city_prices[city]).toLocaleString('en-IN')}`
+    : p.price ? `₹${parseInt(p.price).toLocaleString('en-IN')}` : '';
+
+  return (
+    <Link href={`/product/${encodeURIComponent(p.id)}`}
+      className="card flex gap-3 p-2.5 items-center hover:border-orange-200 border border-transparent transition-all">
+      <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-orange-50">
+        {currentSrc && !failed ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={currentSrc} alt={p.name} className="w-full h-full object-cover"
+            loading="lazy" decoding="async" referrerPolicy="no-referrer"
+            onError={handleError}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-2xl">{p.emoji}</div>
+        )}
+      </div>
+      <div className="min-w-0">
+        <p className="text-xs font-semibold text-gray-800 leading-tight line-clamp-2">{p.name}</p>
+        <p className="text-xs text-orange-600 font-bold mt-0.5">{price}</p>
+      </div>
+    </Link>
+  );
+}
+
 export default function RecentlyViewed({ excludeId }: { excludeId?: string }) {
   const [products, setProducts] = useState<Product[]>([]);
   const { city } = useCity();
@@ -40,34 +82,7 @@ export default function RecentlyViewed({ excludeId }: { excludeId?: string }) {
     <div className="mt-10 border-t border-gray-100 pt-8">
       <h2 className="text-lg font-extrabold text-gray-800 mb-4">👀 Recently Viewed</h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {products.map(p => {
-          const imgSrc = toThumbUrl(p.img);
-          return (
-            <Link key={p.id} href={`/product/${encodeURIComponent(p.id)}`}
-              className="card flex gap-3 p-2.5 items-center hover:border-orange-200 border border-transparent transition-all">
-              <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-orange-50">
-                {imgSrc ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={imgSrc} alt={p.name} className="w-full h-full object-cover"
-                    loading="lazy" decoding="async" referrerPolicy="no-referrer"
-                    onError={e => {
-                      const fallbacks = getImgFallbacks(p.img);
-                      if (fallbacks[0]) (e.target as HTMLImageElement).src = fallbacks[0];
-                    }}
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-2xl">{p.emoji}</div>
-                )}
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-semibold text-gray-800 leading-tight line-clamp-2">{p.name}</p>
-                <p className="text-xs text-orange-600 font-bold mt-0.5">
-                  {p.city_prices?.[city] ? `₹${p.city_prices[city]}` : (p.price ? `₹${p.price}` : '')}
-                </p>
-              </div>
-            </Link>
-          );
-        })}
+        {products.map(p => <RecentCard key={p.id} p={p} city={city} />)}
       </div>
     </div>
   );

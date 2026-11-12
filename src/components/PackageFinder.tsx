@@ -5,6 +5,60 @@ import { fetchProducts, getPrice, Product } from '@/lib/products';
 import { useCity } from '@/context/CityContext';
 import BookingModal from '@/components/BookingModal';
 
+/* ─── Result card sub-component (keeps useState out of .map()) ── */
+function ResultCard({ p, city, onBook, onClose }: {
+  p: Product;
+  city: string;
+  onBook: (p: Product) => void;
+  onClose: () => void;
+}) {
+  const [imgFailed, setImgFailed] = useState(false);
+  const price = getPrice(p, city) || (p.price ? `₹${parseInt(p.price).toLocaleString('en-IN')}` : '');
+  return (
+    <div className="flex items-center gap-3 p-3 rounded-2xl border border-gray-100 hover:border-orange-200 hover:bg-orange-50/40 transition-all group">
+      {/* Thumbnail */}
+      <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 bg-orange-100">
+        {p.imgs[0] && !imgFailed ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={p.imgs[0]} alt={p.name} className="w-full h-full object-cover"
+            referrerPolicy="no-referrer"
+            onError={() => setImgFailed(true)}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-2xl">{p.emoji}</div>
+        )}
+      </div>
+      {/* Info */}
+      <div className="flex-1 min-w-0">
+        <h3 className="font-bold text-gray-800 text-sm leading-tight line-clamp-2">{p.name}</h3>
+        <div className="flex items-center gap-1.5 mt-0.5">
+          <span className="text-orange-600 font-extrabold text-sm">{price}</span>
+          {p.disc > 0 && (
+            <span className="text-[10px] bg-red-100 text-red-600 font-bold px-1.5 py-0.5 rounded-full">{p.disc}% OFF</span>
+          )}
+        </div>
+        <div className="text-[10px] text-orange-400 mt-0.5">★★★★★ 4.9 · {p.sub || p.cat}</div>
+      </div>
+      {/* Actions */}
+      <div className="flex flex-col gap-1.5 flex-shrink-0">
+        <button
+          onClick={() => onBook(p)}
+          className="text-xs font-bold bg-gradient-to-r from-orange-500 to-pink-500 text-white px-3 py-1.5 rounded-full whitespace-nowrap"
+        >
+          📋 Book
+        </button>
+        <Link
+          href={`/product/${encodeURIComponent(p.id)}`}
+          onClick={onClose}
+          className="text-xs font-semibold text-orange-500 border border-orange-200 px-3 py-1.5 rounded-full text-center whitespace-nowrap hover:bg-orange-50 transition"
+        >
+          View →
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Quiz steps ─────────────────────────────────────────────── */
 const STEPS = [
   {
@@ -31,12 +85,12 @@ const STEPS = [
     emoji: '💰',
     cols: 2,
     options: [
-      { label: 'Under ₹1,500',       value: '0-1500',    emoji: '💸' },
-      { label: '₹1,500 – ₹3,000',    value: '1500-3000', emoji: '💵' },
-      { label: '₹3,000 – ₹6,000',    value: '3000-6000', emoji: '💎' },
-      { label: '₹6,000 – ₹12,000',   value: '6000-12000',emoji: '✨' },
+      { label: 'Under ₹1,500',       value: '0-1500',     emoji: '💸' },
+      { label: '₹1,500 – ₹3,000',    value: '1500-3000',  emoji: '💵' },
+      { label: '₹3,000 – ₹6,000',    value: '3000-6000',  emoji: '💎' },
+      { label: '₹6,000 – ₹12,000',   value: '6000-12000', emoji: '✨' },
       { label: '₹12,000+',           value: '12000-99999',emoji: '👑' },
-      { label: 'No limit',           value: '0-99999',   emoji: '🌟' },
+      { label: 'No limit / Surprise me', value: '0-99999',emoji: '🌟' },
     ],
   },
   {
@@ -45,12 +99,12 @@ const STEPS = [
     emoji: '🎨',
     cols: 2,
     options: [
-      { label: 'Romantic & Elegant',   value: 'romantic',  emoji: '🌹' },
-      { label: 'Fun & Colourful',      value: 'fun',       emoji: '🎈' },
-      { label: 'Minimal & Modern',     value: 'minimal',   emoji: '🤍' },
-      { label: 'Pinterest Aesthetic',  value: 'pinterest', emoji: '📌' },
-      { label: 'Royal & Grand',        value: 'royal',     emoji: '👑' },
-      { label: 'Surprise Setup',       value: 'surprise',  emoji: '🎁' },
+      { label: 'Romantic & Elegant',   value: 'romantic',  emoji: '🌹', keywords: ['romantic','rose','fairy','candle','elegant','royal'] },
+      { label: 'Fun & Colourful',      value: 'fun',       emoji: '🎈', keywords: ['fun','colorful','rainbow','balloon','pop','kids'] },
+      { label: 'Minimal & Modern',     value: 'minimal',   emoji: '🤍', keywords: ['minimal','simple','clean','modern','white','neutral'] },
+      { label: 'Pinterest Aesthetic',  value: 'pinterest', emoji: '📌', keywords: ['pinterest','boho','arch','neon','aesthetic','pastel'] },
+      { label: 'Royal & Grand',        value: 'royal',     emoji: '👑', keywords: ['royal','grand','luxury','gold','premium','elite'] },
+      { label: 'Surprise Setup',       value: 'surprise',  emoji: '🎁', keywords: ['surprise','secret','hidden','last-minute','same-day'] },
     ],
   },
 ];
@@ -61,13 +115,24 @@ function parseBudget(val: string): [number, number] {
   return [lo, hi];
 }
 
-function priceNum(priceStr: string): number {
-  return parseInt(priceStr.replace(/[^0-9]/g, '')) || 0;
+// Strip ₹, commas, spaces — return numeric value
+function priceNum(priceStr: string | undefined): number {
+  if (!priceStr) return 0;
+  return parseInt(String(priceStr).replace(/[^0-9]/g, '')) || 0;
+}
+
+// Score a product's name/sub against vibe keywords (higher = better match)
+function vibeScore(p: Product, vibeVal: string): number {
+  const opt = STEPS[2].options.find(o => o.value === vibeVal);
+  if (!opt || !('keywords' in opt)) return 0;
+  const keywords = opt.keywords as string[];
+  const haystack = `${p.name} ${p.sub || ''}`.toLowerCase();
+  return keywords.reduce((s, kw) => s + (haystack.includes(kw) ? 1 : 0), 0);
 }
 
 /* ─── Component ──────────────────────────────────────────────── */
 export default function PackageFinder({ onClose }: { onClose: () => void }) {
-  const { city } = useCity();
+  const { city, cityName } = useCity();
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [results, setResults] = useState<Product[] | null>(null);
@@ -82,51 +147,67 @@ export default function PackageFinder({ onClose }: { onClose: () => void }) {
 
     if (step < STEPS.length - 1) {
       setStep(s => s + 1);
-    } else {
-      // Last step — fetch & filter products
-      setLoading(true);
-      try {
-        const all = await fetchProducts();
-        const occasion = next.occasion;
-        const [lo, hi] = parseBudget(next.budget);
+      return;
+    }
 
-        let filtered = all.filter(p => {
-          // Match occasion category
-          if (p.cat !== occasion) return false;
-          // Match budget
-          const pNum = priceNum(getPrice(p, city) || p.price);
-          if (pNum < lo || pNum > hi) return false;
-          return true;
-        });
+    // ── Last step — fetch & filter products ──
+    setLoading(true);
+    try {
+      const all = await fetchProducts();
+      const occasion = next.occasion;
+      const [lo, hi] = parseBudget(next.budget || '0-99999');
+      const vibe = next.vibe || '';
 
-        // If no exact budget match, loosen to same occasion only
-        if (filtered.length === 0) {
-          filtered = all.filter(p => p.cat === occasion);
-        }
+      // Step 1: match by occasion + city price in budget
+      let filtered = all.filter(p => {
+        if (p.cat !== occasion && p.cats2 !== occasion) return false;
+        const rawPrice = getPrice(p, city) || p.price;
+        const pNum = priceNum(rawPrice);
+        if (pNum === 0) return true; // no price set → include
+        return pNum >= lo && pNum <= hi;
+      });
 
-        // Sort by price ascending, cap at 8
-        filtered = filtered
-          .sort((a, b) => priceNum(getPrice(a, city) || a.price) - priceNum(getPrice(b, city) || b.price))
-          .slice(0, 8);
-
-        setResults(filtered);
-      } finally {
-        setLoading(false);
+      // Step 2: if too few, loosen budget (keep occasion)
+      if (filtered.length < 3) {
+        filtered = all.filter(p => p.cat === occasion || p.cats2 === occasion);
       }
+
+      // Step 3: if still nothing, show all
+      if (filtered.length === 0) {
+        filtered = all.slice(0, 8);
+      }
+
+      // Sort: vibe score desc, then price asc
+      filtered = filtered
+        .map(p => ({ p, vs: vibeScore(p, vibe), price: priceNum(getPrice(p, city) || p.price) }))
+        .sort((a, b) => b.vs - a.vs || a.price - b.price)
+        .map(x => x.p)
+        .slice(0, 8);
+
+      setResults(filtered);
+    } finally {
+      setLoading(false);
     }
   };
 
   const back = () => {
     if (results !== null) {
       setResults(null);
+      setStep(STEPS.length - 1);
     } else {
-      setAnswers(a => { const n = { ...a }; delete n[current.id]; return n; });
+      const newAnswers = { ...answers };
+      delete newAnswers[current.id];
+      setAnswers(newAnswers);
       setStep(s => s - 1);
     }
   };
 
   /* ─── Results screen ────────────────────────────────────────── */
   if (results !== null) {
+    const occasionLabel = STEPS[0].options.find(o => o.value === answers.occasion)?.label || answers.occasion;
+    const budgetLabel   = STEPS[1].options.find(o => o.value === answers.budget)?.label   || '';
+    const vibeLabel     = STEPS[2].options.find(o => o.value === answers.vibe)?.label     || '';
+
     return (
       <>
         <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={onClose}>
@@ -136,12 +217,20 @@ export default function PackageFinder({ onClose }: { onClose: () => void }) {
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 flex-shrink-0">
-              <div>
-                <h2 className="font-extrabold text-gray-800 text-lg">🎯 Your Matches!</h2>
-                <p className="text-xs text-gray-400">{results.length} packages found for you</p>
+            <div className="bg-gradient-to-r from-orange-500 to-pink-500 px-5 py-4 rounded-t-3xl flex-shrink-0">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h2 className="font-extrabold text-white text-lg">🎯 Your Perfect Matches!</h2>
+                  <p className="text-orange-100 text-xs mt-0.5">{results.length} packages found in {cityName}</p>
+                </div>
+                <button onClick={onClose} className="text-white/70 hover:text-white w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/20 transition text-lg flex-shrink-0">✕</button>
               </div>
-              <button onClick={onClose} className="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition text-lg">✕</button>
+              {/* Answer chips */}
+              <div className="flex flex-wrap gap-1.5 mt-3">
+                {occasionLabel && <span className="bg-white/20 text-white text-[10px] font-bold px-2.5 py-1 rounded-full">{occasionLabel}</span>}
+                {budgetLabel   && <span className="bg-white/20 text-white text-[10px] font-bold px-2.5 py-1 rounded-full">{budgetLabel}</span>}
+                {vibeLabel     && <span className="bg-white/20 text-white text-[10px] font-bold px-2.5 py-1 rounded-full">{vibeLabel}</span>}
+              </div>
             </div>
 
             {/* Results */}
@@ -149,55 +238,22 @@ export default function PackageFinder({ onClose }: { onClose: () => void }) {
               {results.length === 0 ? (
                 <div className="text-center py-10">
                   <div className="text-4xl mb-3">😕</div>
-                  <p className="text-gray-500 text-sm">No exact matches — let us customise one for you!</p>
+                  <p className="text-gray-500 text-sm font-medium">No exact matches — let us customise one for you!</p>
                   <a href="https://wa.me/918073552837?text=Hi! I need help finding a decoration package." target="_blank" rel="noopener noreferrer"
                     className="mt-4 inline-flex items-center gap-2 bg-orange-500 text-white font-semibold px-5 py-2.5 rounded-full text-sm">
                     💬 Chat with Us
                   </a>
                 </div>
               ) : (
-                results.map(p => {
-                  const price = getPrice(p, city) || (p.price ? `₹${parseInt(p.price).toLocaleString('en-IN')}` : '');
-                  return (
-                    <div key={p.id} className="flex items-center gap-3 p-3 rounded-2xl border border-gray-100 hover:border-orange-200 hover:bg-orange-50/40 transition-all group">
-                      {/* Thumbnail */}
-                      <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 bg-orange-100">
-                        {p.imgs[0] ? (
-                          <img src={p.imgs[0]} alt={p.name} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-2xl">{p.emoji}</div>
-                        )}
-                      </div>
-                      {/* Info */}
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-gray-800 text-sm leading-tight line-clamp-2">{p.name}</h3>
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          <span className="text-orange-600 font-extrabold text-sm">{price}</span>
-                          {p.disc > 0 && (
-                            <span className="text-[10px] bg-red-100 text-red-600 font-bold px-1.5 py-0.5 rounded-full">{p.disc}% OFF</span>
-                          )}
-                        </div>
-                        <div className="text-[10px] text-gray-400 mt-0.5">★★★★★ 4.9</div>
-                      </div>
-                      {/* Actions */}
-                      <div className="flex flex-col gap-1.5 flex-shrink-0">
-                        <button
-                          onClick={() => setBookingProduct(p)}
-                          className="text-xs font-bold bg-gradient-to-r from-orange-500 to-pink-500 text-white px-3 py-1.5 rounded-full whitespace-nowrap"
-                        >
-                          📋 Book
-                        </button>
-                        <Link
-                          href={`/product/${encodeURIComponent(p.id)}`}
-                          onClick={onClose}
-                          className="text-xs font-semibold text-orange-500 border border-orange-200 px-3 py-1.5 rounded-full text-center whitespace-nowrap hover:bg-orange-50 transition"
-                        >
-                          View →
-                        </Link>
-                      </div>
-                    </div>
-                  );
-                })
+                results.map(p => (
+                  <ResultCard
+                    key={p.id}
+                    p={p}
+                    city={city}
+                    onBook={setBookingProduct}
+                    onClose={onClose}
+                  />
+                ))
               )}
             </div>
 
@@ -207,7 +263,7 @@ export default function PackageFinder({ onClose }: { onClose: () => void }) {
                 ← Change Answers
               </button>
               <a
-                href={`https://wa.me/918073552837?text=Hi! I want help finding a ${answers.occasion?.replace(/-/g,' ')} package within my budget.`}
+                href={`https://wa.me/918073552837?text=Hi! I need a ${occasionLabel} decoration in ${cityName}. Budget: ${budgetLabel}. Vibe: ${vibeLabel}. Can you help?`}
                 target="_blank" rel="noopener noreferrer"
                 className="flex-1 text-sm bg-orange-500 text-white font-semibold rounded-full py-2 text-center hover:bg-orange-600 transition"
               >
@@ -267,9 +323,23 @@ export default function PackageFinder({ onClose }: { onClose: () => void }) {
           {/* Progress bar */}
           <div className="flex gap-1.5 justify-center mt-3">
             {STEPS.map((_, i) => (
-              <div key={i} className={`h-1 rounded-full transition-all duration-300 ${i < step ? 'bg-white w-8' : i === step ? 'bg-white w-8' : 'bg-white/30 w-4'}`} />
+              <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i < step ? 'bg-white w-10' : i === step ? 'bg-white w-10' : 'bg-white/30 w-5'}`} />
             ))}
           </div>
+          {/* Show previous answers as chips */}
+          {step > 0 && (
+            <div className="flex flex-wrap justify-center gap-1.5 mt-2.5">
+              {STEPS.slice(0, step).map(s => {
+                const ans = answers[s.id];
+                const label = s.options.find(o => o.value === ans)?.label;
+                return label ? (
+                  <span key={s.id} className="bg-white/20 text-white/90 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                    {label}
+                  </span>
+                ) : null;
+              })}
+            </div>
+          )}
         </div>
 
         {/* Options */}
