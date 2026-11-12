@@ -1,39 +1,18 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useCity } from '@/context/CityContext';
-import { SERVICES, CITIES } from '@/lib/config';
+import { SERVICES } from '@/lib/config';
 import CityModal from './CityModal';
 import AnimatedLogo from './AnimatedLogo';
+import SmartSearch from './SmartSearch';
 
 export default function Navbar() {
   const { cityName } = useCity();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [cityModalOpen, setCityModalOpen] = useState(false);
   const [servOpen, setServOpen] = useState(false);
-  const [searchQ, setSearchQ] = useState('');
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
-  const [mobileSearchQ, setMobileSearchQ] = useState('');
-  const router = useRouter();
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQ.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQ.trim())}`);
-      setSearchQ('');
-    }
-  };
-
-  const handleMobileSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (mobileSearchQ.trim()) {
-      router.push(`/search?q=${encodeURIComponent(mobileSearchQ.trim())}`);
-      setMobileSearchQ('');
-      setMobileSearchOpen(false);
-      setMobileOpen(false);
-    }
-  };
 
   return (
     <>
@@ -45,22 +24,11 @@ export default function Navbar() {
             <span className="grad-text">12th Hour</span>
           </Link>
 
-          {/* Desktop nav */}
+          {/* Desktop nav — SmartSearch */}
           <div className="hidden md:flex items-center gap-3 flex-1 max-w-2xl mx-6">
-            {/* Search bar — prominent on desktop */}
-            <form onSubmit={handleSearch} className="flex-1 relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
-              <input
-                value={searchQ}
-                onChange={e => setSearchQ(e.target.value)}
-                type="text"
-                placeholder="Search birthday, anniversary, room decoration..."
-                className="w-full border-2 border-gray-200 rounded-full px-4 py-2 pl-9 text-sm outline-none focus:border-orange-400 transition-all duration-200"
-              />
-              <button type="submit" className="absolute right-1 top-1/2 -translate-y-1/2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold px-4 py-1.5 rounded-full transition">
-                Search
-              </button>
-            </form>
+            <div className="flex-1">
+              <SmartSearch placeholder="Search birthday, anniversary, room decoration..." />
+            </div>
           </div>
 
           {/* Desktop right */}
@@ -107,35 +75,11 @@ export default function Navbar() {
         {/* Mobile search bar — slides down */}
         {mobileSearchOpen && (
           <div className="md:hidden border-t border-gray-100 px-4 py-3 bg-white">
-            <form onSubmit={handleMobileSearch} className="flex items-center gap-2">
-              <div className="flex-1 flex items-center bg-gray-100 rounded-full px-4 py-2.5 gap-2">
-                <span className="text-gray-400 text-base">🔍</span>
-                <input
-                  autoFocus
-                  value={mobileSearchQ}
-                  onChange={e => setMobileSearchQ(e.target.value)}
-                  type="text"
-                  placeholder="Search decorations, packages..."
-                  className="flex-1 bg-transparent text-sm text-gray-800 outline-none placeholder:text-gray-400"
-                />
-                {mobileSearchQ && (
-                  <button type="button" onClick={() => setMobileSearchQ('')} className="text-gray-400 text-xs">✕</button>
-                )}
-              </div>
-              <button type="submit" className="btn-pink text-xs px-4 py-2.5 flex-shrink-0">
-                Go
-              </button>
-            </form>
-            {/* Quick search suggestions */}
-            <div className="flex flex-wrap gap-2 mt-2.5">
-              {['Birthday', 'Anniversary', 'Room Decor', 'Baby Shower', 'Bachelorette'].map(term => (
-                <button key={term} type="button"
-                  onClick={() => { router.push(`/search?q=${encodeURIComponent(term)}`); setMobileSearchOpen(false); }}
-                  className="text-xs text-gray-500 bg-gray-100 rounded-full px-3 py-1 hover:bg-orange-100 hover:text-orange-600 transition">
-                  {term}
-                </button>
-              ))}
-            </div>
+            <SmartSearch
+              placeholder="Search decorations, packages..."
+              autoFocus
+              onClose={() => setMobileSearchOpen(false)}
+            />
           </div>
         )}
 

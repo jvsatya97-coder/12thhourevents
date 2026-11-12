@@ -1,13 +1,14 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { CityProvider } from '@/context/CityContext';
+import { CompareProvider } from '@/context/CompareContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import WAChat from '@/components/WAChat';
 import CityDealsBanner from '@/components/CityDealsBanner';
-import ReviewToast from '@/components/ReviewToast';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import BackToTop from '@/components/BackToTop';
+import CompareDrawer from '@/components/CompareDrawer';
 
 export const metadata: Metadata = {
   title: '12th Hour Events | Birthday & Party Decoration — Pan India',
@@ -89,16 +90,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         })}} />
       </head>
       <body>
-        <CityProvider>
-          <Navbar />
-          <CityDealsBanner />
-          <main>{children}</main>
-          <Footer />
-          <WAChat />
-          <ReviewToast />
-          <MobileBottomNav />
-          <BackToTop />
-        </CityProvider>
+        <CompareProvider>
+          <CityProvider>
+            <Navbar />
+            <CityDealsBanner />
+            <main>{children}</main>
+            <Footer />
+            <WAChat />
+            <MobileBottomNav />
+            <BackToTop />
+            <CompareDrawer />
+          </CityProvider>
+        </CompareProvider>
       </body>
     </html>
   );

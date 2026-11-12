@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Product, getPrice, getOrig, getImgFallbacks, toThumbUrl } from '@/lib/products';
 import { useCity } from '@/context/CityContext';
+import { useCompare } from '@/context/CompareContext';
 import WishlistButton from '@/components/WishlistButton';
 import BookingModal from '@/components/BookingModal';
 
@@ -20,12 +21,15 @@ function pseudoRating(id: string) {
 
 export default function ProductCard({ p }: { p: Product }) {
   const { city, cityName } = useCity();
+  const { add: compareAdd, has: compareHas, items: compareItems } = useCompare();
   const price = getPrice(p, city);
   const orig = getOrig(p, city);
   const { reviews, rating, showUrgency, slots } = pseudoRating(p.id);
   const [imgSrc, setImgSrc] = useState(toThumbUrl(p.img));
   const [fallbackIdx, setFallbackIdx] = useState(0);
   const [imgError, setImgError] = useState(false);
+  const inCompare = compareHas(p.id);
+  const compareFull = compareItems.length >= 3 && !inCompare;
 
   const handleImgError = () => {
     const fallbacks = getImgFallbacks(p.img);
@@ -125,6 +129,20 @@ export default function ProductCard({ p }: { p: Product }) {
             📋 Book
           </button>
         </div>
+        {/* Compare button */}
+        <button
+          onClick={e => { e.preventDefault(); if (!compareFull) compareAdd(p); }}
+          disabled={compareFull}
+          className={`mt-2 w-full text-xs font-semibold py-1.5 rounded-xl border transition-colors ${
+            inCompare
+              ? 'bg-indigo-600 text-white border-indigo-600'
+              : compareFull
+              ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+              : 'border-indigo-300 text-indigo-600 hover:bg-indigo-50'
+          }`}
+        >
+          {inCompare ? '✓ Added to Compare' : compareFull ? 'Compare full (3/3)' : '⚖️ Compare'}
+        </button>
       </div>
     </Link>
 

@@ -2,20 +2,13 @@
 import Link from 'next/link';
 import { useCity } from '@/context/CityContext';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { SERVICES } from '@/lib/config';
 import PackageFinder from '@/components/PackageFinder';
+import SmartSearch from '@/components/SmartSearch';
 
 export default function HomeHero() {
   const { cityName } = useCity();
-  const [query, setQuery] = useState('');
   const [finderOpen, setFinderOpen] = useState(false);
-  const router = useRouter();
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (query.trim()) router.push(`/search?q=${encodeURIComponent(query.trim())}`);
-  };
 
   return (
     <section className="relative text-white overflow-hidden" style={{ minHeight: '520px' }}>
@@ -50,22 +43,10 @@ export default function HomeHero() {
           Same-day setup. Book in 2 minutes on WhatsApp!
         </p>
 
-        {/* Search bar — large, prominent */}
-        <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-5">
-          <div className="flex items-center bg-white rounded-full p-1.5 shadow-2xl shadow-black/30">
-            <span className="pl-4 text-gray-400 text-lg flex-shrink-0">🔍</span>
-            <input
-              type="text"
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              placeholder="Search birthday, anniversary, theme decoration..."
-              className="flex-1 bg-transparent text-gray-800 text-sm md:text-base px-3 py-2 outline-none placeholder:text-gray-400"
-            />
-            <button type="submit" className="btn-pink text-sm md:text-base px-6 py-2.5 rounded-full flex-shrink-0">
-              🔍 Search
-            </button>
-          </div>
-        </form>
+        {/* Smart Search with live suggestions */}
+        <div className="max-w-2xl mx-auto mb-5">
+          <SmartSearch placeholder="Search birthday, anniversary, theme decoration..." />
+        </div>
 
         {/* Category chips */}
         <div className="flex flex-wrap justify-center gap-2 mb-8">
