@@ -4,20 +4,20 @@ import { useState } from 'react';
 
 // City-specific deal configs
 const CITY_DEALS: Record<string, { deal: string; tag: string; color: string; emoji: string }> = {
-  delhi:     { deal: 'FREE fairy-light upgrade on orders ₹3,000+', tag: 'Delhi NCR Special', color: 'from-purple-600 to-indigo-600', emoji: '🏛️' },
-  noida:     { deal: 'Extra balloon arch FREE for first 5 bookings today', tag: 'Noida Flash Deal', color: 'from-blue-600 to-cyan-500', emoji: '🎈' },
-  gurgaon:   { deal: '10% off all anniversary packages this week', tag: 'Gurgaon Special', color: 'from-rose-600 to-pink-500', emoji: '💑' },
-  faridabad: { deal: 'FREE custom banner worth ₹500 with every booking', tag: 'Faridabad Offer', color: 'from-green-600 to-teal-500', emoji: '🎀' },
+  delhi:     { deal: 'FREE fairy-light upgrade on orders ₹3,000+', tag: 'Delhi NCR Special', color: 'from-orange-600 to-amber-500', emoji: '🏛️' },
+  noida:     { deal: 'Extra balloon arch FREE for first 5 bookings today', tag: 'Noida Flash Deal', color: 'from-orange-500 to-pink-500', emoji: '🎈' },
+  gurgaon:   { deal: '10% off all anniversary packages this week', tag: 'Gurgaon Special', color: 'from-orange-600 to-pink-500', emoji: '💑' },
+  faridabad: { deal: 'FREE custom banner worth ₹500 with every booking', tag: 'Faridabad Offer', color: 'from-orange-500 to-amber-400', emoji: '🎀' },
   ghaziabad: { deal: 'Book same-day — get 2 extra balloon bouquets FREE', tag: 'Ghaziabad Today', color: 'from-orange-600 to-amber-500', emoji: '⚡' },
-  bangalore: { deal: 'Free photo backdrop on birthday packages ₹4,000+', tag: 'Bangalore Special', color: 'from-violet-600 to-purple-500', emoji: '🌟' },
-  mumbai:    { deal: '5% cashback on WhatsApp bookings today only', tag: 'Mumbai Exclusive', color: 'from-red-600 to-orange-500', emoji: '🌊' },
-  hyderabad: { deal: 'FREE personalised welcome board with every booking', tag: 'Hyderabad Deal', color: 'from-teal-600 to-green-500', emoji: '🎊' },
-  pune:      { deal: 'Complimentary scented candle setup on orders ₹2,500+', tag: 'Pune Special', color: 'from-pink-600 to-rose-500', emoji: '🕯️' },
-  chennai:   { deal: 'Book 3 days ahead — get ₹300 off any package', tag: 'Chennai Promo', color: 'from-amber-600 to-yellow-500', emoji: '🌺' },
-  kolkata:   { deal: 'Free glitter balloon upgrade on all birthday packages', tag: 'Kolkata Offer', color: 'from-indigo-600 to-blue-500', emoji: '🎭' },
-  lucknow:   { deal: 'Festive season: extra 8% off on theme decorations', tag: 'Lucknow Deal', color: 'from-emerald-600 to-teal-500', emoji: '🌙' },
-  ahmedabad: { deal: 'FREE video coverage worth ₹400 on orders ₹5,000+', tag: 'Ahmedabad Special', color: 'from-orange-600 to-red-500', emoji: '🎥' },
-  thane:     { deal: 'Same-day slots open — extra floral ring FREE', tag: 'Thane Flash', color: 'from-purple-600 to-pink-500', emoji: '🌸' },
+  bangalore: { deal: 'Free photo backdrop on birthday packages ₹4,000+', tag: 'Bangalore Special', color: 'from-orange-500 to-pink-600', emoji: '🌟' },
+  mumbai:    { deal: '5% cashback on WhatsApp bookings today only', tag: 'Mumbai Exclusive', color: 'from-orange-600 to-red-500', emoji: '🌊' },
+  hyderabad: { deal: 'FREE personalised welcome board with every booking', tag: 'Hyderabad Deal', color: 'from-amber-500 to-orange-600', emoji: '🎊' },
+  pune:      { deal: 'Complimentary scented candle setup on orders ₹2,500+', tag: 'Pune Special', color: 'from-pink-500 to-orange-500', emoji: '🕯️' },
+  chennai:   { deal: 'Book 3 days ahead — get ₹300 off any package', tag: 'Chennai Promo', color: 'from-orange-500 to-amber-500', emoji: '🌺' },
+  kolkata:   { deal: 'Free glitter balloon upgrade on all birthday packages', tag: 'Kolkata Offer', color: 'from-orange-600 to-pink-500', emoji: '🎭' },
+  lucknow:   { deal: 'Festive season: extra 8% off on theme decorations', tag: 'Lucknow Deal', color: 'from-amber-600 to-orange-500', emoji: '🌙' },
+  ahmedabad: { deal: 'FREE video coverage worth ₹400 on orders ₹5,000+', tag: 'Ahmedabad Special', color: 'from-orange-600 to-red-400', emoji: '🎥' },
+  thane:     { deal: 'Same-day slots open — extra floral ring FREE', tag: 'Thane Flash', color: 'from-orange-500 to-pink-500', emoji: '🌸' },
 };
 
 const DEFAULT_DEAL = { deal: 'Free balloon bouquet on orders ₹2,500+', tag: 'Pan India Offer', color: 'from-orange-600 to-pink-600', emoji: '🎁' };

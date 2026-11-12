@@ -119,7 +119,7 @@ export default function InspirationGallery() {
                 href={`https://wa.me/918073552837?text=Hi! I want a ${lightbox.cat} decoration similar to "${lightbox.label}" in ${lightbox.city}. Can you help?`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-shrink-0 bg-green-500 text-white font-bold text-sm px-4 py-2 rounded-full"
+                className="flex-shrink-0 bg-orange-500 text-white font-bold text-sm px-4 py-2 rounded-full"
                 onClick={e => e.stopPropagation()}
               >
                 💬 Book This Style

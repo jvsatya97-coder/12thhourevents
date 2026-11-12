@@ -186,7 +186,7 @@ export default function SmartSearch({ placeholder = 'Search birthday, balloons, 
               <a
                 href={`https://wa.me/918073552837?text=Hi! I'm looking for: ${query}. Do you have this?`}
                 target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 bg-green-500 text-white text-xs font-bold px-4 py-2 rounded-full"
+                className="inline-flex items-center gap-1.5 bg-orange-500 text-white text-xs font-bold px-4 py-2 rounded-full"
               >
                 💬 Ask on WhatsApp
               </a>

@@ -76,7 +76,7 @@ export default function HomeHero() {
         {/* Secondary CTA */}
         <div className="flex flex-wrap gap-3 justify-center mb-8">
           <a href="https://wa.me/918073552837?text=Hi! I want to book a decoration. Can you help?" target="_blank" rel="noopener noreferrer"
-            className="btn-wa text-base px-7 py-3 shadow-lg shadow-green-800/30">
+            className="btn-wa text-base px-7 py-3 shadow-lg shadow-orange-800/30">
             💬 Free Quote on WhatsApp
           </a>
           <Link href="/birthday-decoration"
@@ -117,10 +117,10 @@ export default function HomeHero() {
 
         {/* Trust strip */}
         <div className="flex flex-wrap justify-center gap-3 md:gap-6 text-sm text-white/80">
-          <span className="flex items-center gap-1.5"><span className="text-green-400">✅</span> 5000+ Events Done</span>
+          <span className="flex items-center gap-1.5"><span className="text-orange-400">✅</span> 5000+ Events Done</span>
           <span className="flex items-center gap-1.5"><span className="text-yellow-400">⭐</span> 4.9 Star Rating</span>
           <span className="flex items-center gap-1.5"><span className="text-orange-400">⚡</span> Same Day Available</span>
-          <span className="flex items-center gap-1.5"><span className="text-blue-400">🌍</span> Pan India</span>
+          <span className="flex items-center gap-1.5"><span className="text-amber-400">🌍</span> Pan India</span>
         </div>
       </div>
     </section>

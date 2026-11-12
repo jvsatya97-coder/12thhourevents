@@ -26,7 +26,7 @@ export default function CompareDrawer() {
       {/* Floating pill trigger */}
       <button
         onClick={() => setDrawerOpen(true)}
-        className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[130] flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold px-5 py-2.5 rounded-full shadow-xl transition-all"
+        className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[130] flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-bold px-5 py-2.5 rounded-full shadow-xl transition-all"
         style={{ display: drawerOpen ? 'none' : 'flex' }}
       >
         ⚖️ Compare {items.length} package{items.length > 1 ? 's' : ''}
@@ -109,7 +109,7 @@ export default function CompareDrawer() {
                         else if (row.key === 'rating') val = <span className="text-orange-500">★★★★★ 4.9</span>;
                         else if (row.key === 'cat') val = <span className="capitalize text-gray-600">{p.cat?.replace(/-/g,' ')}</span>;
                         else if (row.key === 'incs') val = p.incs.length > 0
-                          ? <ul className="space-y-0.5">{p.incs.slice(0,3).map((inc,i) => <li key={i} className="text-[11px] text-gray-600 flex gap-1"><span className="text-green-500 flex-shrink-0">✓</span>{inc}</li>)}{p.incs.length > 3 && <li className="text-[11px] text-gray-400">+{p.incs.length - 3} more</li>}</ul>
+                          ? <ul className="space-y-0.5">{p.incs.slice(0,3).map((inc,i) => <li key={i} className="text-[11px] text-gray-600 flex gap-1"><span className="text-orange-500 flex-shrink-0">✓</span>{inc}</li>)}{p.incs.length > 3 && <li className="text-[11px] text-gray-400">+{p.incs.length - 3} more</li>}</ul>
                           : '—';
                         return (
                           <td key={p.id} className="py-3 px-3 align-top" style={{ width: `${80 / items.length}%` }}>
@@ -153,7 +153,7 @@ export default function CompareDrawer() {
                 <a
                   href={`https://wa.me/918073552837?text=Hi! I'm comparing these packages in ${cityName}:\n${waText}\n\nCan you help me pick the best one?`}
                   target="_blank" rel="noopener noreferrer"
-                  className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-2xl text-sm transition"
+                  className="w-full flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-2xl text-sm transition"
                 >
                   💬 Ask Us to Help Pick the Best One
                 </a>

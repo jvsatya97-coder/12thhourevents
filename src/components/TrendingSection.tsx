@@ -54,7 +54,7 @@ export default function TrendingSection() {
             {/* Live indicator */}
             <div className="hidden sm:flex flex-col items-end gap-1">
               <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
-                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
                 Live rankings
               </div>
               <div className="text-[11px] text-gray-400">Updated hourly</div>

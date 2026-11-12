@@ -10,7 +10,7 @@ export default function Footer() {
             <div className="text-xl font-extrabold text-white mb-2">🎉 12th Hour Events</div>
             <p className="text-sm text-gray-400">Premium party decorators across India. Book in 2 mins on WhatsApp!</p>
             <a href="https://wa.me/918073552837" target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 mt-4 bg-green-500 text-white text-sm font-semibold px-4 py-2 rounded-full hover:bg-green-600">
+              className="inline-flex items-center gap-2 mt-4 bg-orange-500 text-white text-sm font-semibold px-4 py-2 rounded-full hover:bg-orange-600">
               📞 +91 80735 52837
             </a>
           </div>

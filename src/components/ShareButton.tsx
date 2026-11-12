@@ -78,7 +78,7 @@ export default function ShareButton({ title, text, url, className = '' }: Props)
             </button>
             <button
               onClick={shareWA}
-              className="w-full flex items-center gap-2.5 px-4 py-3 text-sm text-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors border-t border-gray-50"
+              className="w-full flex items-center gap-2.5 px-4 py-3 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors border-t border-gray-50"
             >
               💬 Share on WhatsApp
             </button>

@@ -42,8 +42,8 @@ export default function WAChat() {
             <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-xl flex-shrink-0">🎉</div>
             <div className="flex-1 min-w-0">
               <div className="font-bold text-sm">12th Hour Events</div>
-              <div className="text-xs text-green-200 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
+              <div className="text-xs text-orange-200 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-orange-400 inline-block" />
                 Usually replies in 5 minutes
               </div>
             </div>
@@ -69,7 +69,7 @@ export default function WAChat() {
                 <div className="bg-[#dcf8c6] rounded-2xl rounded-tr-sm px-4 py-2.5 shadow-sm max-w-[80%]">
                   <p className="text-sm text-gray-800">Opening WhatsApp…</p>
                   <div className="text-[10px] text-gray-400 mt-1 text-right flex items-center justify-end gap-1">
-                    Just now <span className="text-blue-500">✓✓</span>
+                    Just now <span className="text-orange-300">✓✓</span>
                   </div>
                 </div>
               </div>
@@ -120,7 +120,7 @@ export default function WAChat() {
           </svg>
           {/* Pulsing ring */}
           {!open && (
-            <span className="absolute inset-0 rounded-full border-2 border-green-400 opacity-0"
+            <span className="absolute inset-0 rounded-full border-2 border-orange-400 opacity-0"
               style={{ animation: 'wa-pulse 2s ease-out infinite' }} />
           )}
         </button>

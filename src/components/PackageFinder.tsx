@@ -151,7 +151,7 @@ export default function PackageFinder({ onClose }: { onClose: () => void }) {
                   <div className="text-4xl mb-3">😕</div>
                   <p className="text-gray-500 text-sm">No exact matches — let us customise one for you!</p>
                   <a href="https://wa.me/918073552837?text=Hi! I need help finding a decoration package." target="_blank" rel="noopener noreferrer"
-                    className="mt-4 inline-flex items-center gap-2 bg-green-500 text-white font-semibold px-5 py-2.5 rounded-full text-sm">
+                    className="mt-4 inline-flex items-center gap-2 bg-orange-500 text-white font-semibold px-5 py-2.5 rounded-full text-sm">
                     💬 Chat with Us
                   </a>
                 </div>
@@ -209,7 +209,7 @@ export default function PackageFinder({ onClose }: { onClose: () => void }) {
               <a
                 href={`https://wa.me/918073552837?text=Hi! I want help finding a ${answers.occasion?.replace(/-/g,' ')} package within my budget.`}
                 target="_blank" rel="noopener noreferrer"
-                className="flex-1 text-sm bg-green-500 text-white font-semibold rounded-full py-2 text-center hover:bg-green-600 transition"
+                className="flex-1 text-sm bg-orange-500 text-white font-semibold rounded-full py-2 text-center hover:bg-orange-600 transition"
               >
                 💬 Need Help?
               </a>

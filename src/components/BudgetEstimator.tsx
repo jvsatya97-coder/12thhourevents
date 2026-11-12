@@ -23,7 +23,6 @@ const EXTRAS = [
   { id: 'neon',      label: '💡 Neon Sign',           add: 1500 },
 ];
 
-// City multipliers — premium cities cost a bit more
 const CITY_MUL: Record<string, number> = {
   mumbai: 1.2, bangalore: 1.1, delhi: 1.0, noida: 0.95,
   gurgaon: 1.05, faridabad: 0.9, ghaziabad: 0.9,
@@ -45,7 +44,7 @@ export default function BudgetEstimator() {
   };
 
   const baseCost = OCCASION_BASE[occasion] || 1500;
-  const guestExtra = Math.max(0, (guestCount - 10)) * 40; // ₹40 per extra guest
+  const guestExtra = Math.max(0, (guestCount - 10)) * 40;
   const extrasTotal = EXTRAS.filter(e => selectedExtras.includes(e.id)).reduce((s, e) => s + e.add, 0);
   const cityMul = CITY_MUL[city] || 1.0;
   const estimate = Math.round((baseCost + guestExtra + extrasTotal) * cityMul / 100) * 100;
@@ -55,15 +54,15 @@ export default function BudgetEstimator() {
   const waText = `Hi! I used the budget estimator and need a ${occasion} decoration for ~${guestCount} guests in ${cityName}. My estimated budget is ₹${estimateLow.toLocaleString('en-IN')}–₹${estimateHigh.toLocaleString('en-IN')}. Can you help?`;
 
   return (
-    <section className="py-12 md:py-16 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+    <section className="py-12 md:py-16 bg-gradient-to-br from-orange-50 via-amber-50 to-pink-50">
       <div className="max-w-4xl mx-auto px-4">
         {/* Heading */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 bg-purple-100 text-purple-700 rounded-full px-3 py-1 text-xs font-bold mb-3">
+          <div className="inline-flex items-center gap-2 bg-orange-100 text-orange-700 rounded-full px-3 py-1 text-xs font-bold mb-3">
             💰 FREE TOOL
           </div>
           <h2 className="text-2xl md:text-3xl font-extrabold text-gray-800 mb-2">
-            Instant <span style={{ background: 'linear-gradient(135deg,#7c3aed,#ec4899)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Budget Estimator</span>
+            Instant <span className="grad-text">Budget Estimator</span>
           </h2>
           <p className="text-sm text-gray-500">Get an instant price estimate for your event in {cityName}</p>
         </div>
@@ -81,7 +80,7 @@ export default function BudgetEstimator() {
                     <button
                       key={occ}
                       onClick={() => { setOccasion(occ); setShowResult(false); }}
-                      className={`py-2 px-2 rounded-xl text-xs font-semibold capitalize border-2 transition-all ${occasion === occ ? 'border-purple-500 bg-purple-50 text-purple-700' : 'border-gray-100 text-gray-600 hover:border-purple-200 hover:bg-purple-50'}`}
+                      className={`py-2 px-2 rounded-xl text-xs font-semibold capitalize border-2 transition-all ${occasion === occ ? 'border-orange-500 bg-orange-50 text-orange-700' : 'border-gray-100 text-gray-600 hover:border-orange-200 hover:bg-orange-50'}`}
                     >
                       {occ}
                     </button>
@@ -93,14 +92,14 @@ export default function BudgetEstimator() {
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <label className="text-xs font-bold text-gray-600 uppercase tracking-wider">Guest Count</label>
-                  <span className="text-purple-600 font-extrabold text-lg">{guestCount}</span>
+                  <span className="text-orange-600 font-extrabold text-lg">{guestCount}</span>
                 </div>
                 <input
                   type="range"
                   min={5} max={200} step={5}
                   value={guestCount}
                   onChange={e => { setGuestCount(Number(e.target.value)); setShowResult(false); }}
-                  className="w-full accent-purple-500"
+                  className="w-full accent-orange-500"
                 />
                 <div className="flex justify-between text-[10px] text-gray-400 mt-1">
                   <span>5</span><span>50</span><span>100</span><span>200</span>
@@ -115,7 +114,7 @@ export default function BudgetEstimator() {
                     <button
                       key={ex.id}
                       onClick={() => { toggleExtra(ex.id); setShowResult(false); }}
-                      className={`text-left text-xs py-2 px-3 rounded-xl border-2 transition-all flex items-center gap-1.5 ${selectedExtras.includes(ex.id) ? 'border-purple-500 bg-purple-50 text-purple-700 font-semibold' : 'border-gray-100 text-gray-600 hover:border-purple-200'}`}
+                      className={`text-left text-xs py-2 px-3 rounded-xl border-2 transition-all flex items-center gap-1.5 ${selectedExtras.includes(ex.id) ? 'border-orange-500 bg-orange-50 text-orange-700 font-semibold' : 'border-gray-100 text-gray-600 hover:border-orange-200'}`}
                     >
                       {ex.label}
                     </button>
@@ -125,8 +124,7 @@ export default function BudgetEstimator() {
 
               <button
                 onClick={() => setShowResult(true)}
-                className="w-full py-3 rounded-2xl font-bold text-white text-sm"
-                style={{ background: 'linear-gradient(135deg, #7c3aed, #ec4899)' }}
+                className="w-full py-3 rounded-2xl font-bold text-white text-sm btn-pink"
               >
                 Calculate My Budget →
               </button>
@@ -141,7 +139,7 @@ export default function BudgetEstimator() {
                   <div className="mt-6 space-y-2 text-left">
                     {['Occasion-based pricing', `${cityName} city rates applied`, 'No hidden charges', 'Instant WhatsApp quote'].map(pt => (
                       <div key={pt} className="flex items-center gap-2 text-xs text-gray-500">
-                        <span className="text-green-500">✓</span> {pt}
+                        <span className="text-orange-500">✓</span> {pt}
                       </div>
                     ))}
                   </div>
@@ -150,7 +148,7 @@ export default function BudgetEstimator() {
                 <div className="flex flex-col h-full">
                   {/* Result display */}
                   <div className="text-center mb-6">
-                    <div className="text-xs font-bold text-purple-600 uppercase tracking-wider mb-1">Estimated Budget</div>
+                    <div className="text-xs font-bold text-orange-600 uppercase tracking-wider mb-1">Estimated Budget</div>
                     <div className="text-4xl font-extrabold text-gray-800 mb-1">
                       ₹{estimateLow.toLocaleString('en-IN')} – ₹{estimateHigh.toLocaleString('en-IN')}
                     </div>
@@ -158,7 +156,7 @@ export default function BudgetEstimator() {
                   </div>
 
                   {/* Breakdown */}
-                  <div className="bg-gray-50 rounded-2xl p-4 mb-5 space-y-2 text-sm">
+                  <div className="bg-orange-50 rounded-2xl p-4 mb-5 space-y-2 text-sm">
                     <div className="flex justify-between text-gray-600">
                       <span>Base ({occasion})</span>
                       <span className="font-semibold">₹{Math.round(baseCost * cityMul).toLocaleString('en-IN')}</span>
@@ -175,9 +173,9 @@ export default function BudgetEstimator() {
                         <span className="font-semibold">₹{Math.round(extrasTotal * cityMul).toLocaleString('en-IN')}</span>
                       </div>
                     )}
-                    <div className="border-t border-gray-200 pt-2 flex justify-between font-bold text-gray-800">
+                    <div className="border-t border-orange-200 pt-2 flex justify-between font-bold text-gray-800">
                       <span>Total estimate</span>
-                      <span className="text-purple-600">₹{estimate.toLocaleString('en-IN')}</span>
+                      <span className="text-orange-600">₹{estimate.toLocaleString('en-IN')}</span>
                     </div>
                   </div>
 
@@ -186,7 +184,7 @@ export default function BudgetEstimator() {
                       href={`https://wa.me/918073552837?text=${encodeURIComponent(waText)}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-2xl text-sm transition"
+                      className="w-full flex items-center justify-center gap-2 btn-pink py-3 rounded-2xl text-sm font-bold"
                     >
                       💬 Get Exact Quote on WhatsApp
                     </a>

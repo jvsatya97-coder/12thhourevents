@@ -39,7 +39,7 @@ export default function BookingTicker() {
         className="max-w-5xl mx-auto flex items-center justify-center gap-2 text-sm transition-all duration-400"
         style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(6px)' }}
       >
-        <span className="flex-shrink-0 w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+        <span className="flex-shrink-0 w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
         <span className="text-gray-500">Just booked:</span>
         <span className="font-bold text-gray-800">{b.name}</span>
         <span className="text-gray-400 hidden sm:inline">from {b.city}</span>

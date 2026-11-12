@@ -135,10 +135,10 @@ export default function ProductCard({ p }: { p: Product }) {
           disabled={compareFull}
           className={`mt-2 w-full text-xs font-semibold py-1.5 rounded-xl border transition-colors ${
             inCompare
-              ? 'bg-indigo-600 text-white border-indigo-600'
+              ? 'bg-orange-600 text-white border-orange-600'
               : compareFull
               ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
-              : 'border-indigo-300 text-indigo-600 hover:bg-indigo-50'
+              : 'border-orange-300 text-orange-600 hover:bg-orange-50'
           }`}
         >
           {inCompare ? '✓ Added to Compare' : compareFull ? 'Compare full (3/3)' : '⚖️ Compare'}

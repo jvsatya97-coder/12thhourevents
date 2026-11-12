@@ -43,7 +43,7 @@ body {
 .btn-pink:hover { opacity: 0.9; transform: translateY(-1px); }
 
 .btn-wa {
-  background: #25d366;
+  background: linear-gradient(135deg, #ff6b00, #ff3c78);
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;

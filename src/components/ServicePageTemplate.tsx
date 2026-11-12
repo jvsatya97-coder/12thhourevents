@@ -73,11 +73,11 @@ export default function ServicePageTemplate({ cat, name, emoji, slug, desc, faqs
       {/* All-categories sticky nav bar */}
       <CategoryBar />
 
-      {/* Trust banner — green */}
-      <section className="bg-emerald-500 py-2.5 overflow-hidden">
+      {/* Trust banner */}
+      <section className="bg-orange-500 py-2.5 overflow-hidden">
         <div className="flex gap-0 overflow-x-auto px-4 max-w-7xl mx-auto" style={{ scrollbarWidth: 'none' }}>
           {TRUST.map((t, i) => (
-            <div key={i} className="flex-none flex items-center gap-1.5 text-sm text-white font-semibold whitespace-nowrap px-4 border-r border-emerald-400 last:border-r-0">
+            <div key={i} className="flex-none flex items-center gap-1.5 text-sm text-white font-semibold whitespace-nowrap px-4 border-r border-orange-400 last:border-r-0">
               <span>{t.emoji}</span> <span>{t.label}</span>
             </div>
           ))}
