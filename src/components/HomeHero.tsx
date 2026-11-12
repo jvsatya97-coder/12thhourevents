@@ -77,19 +77,62 @@ export default function HomeHero() {
           ))}
         </div>
 
-        {/* CTAs */}
-        <div className="flex flex-wrap gap-3 justify-center mb-8">
-          <a href="https://wa.me/918073552837?text=Hi! I want to book a decoration. Can you help?" target="_blank" rel="noopener noreferrer"
-            className="btn-pink text-base px-8 py-3.5 shadow-lg shadow-orange-500/30">
-            📲 Get Free Quote — WhatsApp
-          </a>
+        {/* HERO CTA — Find My Package (giant, glowing) */}
+        <div className="mb-5">
           <button
             onClick={() => setFinderOpen(true)}
-            className="border-2 border-white/40 text-white px-8 py-3.5 rounded-full font-semibold hover:bg-white/15 transition text-base backdrop-blur-sm flex items-center gap-2">
-            🎯 Find My Package →
+            className="finder-btn group relative w-full max-w-lg mx-auto flex items-center justify-center gap-3 py-5 px-8 rounded-2xl font-extrabold text-white text-xl md:text-2xl shadow-2xl overflow-hidden"
+          >
+            {/* animated shimmer layer */}
+            <span className="finder-shimmer" aria-hidden="true" />
+            <span className="text-3xl group-hover:scale-125 transition-transform duration-300">🎯</span>
+            <span className="relative z-10 drop-shadow">Find My Perfect Package</span>
+            <span className="relative z-10 text-2xl group-hover:translate-x-1 transition-transform duration-200">→</span>
           </button>
+          <p className="text-white/60 text-xs mt-2 text-center">3 quick questions · instant recommendations</p>
+        </div>
+
+        {/* Secondary CTA */}
+        <div className="flex flex-wrap gap-3 justify-center mb-8">
+          <a href="https://wa.me/918073552837?text=Hi! I want to book a decoration. Can you help?" target="_blank" rel="noopener noreferrer"
+            className="btn-wa text-base px-7 py-3 shadow-lg shadow-green-800/30">
+            💬 Free Quote on WhatsApp
+          </a>
+          <Link href="/birthday-decoration"
+            className="border border-white/30 text-white/80 px-7 py-3 rounded-full font-medium hover:bg-white/10 transition text-sm backdrop-blur-sm">
+            Browse All Packages →
+          </Link>
         </div>
         {finderOpen && <PackageFinder onClose={() => setFinderOpen(false)} />}
+
+        <style>{`
+          .finder-btn {
+            background: linear-gradient(135deg, #ff6b00 0%, #ff3c78 50%, #ff9800 100%);
+            background-size: 200% 200%;
+            animation: finder-gradient 3s ease infinite;
+            box-shadow: 0 0 32px rgba(255,80,30,0.55), 0 4px 20px rgba(0,0,0,0.4);
+            border: 2px solid rgba(255,255,255,0.25);
+          }
+          .finder-btn:hover {
+            box-shadow: 0 0 48px rgba(255,80,30,0.75), 0 8px 32px rgba(0,0,0,0.4);
+            transform: translateY(-2px) scale(1.01);
+            transition: all 0.2s;
+          }
+          .finder-shimmer {
+            position: absolute; inset: 0;
+            background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.18) 50%, transparent 70%);
+            background-size: 200% 100%;
+            animation: shimmer 2.4s linear infinite;
+          }
+          @keyframes finder-gradient {
+            0%,100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+          }
+          @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+          }
+        `}</style>
 
         {/* Trust strip */}
         <div className="flex flex-wrap justify-center gap-3 md:gap-6 text-sm text-white/80">

@@ -5,6 +5,8 @@ import ProductGrid from '@/components/ProductGrid';
 import HomeHero from '@/components/HomeHero';
 import OccasionBar from '@/components/OccasionBar';
 import ScrollReveal from '@/components/ScrollReveal';
+import TransformationGallery from '@/components/TransformationGallery';
+import SameDayCountdown from '@/components/SameDayCountdown';
 
 export const metadata: Metadata = {
   title: '12th Hour Events | Party & Birthday Decoration Service — Pan India',
@@ -175,6 +177,10 @@ export default function Home() {
           <ScrollReveal delay={100} className="mb-6">
             <OccasionBar />
           </ScrollReveal>
+          {/* Same-day countdown */}
+          <ScrollReveal delay={150} className="mb-6">
+            <SameDayCountdown />
+          </ScrollReveal>
           <ProductGrid limit={8} />
           <div className="text-center mt-8">
             <Link href="/birthday-decoration" className="btn-pink px-8 py-3">Explore All Packages →</Link>
@@ -235,6 +241,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Before/After Transformation Gallery */}
+      <TransformationGallery />
 
       {/* Testimonials */}
       <section className="py-12 md:py-16 bg-gray-50">
