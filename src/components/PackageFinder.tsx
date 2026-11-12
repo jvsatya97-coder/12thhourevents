@@ -59,6 +59,77 @@ function ResultCard({ p, city, onBook, onClose }: {
   );
 }
 
+/* ─── Vibe options per occasion ──────────────────────────────── */
+const VIBE_OPTIONS: Record<string, { label: string; value: string; emoji: string; keywords: string[] }[]> = {
+  // Kids Activities — entertainer types
+  'act-artists': [
+    { label: 'Clown & Magic Show',   value: 'clown',    emoji: '🤹', keywords: ['clown','magic','magician','show','trick'] },
+    { label: 'Balloon Artist',       value: 'balloon',  emoji: '🎈', keywords: ['balloon','twist','sculpt','artist'] },
+    { label: 'Face Painting',        value: 'face',     emoji: '🎨', keywords: ['face','paint','art','tattoo'] },
+    { label: 'Games & Activities',   value: 'games',    emoji: '🎮', keywords: ['game','activity','sport','play','fun'] },
+    { label: 'Full Fun Package',     value: 'combo',    emoji: '🎪', keywords: ['combo','full','package','all','complete'] },
+    { label: 'Surprise Me!',         value: 'surprise', emoji: '🎁', keywords: ['surprise','mix','variety','best'] },
+  ],
+  // Birthday
+  'bday': [
+    { label: 'Romantic & Elegant',  value: 'romantic',  emoji: '🌹', keywords: ['romantic','rose','fairy','candle','elegant'] },
+    { label: 'Fun & Colourful',     value: 'fun',       emoji: '🎈', keywords: ['fun','colorful','rainbow','balloon','pop'] },
+    { label: 'Minimal & Modern',    value: 'minimal',   emoji: '🤍', keywords: ['minimal','simple','clean','modern','white'] },
+    { label: 'Royal & Grand',       value: 'royal',     emoji: '👑', keywords: ['royal','grand','luxury','gold','premium'] },
+    { label: 'Pinterest Aesthetic', value: 'pinterest', emoji: '📌', keywords: ['pinterest','boho','arch','neon','aesthetic'] },
+    { label: 'Surprise Setup',      value: 'surprise',  emoji: '🎁', keywords: ['surprise','secret','last-minute','same-day'] },
+  ],
+  // Anniversary
+  'anniv': [
+    { label: 'Romantic & Elegant',  value: 'romantic',  emoji: '🌹', keywords: ['romantic','rose','fairy','candle','elegant'] },
+    { label: 'Royal & Grand',       value: 'royal',     emoji: '👑', keywords: ['royal','grand','luxury','gold','premium'] },
+    { label: 'Minimal & Modern',    value: 'minimal',   emoji: '🤍', keywords: ['minimal','simple','clean','modern','white'] },
+    { label: 'Pinterest Aesthetic', value: 'pinterest', emoji: '📌', keywords: ['pinterest','boho','arch','neon','aesthetic'] },
+    { label: 'Intimate & Cosy',     value: 'intimate',  emoji: '🕯️', keywords: ['intimate','cosy','cozy','warm','private','candle'] },
+    { label: 'Surprise Setup',      value: 'surprise',  emoji: '🎁', keywords: ['surprise','secret','last-minute','same-day'] },
+  ],
+  // Baby Shower / Welcome Baby — same vibe
+  'baby': [
+    { label: 'Pastel & Dreamy',     value: 'pastel',    emoji: '🩷', keywords: ['pastel','soft','dreamy','cloud','pink','blue'] },
+    { label: 'Fun & Colourful',     value: 'fun',       emoji: '🎈', keywords: ['fun','colorful','rainbow','balloon','pop'] },
+    { label: 'Minimal & Modern',    value: 'minimal',   emoji: '🤍', keywords: ['minimal','simple','clean','modern','white'] },
+    { label: 'Royal & Grand',       value: 'royal',     emoji: '👑', keywords: ['royal','grand','luxury','gold','premium'] },
+    { label: 'Pinterest Aesthetic', value: 'pinterest', emoji: '📌', keywords: ['pinterest','boho','arch','neon','aesthetic'] },
+    { label: 'Surprise Setup',      value: 'surprise',  emoji: '🎁', keywords: ['surprise','secret','last-minute'] },
+  ],
+  // Bachelorette
+  'bachelorette': [
+    { label: 'Neon & Glam',         value: 'neon',      emoji: '💜', keywords: ['neon','glow','glam','disco','party','night'] },
+    { label: 'Fun & Colourful',     value: 'fun',       emoji: '🎈', keywords: ['fun','colorful','rainbow','balloon','pop'] },
+    { label: 'Pinterest Aesthetic', value: 'pinterest', emoji: '📌', keywords: ['pinterest','boho','arch','neon','aesthetic'] },
+    { label: 'Minimal & Chic',      value: 'minimal',   emoji: '🤍', keywords: ['minimal','simple','clean','chic','modern'] },
+    { label: 'Royal & Grand',       value: 'royal',     emoji: '👑', keywords: ['royal','grand','luxury','gold','premium'] },
+    { label: 'Surprise Setup',      value: 'surprise',  emoji: '🎁', keywords: ['surprise','secret','last-minute'] },
+  ],
+  // Corporate
+  'corporate': [
+    { label: 'Minimal & Professional', value: 'minimal', emoji: '🤍', keywords: ['minimal','simple','clean','modern','corporate','professional'] },
+    { label: 'Grand & Impressive',     value: 'royal',   emoji: '👑', keywords: ['grand','luxury','gold','premium','elite','impressive'] },
+    { label: 'Fun & Energetic',        value: 'fun',     emoji: '🎉', keywords: ['fun','energetic','team','colorful','vibrant'] },
+    { label: 'Branded & Themed',       value: 'branded', emoji: '🏢', keywords: ['brand','theme','logo','corporate','custom'] },
+    { label: 'Surprise Setup',         value: 'surprise',emoji: '🎁', keywords: ['surprise','secret','last-minute'] },
+  ],
+};
+
+// Default vibes for occasions without a custom set
+const DEFAULT_VIBES = [
+  { label: 'Romantic & Elegant',   value: 'romantic',  emoji: '🌹', keywords: ['romantic','rose','fairy','candle','elegant','royal'] },
+  { label: 'Fun & Colourful',      value: 'fun',       emoji: '🎈', keywords: ['fun','colorful','rainbow','balloon','pop','kids'] },
+  { label: 'Minimal & Modern',     value: 'minimal',   emoji: '🤍', keywords: ['minimal','simple','clean','modern','white','neutral'] },
+  { label: 'Pinterest Aesthetic',  value: 'pinterest', emoji: '📌', keywords: ['pinterest','boho','arch','neon','aesthetic','pastel'] },
+  { label: 'Royal & Grand',        value: 'royal',     emoji: '👑', keywords: ['royal','grand','luxury','gold','premium','elite'] },
+  { label: 'Surprise Setup',       value: 'surprise',  emoji: '🎁', keywords: ['surprise','secret','hidden','last-minute','same-day'] },
+];
+
+function getVibeOptions(occasion: string) {
+  return VIBE_OPTIONS[occasion] || DEFAULT_VIBES;
+}
+
 /* ─── Quiz steps ─────────────────────────────────────────────── */
 const STEPS = [
   {
@@ -85,27 +156,21 @@ const STEPS = [
     emoji: '💰',
     cols: 2,
     options: [
-      { label: 'Under ₹1,500',       value: '0-1500',     emoji: '💸' },
-      { label: '₹1,500 – ₹3,000',    value: '1500-3000',  emoji: '💵' },
-      { label: '₹3,000 – ₹6,000',    value: '3000-6000',  emoji: '💎' },
-      { label: '₹6,000 – ₹12,000',   value: '6000-12000', emoji: '✨' },
-      { label: '₹12,000+',           value: '12000-99999',emoji: '👑' },
-      { label: 'No limit / Surprise me', value: '0-99999',emoji: '🌟' },
+      { label: 'Under ₹1,500',          value: '0-1500',      emoji: '💸' },
+      { label: '₹1,500 – ₹3,000',       value: '1500-3000',   emoji: '💵' },
+      { label: '₹3,000 – ₹6,000',       value: '3000-6000',   emoji: '💎' },
+      { label: '₹6,000 – ₹12,000',      value: '6000-12000',  emoji: '✨' },
+      { label: '₹12,000+',              value: '12000-99999', emoji: '👑' },
+      { label: 'No limit / Surprise me', value: '0-99999',    emoji: '🌟' },
     ],
   },
   {
     id: 'vibe',
+    // question and options are dynamic — set at render time from occasion answer
     question: 'What vibe are you going for?',
     emoji: '🎨',
     cols: 2,
-    options: [
-      { label: 'Romantic & Elegant',   value: 'romantic',  emoji: '🌹', keywords: ['romantic','rose','fairy','candle','elegant','royal'] },
-      { label: 'Fun & Colourful',      value: 'fun',       emoji: '🎈', keywords: ['fun','colorful','rainbow','balloon','pop','kids'] },
-      { label: 'Minimal & Modern',     value: 'minimal',   emoji: '🤍', keywords: ['minimal','simple','clean','modern','white','neutral'] },
-      { label: 'Pinterest Aesthetic',  value: 'pinterest', emoji: '📌', keywords: ['pinterest','boho','arch','neon','aesthetic','pastel'] },
-      { label: 'Royal & Grand',        value: 'royal',     emoji: '👑', keywords: ['royal','grand','luxury','gold','premium','elite'] },
-      { label: 'Surprise Setup',       value: 'surprise',  emoji: '🎁', keywords: ['surprise','secret','hidden','last-minute','same-day'] },
-    ],
+    options: DEFAULT_VIBES,
   },
 ];
 
@@ -122,10 +187,11 @@ function priceNum(priceStr: string | undefined): number {
 }
 
 // Score a product's name/sub against vibe keywords (higher = better match)
-function vibeScore(p: Product, vibeVal: string): number {
-  const opt = STEPS[2].options.find(o => o.value === vibeVal);
-  if (!opt || !('keywords' in opt)) return 0;
-  const keywords = opt.keywords as string[];
+function vibeScore(p: Product, vibeVal: string, occasion: string): number {
+  const vibeOpts = getVibeOptions(occasion);
+  const opt = vibeOpts.find(o => o.value === vibeVal);
+  if (!opt) return 0;
+  const keywords = opt.keywords;
   const haystack = `${p.name} ${p.sub || ''}`.toLowerCase();
   return keywords.reduce((s, kw) => s + (haystack.includes(kw) ? 1 : 0), 0);
 }
@@ -179,7 +245,7 @@ export default function PackageFinder({ onClose }: { onClose: () => void }) {
 
       // Sort: vibe score desc, then price asc
       filtered = filtered
-        .map(p => ({ p, vs: vibeScore(p, vibe), price: priceNum(getPrice(p, city) || p.price) }))
+        .map(p => ({ p, vs: vibeScore(p, vibe, occasion), price: priceNum(getPrice(p, city) || p.price) }))
         .sort((a, b) => b.vs - a.vs || a.price - b.price)
         .map(x => x.p)
         .slice(0, 8);
@@ -206,7 +272,7 @@ export default function PackageFinder({ onClose }: { onClose: () => void }) {
   if (results !== null) {
     const occasionLabel = STEPS[0].options.find(o => o.value === answers.occasion)?.label || answers.occasion;
     const budgetLabel   = STEPS[1].options.find(o => o.value === answers.budget)?.label   || '';
-    const vibeLabel     = STEPS[2].options.find(o => o.value === answers.vibe)?.label     || '';
+    const vibeLabel     = getVibeOptions(answers.occasion).find(o => o.value === answers.vibe)?.label || '';
 
     return (
       <>
@@ -299,6 +365,19 @@ export default function PackageFinder({ onClose }: { onClose: () => void }) {
   }
 
   /* ─── Quiz screen ────────────────────────────────────────────── */
+  // Determine dynamic vibe options & question based on occasion picked
+  const occasionAnswer = answers['occasion'] || '';
+  const vibeOpts = getVibeOptions(occasionAnswer);
+  const vibeQuestion = occasionAnswer === 'act-artists'
+    ? 'What type of entertainer?'
+    : 'What vibe are you going for?';
+  const vibeEmoji = occasionAnswer === 'act-artists' ? '🎪' : '🎨';
+
+  // Build the step to render, overriding vibe step dynamically
+  const currentOptions = step === 2 ? vibeOpts : current.options;
+  const currentQuestion = step === 2 ? vibeQuestion : current.question;
+  const currentEmoji = step === 2 ? vibeEmoji : current.emoji;
+
   return (
     <div
       className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-0 sm:p-4"
@@ -318,8 +397,8 @@ export default function PackageFinder({ onClose }: { onClose: () => void }) {
             ✕
           </button>
           <div className="text-sm font-semibold text-white/70 mb-1">Step {step + 1} of {STEPS.length}</div>
-          <div className="text-3xl mb-1.5">{current.emoji}</div>
-          <h2 className="text-lg font-extrabold leading-tight">{current.question}</h2>
+          <div className="text-3xl mb-1.5">{currentEmoji}</div>
+          <h2 className="text-lg font-extrabold leading-tight">{currentQuestion}</h2>
           {/* Progress bar */}
           <div className="flex gap-1.5 justify-center mt-3">
             {STEPS.map((_, i) => (
@@ -344,7 +423,7 @@ export default function PackageFinder({ onClose }: { onClose: () => void }) {
 
         {/* Options */}
         <div className={`px-4 py-4 -mt-3 bg-white rounded-t-3xl grid gap-2.5 ${current.cols === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
-          {current.options.map(opt => (
+          {currentOptions.map(opt => (
             <button
               key={opt.value}
               onClick={() => pick(opt.value)}
