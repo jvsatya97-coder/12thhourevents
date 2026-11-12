@@ -14,6 +14,8 @@ import InspirationGallery from '@/components/InspirationGallery';
 import ReferralCard from '@/components/ReferralCard';
 import MidnightSetup from '@/components/MidnightSetup';
 import ThemeStylePicker from '@/components/ThemeStylePicker';
+import TrustBar from '@/components/TrustBar';
+import CinematicGrid from '@/components/CinematicGrid';
 
 export const metadata: Metadata = {
   title: '12th Hour Events | Party & Birthday Decoration Service — Pan India',
@@ -94,19 +96,32 @@ export default function Home() {
         🔥 Weekend slots filling fast — <a href="https://wa.me/918073552837?text=Hi! I want to check slot availability." target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-red-200 transition">Check availability on WhatsApp →</a>
       </section>
 
-      {/* Stats bar */}
-      <section className="bg-gradient-to-r from-orange-500 to-amber-500 py-4">
+      {/* Premium Stats bar */}
+      <section className="bg-[#0c0c0c] py-6 md:py-8">
         <div className="max-w-5xl mx-auto px-4">
-          <div className="grid grid-cols-4 gap-2 text-white text-center">
+          <div className="grid grid-cols-4 gap-3 md:gap-6">
             {STATS.map((s, i) => (
-              <div key={i} className="py-1.5">
-                <div className="text-lg md:text-3xl font-extrabold leading-none">{s.val}</div>
-                <div className="text-[10px] md:text-sm opacity-90 font-medium mt-0.5">{s.label}</div>
+              <div key={i} className="text-center py-2 px-1 relative group">
+                {/* Subtle separator */}
+                {i > 0 && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-px h-10 bg-white/[0.08] hidden md:block" />
+                )}
+                <div className="text-2xl mb-1.5">{s.icon}</div>
+                <div
+                  className="text-xl md:text-3xl font-black leading-none mb-1"
+                  style={{ background: 'linear-gradient(135deg, #ff9800, #ff6b00)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}
+                >
+                  {s.val}
+                </div>
+                <div className="text-[10px] md:text-xs text-gray-500 font-semibold tracking-wide uppercase">{s.label}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
+
+      {/* Trust / Partner marquee */}
+      <TrustBar />
 
       {/* Services */}
       <section className="py-12 md:py-16 bg-gray-50">
@@ -204,6 +219,9 @@ export default function Home() {
       {/* Photo Inspiration Gallery */}
       <InspirationGallery />
 
+      {/* Cinematic Bento Grid */}
+      <CinematicGrid />
+
       {/* Midnight / Secret Setup */}
       <MidnightSetup />
 
@@ -241,24 +259,39 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Why Us */}
-      <section className="py-12 md:py-16">
+      {/* Why Us — Premium dark */}
+      <section className="py-14 md:py-20 bg-[#080808]">
         <div className="max-w-7xl mx-auto px-4">
-          <ScrollReveal>
-            <h2 className="section-title">Why Choose <span className="grad-text">12th Hour?</span></h2>
-            <p className="section-sub">The trusted name in party decoration across India</p>
-          </ScrollReveal>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 border border-orange-500/30 bg-orange-500/10 text-orange-300 rounded-full px-4 py-1.5 text-xs font-bold mb-4 tracking-widest uppercase">
+              🏆 Why 12th Hour
+            </div>
+            <h2 className="text-3xl md:text-5xl font-extrabold text-white leading-tight mb-3">
+              The Difference That<br />
+              <span style={{ background: 'linear-gradient(135deg, #ff9800, #ff6b00)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                Makes Memories
+              </span>
+            </h2>
+            <p className="text-gray-500 text-sm md:text-base max-w-xl mx-auto">
+              Thousands of families trust us to make their most important moments perfect.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
             {WHY.map((w, i) => (
-              <ScrollReveal key={i} delay={i * 60}>
-              <div className="flex items-start gap-3 p-4 md:p-5 rounded-2xl bg-gray-50 hover:bg-orange-50 transition-colors border border-transparent hover:border-orange-100">
-                <div className="text-2xl md:text-3xl flex-shrink-0 mt-0.5">{w.emoji}</div>
+              <div
+                key={i}
+                className="group flex flex-col gap-3 p-5 md:p-6 rounded-2xl border border-white/[0.06] hover:border-orange-500/30 transition-all duration-300"
+                style={{
+                  background: 'rgba(255,255,255,0.025)',
+                }}
+              >
+                <div className="text-3xl">{w.emoji}</div>
                 <div>
-                  <h3 className="font-bold text-gray-800 mb-0.5 text-sm md:text-base">{w.title}</h3>
+                  <h3 className="font-bold text-white mb-1 text-sm md:text-base group-hover:text-orange-300 transition-colors">{w.title}</h3>
                   <p className="text-xs md:text-sm text-gray-500 leading-relaxed">{w.desc}</p>
                 </div>
               </div>
-              </ScrollReveal>
             ))}
           </div>
         </div>
@@ -270,56 +303,106 @@ export default function Home() {
       {/* Before/After Transformation Gallery */}
       <TransformationGallery />
 
-      {/* Testimonials */}
-      <section className="py-12 md:py-16 bg-gray-50">
+      {/* Testimonials — Premium */}
+      <section className="py-14 md:py-20 bg-[#0c0c0c]">
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="section-title">What Customers <span className="grad-text">Say</span></h2>
-          <p className="section-sub">Real reviews from real celebrations 🎊</p>
-
-          <div className="flex items-center justify-center gap-4 mb-8">
-            <div className="text-center">
-              <div className="text-4xl font-extrabold text-gray-800">4.9</div>
-              <div className="text-orange-400 text-lg">★★★★★</div>
-              <div className="text-xs text-gray-500 mt-0.5">5000+ reviews</div>
+          {/* Header with Google badge */}
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
+            <div>
+              <div className="inline-flex items-center gap-2 border border-orange-500/30 bg-orange-500/10 text-orange-300 rounded-full px-4 py-1.5 text-xs font-bold mb-4 tracking-widest uppercase">
+                💬 Customer Stories
+              </div>
+              <h2 className="text-3xl md:text-5xl font-extrabold text-white leading-tight">
+                5000+ Celebrations,<br />
+                <span style={{ background: 'linear-gradient(135deg, #ff9800, #ff6b00)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                  5000+ Smiles
+                </span>
+              </h2>
             </div>
-            <div className="w-px h-16 bg-gray-200 hidden sm:block" />
-            <div className="hidden sm:flex flex-col gap-1.5">
-              {[5, 4, 3].map(stars => (
-                <div key={stars} className="flex items-center gap-2">
-                  <span className="text-xs text-gray-500 w-4">{stars}★</span>
-                  <div className="w-32 bg-gray-200 rounded-full h-1.5">
-                    <div className="h-1.5 rounded-full bg-orange-400" style={{ width: stars === 5 ? '90%' : stars === 4 ? '7%' : '3%' }} />
-                  </div>
+
+            {/* Google rating block */}
+            <div className="flex-shrink-0 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5 flex items-center gap-4 md:min-w-[220px]">
+              <div className="flex flex-col items-center">
+                <svg width="28" height="28" viewBox="0 0 48 48" className="mb-1" aria-label="Google">
+                  <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.3 9 3.4l6.8-6.8C35.7 2.3 30.3 0 24 0 14.9 0 7.1 5.4 3.3 13.2l7.9 6.1C13.1 13.3 18.1 9.5 24 9.5z"/>
+                  <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17z"/>
+                  <path fill="#FBBC05" d="M11.2 28.8A14.6 14.6 0 0 1 9.5 24c0-1.7.3-3.3.8-4.8L2.4 13.2A23.9 23.9 0 0 0 0 24c0 3.8.9 7.4 2.4 10.6l8.8-5.8z"/>
+                  <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.5-4.9 2.4-8.4 2.4-5.9 0-10.9-3.9-12.7-9.2L3.3 35.5C7.1 42.6 14.9 48 24 48z"/>
+                </svg>
+                <div className="text-3xl font-black text-white leading-none">4.9</div>
+                <div className="text-yellow-400 text-sm mt-0.5">★★★★★</div>
+              </div>
+              <div className="flex flex-col gap-1">
+                <div className="text-white/80 font-semibold text-sm">Google Reviews</div>
+                <div className="text-gray-500 text-xs">5,000+ verified ratings</div>
+                <div className="mt-1 flex flex-col gap-1">
+                  {[5, 4, 3].map(s => (
+                    <div key={s} className="flex items-center gap-1.5">
+                      <span className="text-[10px] text-gray-600 w-3">{s}</span>
+                      <div className="w-20 bg-white/8 rounded-full h-1">
+                        <div className="h-1 rounded-full bg-yellow-400" style={{ width: s === 5 ? '90%' : s === 4 ? '7%' : '3%' }} />
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
           </div>
 
-          <div className="testimonials-scroll pb-2">
+          {/* Review cards — premium scrolling */}
+          <div className="testimonials-scroll pb-3">
             {REVIEWS.map((r, i) => (
-              <div key={i} className="testimonial-card card p-5 flex flex-col">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-orange-400 to-amber-400 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+              <div key={i} className="testimonial-card flex flex-col rounded-2xl border border-white/8 p-5"
+                style={{ background: 'rgba(255,255,255,0.03)', minWidth: 280 }}>
+                {/* Top: avatar + name + verified */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="w-10 h-10 rounded-full flex items-center justify-center text-white font-black text-base flex-shrink-0"
+                      style={{ background: `linear-gradient(135deg, ${i % 2 === 0 ? '#ff6b00, #ff3c78' : '#f97316, #fb923c'})` }}
+                    >
                       {r.name[0]}
                     </div>
                     <div>
-                      <div className="font-semibold text-gray-800 text-sm">{r.name}</div>
-                      <div className="text-xs text-gray-400">{r.city} · {r.date}</div>
+                      <div className="text-white font-semibold text-sm flex items-center gap-1.5">
+                        {r.name}
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="#34d399" aria-label="Verified">
+                          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                        </svg>
+                      </div>
+                      <div className="text-gray-500 text-xs">{r.city} · {r.date}</div>
                     </div>
                   </div>
-                  <div className="text-orange-400 text-sm">{'★'.repeat(r.stars)}</div>
+                  <div className="text-yellow-400 text-sm font-bold">{'★'.repeat(r.stars)}</div>
                 </div>
-                <p className="text-sm text-gray-600 leading-relaxed flex-1 mb-3">&ldquo;{r.text}&rdquo;</p>
-                <div className="text-xs text-orange-500 font-medium bg-orange-50 rounded-full px-2.5 py-0.5 self-start">{r.service}</div>
+
+                {/* Quote */}
+                <p className="text-gray-300 text-sm leading-relaxed flex-1 mb-4">
+                  &ldquo;{r.text}&rdquo;
+                </p>
+
+                {/* Footer: service tag */}
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-orange-400 bg-orange-500/10 border border-orange-500/20 rounded-full px-3 py-1">
+                    {r.service}
+                  </span>
+                  <svg width="16" height="16" viewBox="0 0 48 48" aria-label="Google" className="opacity-40">
+                    <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.3 9 3.4l6.8-6.8C35.7 2.3 30.3 0 24 0 14.9 0 7.1 5.4 3.3 13.2l7.9 6.1C13.1 13.3 18.1 9.5 24 9.5z"/>
+                    <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17z"/>
+                    <path fill="#FBBC05" d="M11.2 28.8A14.6 14.6 0 0 1 9.5 24c0-1.7.3-3.3.8-4.8L2.4 13.2A23.9 23.9 0 0 0 0 24c0 3.8.9 7.4 2.4 10.6l8.8-5.8z"/>
+                    <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.5-4.9 2.4-8.4 2.4-5.9 0-10.9-3.9-12.7-9.2L3.3 35.5C7.1 42.6 14.9 48 24 48z"/>
+                  </svg>
+                </div>
               </div>
             ))}
           </div>
 
-          <div className="text-center mt-6">
+          <div className="text-center mt-8">
             <a href="https://wa.me/918073552837" target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-orange-600 transition-colors font-medium">
-              📲 Join 5000+ happy customers → Book on WhatsApp
+              className="inline-flex items-center gap-2 font-bold text-sm px-7 py-3.5 rounded-full text-white transition hover:opacity-90"
+              style={{ background: 'linear-gradient(135deg, #ff6b00, #ff3c78)', boxShadow: '0 8px 24px rgba(255,107,0,0.3)' }}
+            >
+              📲 Join 5000+ Happy Customers →
             </a>
           </div>
         </div>
