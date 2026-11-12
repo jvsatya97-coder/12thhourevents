@@ -9,6 +9,9 @@ import TransformationGallery from '@/components/TransformationGallery';
 import SameDayCountdown from '@/components/SameDayCountdown';
 import TrendingSection from '@/components/TrendingSection';
 import EventCountdown from '@/components/EventCountdown';
+import BudgetEstimator from '@/components/BudgetEstimator';
+import InspirationGallery from '@/components/InspirationGallery';
+import ReferralCard from '@/components/ReferralCard';
 
 export const metadata: Metadata = {
   title: '12th Hour Events | Party & Birthday Decoration Service — Pan India',
@@ -193,6 +196,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Photo Inspiration Gallery */}
+      <InspirationGallery />
+
       {/* Trending packages section */}
       <TrendingSection />
 
@@ -249,6 +255,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Budget Estimator */}
+      <BudgetEstimator />
 
       {/* Before/After Transformation Gallery */}
       <TransformationGallery />
@@ -323,6 +332,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Referral / Tell a Friend */}
+      <ReferralCard />
 
       {/* Final CTA */}
       <section className="py-14 md:py-20 relative overflow-hidden">

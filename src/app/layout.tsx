@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import WAChat from '@/components/WAChat';
 import CityDealsBanner from '@/components/CityDealsBanner';
+import ReviewToast from '@/components/ReviewToast';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import BackToTop from '@/components/BackToTop';
 
@@ -94,6 +95,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main>{children}</main>
           <Footer />
           <WAChat />
+          <ReviewToast />
           <MobileBottomNav />
           <BackToTop />
         </CityProvider>
