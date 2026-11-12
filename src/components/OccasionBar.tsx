@@ -3,13 +3,13 @@ import Link from 'next/link';
 
 const OCCASIONS = [
   { label: 'All Popular', emoji: '⭐', href: '/birthday-decoration' },
+  { label: 'Kids Activities', emoji: '🎪', href: '/activities' },
   { label: 'Birthday', emoji: '🎂', href: '/birthday-decoration' },
   { label: 'Anniversary', emoji: '💑', href: '/anniversary-decoration' },
   { label: 'Baby Shower', emoji: '🍼', href: '/baby-shower' },
   { label: 'Bachelorette', emoji: '👰', href: '/bachelorette-party' },
   { label: 'Room Decor', emoji: '🛏️', href: '/room-decoration' },
   { label: 'Pinterest', emoji: '📌', href: '/pinterest-edition' },
-  { label: 'Kids Fun', emoji: '🎪', href: '/activities' },
 ];
 
 export default function OccasionBar() {

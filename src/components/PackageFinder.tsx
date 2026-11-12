@@ -67,12 +67,12 @@ const STEPS = [
     emoji: '🎊',
     cols: 3,
     options: [
+      { label: 'Kids Activities', value: 'act-artists',  emoji: '🎪' },
       { label: 'Birthday',       value: 'bday',         emoji: '🎂' },
       { label: 'Anniversary',    value: 'anniv',        emoji: '💑' },
       { label: 'Baby Shower',    value: 'baby',         emoji: '🍼' },
       { label: 'Welcome Baby',   value: 'welcomebaby',  emoji: '👶' },
       { label: 'Bachelorette',   value: 'bachelorette', emoji: '💃' },
-      { label: 'Kids Fun',       value: 'act-artists',  emoji: '🎪' },
       { label: 'Theme Party',    value: 'theme',        emoji: '🎨' },
       { label: 'Balloon Decor',  value: 'balloon',      emoji: '🎈' },
       { label: 'Pinterest',      value: 'pinterest',    emoji: '📌' },
