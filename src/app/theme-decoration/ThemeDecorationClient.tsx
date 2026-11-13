@@ -26,7 +26,7 @@ const THEMES = [
   { slug: 'space',       emoji: '🚀', name: 'Space',             keywords: ['space', 'galaxy', 'astronaut', 'stars', 'universe'] },
   { slug: 'unicorn',     emoji: '🦄', name: 'Unicorn',           keywords: ['unicorn', 'magical', 'fantasy'] },
   { slug: 'princess',    emoji: '👑', name: 'Princess',          keywords: ['princess', 'cinderella', 'fairy tale', 'crown'] },
-  { slug: 'dinosaur',    emoji: '🦕', name: 'Dinosaur',          keywords: ['dinosaur', 'dino', 'jurassic'] },
+  { slug: 'football',    emoji: '⚽', name: 'Football',           keywords: ['football', 'soccer', 'sport', 'fifa', 'cricket', 'ipl'] },
 ];
 
 const TRUST = [
@@ -40,7 +40,7 @@ const TRUST = [
 const FAQS = [
   { q: 'Which themes are most popular?', a: 'Mermaid, Superhero, Cars, Barbie, Unicorn and K-Pop are our most booked themes right now. First birthday setups and Peppa Pig are also very popular for toddlers.' },
   { q: 'Can I request a custom theme?', a: 'Yes! We do fully custom themes. Just WhatsApp us with the reference images and we\'ll quote you within 2 hours.' },
-  { q: 'Do you have theme packages for girls and boys separately?', a: 'Absolutely — we have boy-favourite themes (Cars, Dinosaur, Space, Superheroes) and girl-favourite themes (Mermaid, Princess, Barbie, Butterfly), plus unisex themes like Rainbow and Jungle.' },
+  { q: 'Do you have theme packages for girls and boys separately?', a: 'Absolutely — we have boy-favourite themes (Cars, Football, Space, Superheroes) and girl-favourite themes (Mermaid, Princess, Barbie, Butterfly), plus unisex themes like Rainbow and Jungle.' },
   { q: 'How far in advance should I book a theme decoration?', a: 'We recommend 2–3 days for elaborate theme setups, but we also take last-minute bookings (even same day) based on availability. The sooner the better!' },
   { q: 'What is included in a theme decoration package?', a: 'Most packages include balloons, banners, a backdrop or photo wall, table setup, and theme-matching props. Premium packages also add floor decorations, light strings, and welcome boards. Check each package for exact inclusions.' },
 ];
