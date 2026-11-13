@@ -4,7 +4,7 @@ import { Product, fetchProducts, getPrice } from '@/lib/products';
 import { useCity } from '@/context/CityContext';
 import ProductCard from './ProductCard';
 
-type SortKey = 'featured' | 'price_asc' | 'price_desc' | 'name_asc';
+type SortKey = 'featured' | 'price_asc' | 'price_desc' | 'discount' | 'name_asc';
 
 interface Props { cat?: string; limit?: number; title?: string; showFilters?: boolean; }
 
@@ -21,6 +21,13 @@ function sortProducts(products: Product[], sort: SortKey, city: string): Product
       return sort === 'price_asc' ? pa - pb : pb - pa;
     });
     return copy;
+  }
+  if (sort === 'discount') {
+    return copy.sort((a, b) => {
+      const da = parseFloat(String(a.disc || '0')) || 0;
+      const db = parseFloat(String(b.disc || '0')) || 0;
+      return db - da;
+    });
   }
   if (sort === 'name_asc') {
     return copy.sort((a, b) => a.name.localeCompare(b.name));
@@ -83,6 +90,7 @@ export default function ProductGrid({ cat, limit, title, showFilters = false }: 
     featured:   '⭐ Featured',
     price_asc:  '💰 Price: Low to High',
     price_desc: '💎 Price: High to Low',
+    discount:   '🔥 Best Discount',
     name_asc:   '🔤 Name: A–Z',
   };
 
@@ -145,13 +153,9 @@ export default function ProductGrid({ cat, limit, title, showFilters = false }: 
             <div className="relative flex-none" ref={sortRef}>
               <button
                 onClick={() => setShowSortMenu(v => !v)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition whitespace-nowrap ${
-                  activeSort !== 'featured'
-                    ? 'bg-orange-500 border-orange-500 text-white'
-                    : 'bg-white border-gray-200 text-gray-600 hover:border-orange-300 hover:text-orange-600'
-                }`}
+                className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold border transition whitespace-nowrap bg-orange-500 border-orange-500 text-white hover:bg-orange-600 shadow-sm"
               >
-                <span>Sort</span>
+                <span>⇅ Sort</span>
                 <span className="text-[10px]">{showSortMenu ? '▲' : '▼'}</span>
               </button>
               {showSortMenu && (

@@ -37,7 +37,7 @@ export default function Footer() {
             <h4 className="font-bold text-white mb-3">Quick Links</h4>
             <ul className="space-y-1">
               <li><Link href="/contact" className="text-sm text-gray-400 hover:text-orange-400">Contact Us</Link></li>
-              <li><Link href="/search" className="text-sm text-gray-400 hover:text-orange-400">Search</Link></li>
+              <li><Link href="/pinterest-edition" className="text-sm text-gray-400 hover:text-orange-400">📌 Pinterest Edition</Link></li>
               <li><a href="https://wa.me/918073552837" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-400 hover:text-orange-400">WhatsApp Us</a></li>
             </ul>
           </div>
