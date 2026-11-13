@@ -13,16 +13,16 @@ const EXTRA = [
 
 // All categories in display order
 const CATS = [
-  { slug: 'birthday-decoration',    name: 'Birthday',      emoji: '🎂' },
-  { slug: 'theme-decoration',       name: 'Themes',        emoji: '🎨' },
-  { slug: 'anniversary-decoration', name: 'Anniversary',   emoji: '❤️' },
-  { slug: 'baby-shower',            name: 'Baby Shower',   emoji: '👶' },
-  { slug: 'bachelorette-party',     name: 'Bachelorette',  emoji: '👰' },
-  { slug: 'balloon-decoration',     name: 'Balloons',      emoji: '🎈' },
-  { slug: 'pinterest-edition',      name: 'Pinterest',     emoji: '📌' },
-  { slug: 'activities',             name: 'Kids Fun',      emoji: '🌟' },
-  { slug: 'welcome-baby',           name: 'Welcome Baby',  emoji: '🍼' },
-  { slug: 'corporate-events',       name: 'Corporate',     emoji: '🏢' },
+  { slug: 'activities',             name: 'Kids Activities', emoji: '🌟' },
+  { slug: 'birthday-decoration',    name: 'Birthday',        emoji: '🎂' },
+  { slug: 'theme-decoration',       name: 'Themes',          emoji: '🎨' },
+  { slug: 'anniversary-decoration', name: 'Anniversary',     emoji: '❤️' },
+  { slug: 'baby-shower',            name: 'Baby Shower',     emoji: '👶' },
+  { slug: 'bachelorette-party',     name: 'Bachelorette',    emoji: '👰' },
+  { slug: 'balloon-decoration',     name: 'Balloons',        emoji: '🎈' },
+  { slug: 'pinterest-edition',      name: 'Pinterest',       emoji: '📌' },
+  { slug: 'welcome-baby',           name: 'Welcome Baby',    emoji: '🍼' },
+  { slug: 'corporate-events',       name: 'Corporate',       emoji: '🏢' },
 ];
 
 export default function StickyCategories() {
