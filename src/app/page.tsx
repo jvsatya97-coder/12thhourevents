@@ -14,7 +14,6 @@ import InspirationGallery from '@/components/InspirationGallery';
 import ReferralCard from '@/components/ReferralCard';
 import MidnightSetup from '@/components/MidnightSetup';
 import ThemeStylePicker from '@/components/ThemeStylePicker';
-import OccasionCardsGrid from '@/components/OccasionCardsGrid';
 
 export const metadata: Metadata = {
   title: '12th Hour Events | Party & Birthday Decoration Service — Pan India',
@@ -183,9 +182,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* Occasion Cards Grid */}
-      <OccasionCardsGrid />
 
       {/* Theme Style Picker */}
       <ThemeStylePicker />
