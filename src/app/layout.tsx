@@ -3,6 +3,7 @@ import './globals.css';
 import { CityProvider } from '@/context/CityContext';
 import { CompareProvider } from '@/context/CompareContext';
 import Navbar from '@/components/Navbar';
+import StickyCategories from '@/components/StickyCategories';
 import Footer from '@/components/Footer';
 import WAChat from '@/components/WAChat';
 import CityDealsBanner from '@/components/CityDealsBanner';
@@ -93,6 +94,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <CompareProvider>
           <CityProvider>
             <Navbar />
+            <StickyCategories />
             <CityDealsBanner />
             <main>{children}</main>
             <Footer />
