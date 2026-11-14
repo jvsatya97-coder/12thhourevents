@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { trackWhatsApp } from '@/lib/tracking';
 
 const QUICK_REPLIES = [
   { label: '🎂 Birthday Decoration', text: 'Hi! I want to book a birthday decoration. Can you help me?' },
@@ -24,9 +25,10 @@ export default function WAChat() {
     return () => clearTimeout(t);
   }, []);
 
-  const handleQuickReply = (text: string) => {
+  const handleQuickReply = (text: string, label: string) => {
     const url = `https://wa.me/918073552837?text=${encodeURIComponent(text)}`;
     setReplied(true);
+    trackWhatsApp({ label, source: 'wa-chat-widget', page: typeof window !== 'undefined' ? window.location.pathname : '' });
     setTimeout(() => window.open(url, '_blank'), RESPONSE_DELAY_MS);
   };
 
@@ -83,7 +85,7 @@ export default function WAChat() {
               {QUICK_REPLIES.map(qr => (
                 <button
                   key={qr.label}
-                  onClick={() => handleQuickReply(qr.text)}
+                  onClick={() => handleQuickReply(qr.text, qr.label)}
                   className="text-left text-sm text-[#075e54] font-medium border border-[#075e54]/25 hover:border-[#075e54]/60 hover:bg-[#075e54]/5 px-3.5 py-2 rounded-xl transition-all active:scale-95"
                 >
                   {qr.label}

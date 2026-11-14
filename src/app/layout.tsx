@@ -10,6 +10,7 @@ import CityDealsBanner from '@/components/CityDealsBanner';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import BackToTop from '@/components/BackToTop';
 import CompareDrawer from '@/components/CompareDrawer';
+import GoogleTagManager from '@/components/GoogleTagManager';
 
 export const metadata: Metadata = {
   title: '12th Hour Events | Birthday & Party Decoration — Pan India',
@@ -93,6 +94,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <CompareProvider>
           <CityProvider>
+            <GoogleTagManager />
             <Navbar />
             <StickyCategories />
             <CityDealsBanner />
