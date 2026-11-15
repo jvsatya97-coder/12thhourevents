@@ -714,18 +714,21 @@ export default function AdminPage() {
           .filter(s => s.count > 0)
           .sort((a, b) => b.count - a.count);
 
-        // Image health
-        let imgOk = 0, imgWrongCloud = 0, imgDrive = 0, imgMissing = 0, multiImg = 0;
+        // Image health — per-product classification
         const imgKeys = ['img', 'img1', 'img2', 'img3', 'img4', 'img5'];
+        let imgOk = 0, imgWrongCloud = 0, imgDrive = 0, imgMissing = 0, multiImg = 0;
+        const wrongCloudProducts: SheetProduct[] = [];
+        const driveProducts: SheetProduct[] = [];
+        const missingImgProducts: SheetProduct[] = [];
         all.forEach(p => {
           const imgs = imgKeys.map(k => p[k]).filter(Boolean);
-          if (imgs.length === 0) { imgMissing++; return; }
+          if (imgs.length === 0) { imgMissing++; missingImgProducts.push(p); return; }
           if (imgs.length > 1) multiImg++;
           const main = imgs[0];
           if (main.includes('res.cloudinary.com/w1ficzbb')) imgOk++;
-          else if (main.includes('res.cloudinary.com')) imgWrongCloud++;
-          else if (main.includes('drive.google.com') || main.includes('lh3.googleusercontent.com')) imgDrive++;
-          else imgMissing++;
+          else if (main.includes('res.cloudinary.com')) { imgWrongCloud++; wrongCloudProducts.push(p); }
+          else if (main.includes('drive.google.com') || main.includes('lh3.googleusercontent.com')) { imgDrive++; driveProducts.push(p); }
+          else { imgMissing++; missingImgProducts.push(p); }
         });
 
         // Pricing
@@ -733,6 +736,19 @@ export default function AdminPage() {
         const avgPrice = prices.length ? Math.round(prices.reduce((a, b) => a + b, 0) / prices.length) : 0;
         const minPrice = prices.length ? Math.min(...prices) : 0;
         const maxPrice = prices.length ? Math.max(...prices) : 0;
+        const medianPrice = prices.length ? [...prices].sort((a,b)=>a-b)[Math.floor(prices.length/2)] : 0;
+
+        // Price range buckets
+        const priceBuckets = [
+          { label: 'Under ₹1k', min: 0, max: 1000 },
+          { label: '₹1k–3k', min: 1000, max: 3000 },
+          { label: '₹3k–5k', min: 3000, max: 5000 },
+          { label: '₹5k–10k', min: 5000, max: 10000 },
+          { label: 'Above ₹10k', min: 10000, max: Infinity },
+        ].map(b => ({
+          ...b,
+          count: all.filter(p => { const pr = parseFloat(p.price); return !isNaN(pr) && pr >= b.min && pr < b.max; }).length,
+        }));
 
         // Discount buckets
         const discBuckets = { none: 0, low: 0, mid: 0, high: 0 };
@@ -751,103 +767,231 @@ export default function AdminPage() {
             if (p[`price_${city.slug}`]) cityCoverage[city.slug] = (cityCoverage[city.slug] || 0) + 1;
           });
         });
+        const coveredCities = CITIES.filter(c => cityCoverage[c.slug] > 0).length;
+        const uncoveredCities = CITIES.filter(c => !cityCoverage[c.slug]);
 
         // Pinned products
-        const pinned = all.filter(p => p.sort_order && parseInt(p.sort_order) > 0).length;
+        const pinnedProducts = all.filter(p => p.sort_order && parseInt(p.sort_order) > 0)
+          .sort((a, b) => parseInt(a.sort_order) - parseInt(b.sort_order));
 
-        // Top 5 by price
-        const top5 = [...all]
-          .filter(p => parseFloat(p.price) > 0)
-          .sort((a, b) => parseFloat(b.price) - parseFloat(a.price))
-          .slice(0, 5);
+        // Top 5 by price, bottom 5 by price
+        const top5 = [...all].filter(p => parseFloat(p.price) > 0)
+          .sort((a, b) => parseFloat(b.price) - parseFloat(a.price)).slice(0, 5);
+        const bottom5 = [...all].filter(p => parseFloat(p.price) > 0)
+          .sort((a, b) => parseFloat(a.price) - parseFloat(b.price)).slice(0, 5);
+
+        // Recently added/edited (last 7 days)
+        const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+        const recentlyAdded = all.filter(p => {
+          const ts = parseSheetDate(p.uploaded_at || '');
+          return ts > sevenDaysAgo;
+        }).sort((a, b) => parseSheetDate(b.uploaded_at || '') - parseSheetDate(a.uploaded_at || ''));
+        const recentlyEdited = all.filter(p => {
+          const ts = parseSheetDate(p.edited_at || '');
+          return ts > sevenDaysAgo;
+        }).sort((a, b) => parseSheetDate(b.edited_at || '') - parseSheetDate(a.edited_at || ''));
+
+        // No-discount products
+        const noDiscountCount = all.filter(p => { const d = parseInt(p.disc || '0') || 0; return d === 0 && parseFloat(p.orig || '0') > parseFloat(p.price || '0'); }).length;
+
+        // Sub-category breakdown
+        const subCounts: Record<string, { count: number; cat: string }> = {};
+        all.forEach(p => { if (p.sub) { subCounts[p.sub] = { count: (subCounts[p.sub]?.count || 0) + 1, cat: p.cat }; } });
+        const subList = Object.entries(subCounts).sort((a, b) => b[1].count - a[1].count).slice(0, 12);
 
         const maxCatCount = Math.max(...catList.map(c => c.count), 1);
+        const maxPriceBucket = Math.max(...priceBuckets.map(b => b.count), 1);
+
+        // Helper: jump to Edit tab with filter preset
+        const goToEdit = (cat?: string, status?: 'live' | 'hidden' | 'all') => {
+          if (cat) setFilterCat(cat); else setFilterCat('all');
+          if (status) setFilterStatus(status); else setFilterStatus('all');
+          setSearchQ('');
+          setTab('edit');
+        };
+        const goToEditProduct = (p: SheetProduct) => {
+          setFilterCat('all'); setFilterStatus('all'); setSearchQ('');
+          setTab('edit');
+          setTimeout(() => startEdit(p), 50);
+        };
 
         return (
           <div className="max-w-2xl mx-auto px-4 py-5 space-y-4">
-            {/* Refresh */}
+
+            {/* Header */}
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-bold text-gray-700">📊 Product Dashboard</h2>
-              <button onClick={loadAllProducts} className="text-xs text-orange-500 font-medium border border-orange-200 px-3 py-1.5 rounded-full hover:bg-orange-50 transition">↻ Refresh</button>
+              <h2 className="text-sm font-bold text-gray-700">📊 Dashboard</h2>
+              <button onClick={loadAllProducts} className="text-xs text-orange-500 font-medium border border-orange-200 px-3 py-1.5 rounded-full hover:bg-orange-50 transition active:scale-95">↻ Refresh</button>
             </div>
 
-            {/* KPI tiles row */}
+            {/* ── KPI TILES ─────────────────────────────────── */}
             <div className="grid grid-cols-2 gap-3">
-              {[
-                { label: 'Total Products', value: all.length, icon: '📦', color: 'text-gray-800' },
-                { label: 'Live / Hidden', value: `${live.length} / ${hidden.length}`, icon: '●', color: 'text-green-600' },
-                { label: 'Multi-Photo', value: multiImg, icon: '🖼️', color: 'text-blue-600' },
-                { label: 'Pinned', value: pinned, icon: '📌', color: 'text-orange-600' },
-              ].map(tile => (
-                <div key={tile.label} className="bg-white rounded-2xl p-4 shadow-sm">
-                  <p className="text-xs text-gray-400 mb-1">{tile.icon} {tile.label}</p>
-                  <p className={`text-2xl font-extrabold ${tile.color}`}>{tile.value}</p>
-                </div>
-              ))}
+              <button onClick={() => goToEdit()} className="bg-white rounded-2xl p-4 shadow-sm text-left hover:shadow-md hover:border-orange-200 border border-transparent transition active:scale-95">
+                <p className="text-xs text-gray-400 mb-1">📦 Total Products</p>
+                <p className="text-3xl font-extrabold text-gray-800">{all.length}</p>
+                <p className="text-[10px] text-orange-500 mt-1">View all →</p>
+              </button>
+              <div className="bg-white rounded-2xl p-4 shadow-sm grid grid-rows-2 gap-2">
+                <button onClick={() => goToEdit('all', 'live')} className="flex items-center justify-between bg-green-50 rounded-xl px-3 py-1.5 hover:bg-green-100 transition active:scale-95">
+                  <span className="text-xs font-semibold text-green-700">● Live</span>
+                  <span className="text-lg font-extrabold text-green-700">{live.length}</span>
+                </button>
+                <button onClick={() => goToEdit('all', 'hidden')} className="flex items-center justify-between bg-red-50 rounded-xl px-3 py-1.5 hover:bg-red-100 transition active:scale-95">
+                  <span className="text-xs font-semibold text-red-600">○ Hidden</span>
+                  <span className="text-lg font-extrabold text-red-600">{hidden.length}</span>
+                </button>
+              </div>
+              <button onClick={() => { setFilterCat('all'); setFilterStatus('all'); setSearchQ(''); setTab('edit'); }} className="bg-white rounded-2xl p-4 shadow-sm text-left hover:shadow-md hover:border-blue-200 border border-transparent transition active:scale-95">
+                <p className="text-xs text-gray-400 mb-1">🖼️ Multi-Photo</p>
+                <p className="text-3xl font-extrabold text-blue-600">{multiImg}</p>
+                <p className="text-[10px] text-gray-400 mt-1">products with 2+ images</p>
+              </button>
+              <button onClick={() => { setFilterCat('all'); setFilterStatus('all'); setSearchQ(''); setTab('edit'); }} className="bg-white rounded-2xl p-4 shadow-sm text-left hover:shadow-md hover:border-orange-200 border border-transparent transition active:scale-95">
+                <p className="text-xs text-gray-400 mb-1">📌 Pinned</p>
+                <p className="text-3xl font-extrabold text-orange-600">{pinnedProducts.length}</p>
+                <p className="text-[10px] text-gray-400 mt-1">featured on top</p>
+              </button>
             </div>
 
-            {/* Image Health */}
+            {/* ── RECENT ACTIVITY ───────────────────────────── */}
+            {(recentlyAdded.length > 0 || recentlyEdited.length > 0) && (
+              <div className="bg-white rounded-2xl p-4 shadow-sm">
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">🕐 Last 7 Days</p>
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  <div className="bg-blue-50 rounded-xl p-3 text-center">
+                    <p className="text-2xl font-extrabold text-blue-600">{recentlyAdded.length}</p>
+                    <p className="text-[10px] text-blue-500 font-semibold mt-0.5">New products</p>
+                  </div>
+                  <div className="bg-purple-50 rounded-xl p-3 text-center">
+                    <p className="text-2xl font-extrabold text-purple-600">{recentlyEdited.length}</p>
+                    <p className="text-[10px] text-purple-500 font-semibold mt-0.5">Edited</p>
+                  </div>
+                </div>
+                {recentlyAdded.slice(0, 3).map(p => (
+                  <button key={p.id} onClick={() => goToEditProduct(p)} className="w-full flex items-center gap-2 py-1.5 hover:bg-orange-50 rounded-xl px-2 transition active:scale-95">
+                    {p.img ? <img src={p.img} alt={p.name} className="w-8 h-8 rounded-lg object-cover flex-none" /> : <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center text-sm flex-none">{p.emoji || '🎉'}</div>}
+                    <div className="min-w-0 flex-1 text-left">
+                      <p className="text-xs font-semibold text-gray-800 truncate">{p.name}</p>
+                      <p className="text-[10px] text-gray-400">{timeAgo(parseSheetDate(p.uploaded_at || ''))}</p>
+                    </div>
+                    <span className="text-[10px] text-orange-500 font-medium flex-none">Edit →</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* ── IMAGE HEALTH ──────────────────────────────── */}
             <div className="bg-white rounded-2xl p-4 shadow-sm">
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">🖼 Image Health</p>
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">🖼 Image Health <span className="text-gray-400 font-normal normal-case">— tap to fix</span></p>
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { label: 'Cloudinary ✓', value: imgOk, color: 'bg-green-100 text-green-700', border: 'border-green-200' },
-                  { label: 'Wrong Cloud ⚠️', value: imgWrongCloud, color: 'bg-purple-100 text-purple-700', border: 'border-purple-200' },
-                  { label: 'Google Drive', value: imgDrive, color: 'bg-yellow-100 text-yellow-700', border: 'border-yellow-200' },
-                  { label: 'Missing / Other', value: imgMissing, color: 'bg-red-100 text-red-600', border: 'border-red-200' },
+                  { label: 'Cloudinary ✓', value: imgOk, color: 'bg-green-100 text-green-700', border: 'border-green-200', products: [] as SheetProduct[] },
+                  { label: 'Wrong Cloud ⚠️', value: imgWrongCloud, color: 'bg-purple-100 text-purple-700', border: 'border-purple-200', products: wrongCloudProducts },
+                  { label: 'Google Drive', value: imgDrive, color: 'bg-yellow-100 text-yellow-700', border: 'border-yellow-200', products: driveProducts },
+                  { label: 'Missing / Other', value: imgMissing, color: 'bg-red-100 text-red-600', border: 'border-red-200', products: missingImgProducts },
                 ].map(item => (
-                  <div key={item.label} className={`rounded-xl p-3 border ${item.border} ${item.color}`}>
+                  <button key={item.label}
+                    onClick={() => { if (item.products.length > 0) { setTab('edit'); setFilterCat('all'); setFilterStatus('all'); setSearchQ(item.label.includes('Wrong') ? 'thksowin' : item.label.includes('Drive') ? 'lh3.google' : ''); } }}
+                    disabled={item.value === 0}
+                    className={`rounded-xl p-3 border ${item.border} ${item.color} text-left transition active:scale-95 ${item.value > 0 ? 'hover:opacity-80 cursor-pointer' : 'opacity-60 cursor-default'}`}>
                     <p className="text-[11px] font-semibold leading-tight">{item.label}</p>
                     <p className="text-xl font-extrabold mt-0.5">{item.value}</p>
-                  </div>
+                    {item.value > 0 && item.products.length > 0 && <p className="text-[9px] mt-1 opacity-70">Tap to view →</p>}
+                  </button>
                 ))}
               </div>
               {imgWrongCloud > 0 && (
-                <p className="mt-3 text-[11px] text-purple-600 bg-purple-50 rounded-xl px-3 py-2 border border-purple-100">
-                  ⚠️ {imgWrongCloud} product{imgWrongCloud !== 1 ? 's' : ''} use old Cloudinary account <strong>thksowin</strong> — re-upload via Edit tab to fix.
-                </p>
+                <div className="mt-3 bg-purple-50 border border-purple-100 rounded-xl p-3">
+                  <p className="text-[11px] text-purple-700 font-semibold mb-2">⚠️ {imgWrongCloud} products on old Cloudinary (thksowin)</p>
+                  <div className="space-y-1">
+                    {wrongCloudProducts.slice(0, 3).map(p => (
+                      <button key={p.id} onClick={() => goToEditProduct(p)} className="w-full flex items-center gap-2 bg-white rounded-lg px-2 py-1.5 hover:bg-purple-50 transition active:scale-95">
+                        {p.img ? <img src={p.img} alt="" className="w-6 h-6 rounded object-cover flex-none" /> : <span className="w-6 h-6 rounded bg-purple-100 flex items-center justify-center text-xs flex-none">{p.emoji}</span>}
+                        <span className="text-[11px] text-gray-700 truncate flex-1 text-left">{p.name}</span>
+                        <span className="text-[10px] text-purple-500 font-medium flex-none">Fix →</span>
+                      </button>
+                    ))}
+                    {wrongCloudProducts.length > 3 && <p className="text-[10px] text-purple-400 text-center pt-1">+{wrongCloudProducts.length - 3} more</p>}
+                  </div>
+                </div>
               )}
             </div>
 
-            {/* Category bar chart */}
+            {/* ── CATEGORIES ────────────────────────────────── */}
             <div className="bg-white rounded-2xl p-4 shadow-sm">
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">📂 Products by Category</p>
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">📂 Products by Category <span className="text-gray-400 font-normal normal-case">— tap to filter</span></p>
               <div className="space-y-2">
                 {catList.map(cat => (
-                  <div key={cat.cat} className="flex items-center gap-2">
+                  <button key={cat.cat} onClick={() => goToEdit(cat.cat)} className="w-full flex items-center gap-2 group hover:bg-orange-50 rounded-xl px-1 py-1 transition active:scale-95">
                     <span className="text-sm w-5 flex-none">{cat.emoji}</span>
-                    <span className="text-xs text-gray-600 w-28 flex-none truncate">{cat.name.replace(' Decoration', '').replace(' Party', '')}</span>
+                    <span className="text-xs text-gray-600 w-28 flex-none truncate group-hover:text-orange-700 transition">{cat.name.replace(' Decoration', '').replace(' Party', '')}</span>
                     <div className="flex-1 bg-gray-100 rounded-full h-5 relative overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-orange-400 transition-all"
-                        style={{ width: `${(cat.count / maxCatCount) * 100}%` }}
-                      />
+                      <div className="h-full rounded-full bg-orange-400 group-hover:bg-orange-500 transition-all" style={{ width: `${(cat.count / maxCatCount) * 100}%` }} />
                       <span className="absolute right-2 top-0 h-full flex items-center text-[10px] font-bold text-gray-600">{cat.count}</span>
                     </div>
-                  </div>
+                    <span className="text-[10px] text-orange-400 opacity-0 group-hover:opacity-100 transition flex-none">→</span>
+                  </button>
                 ))}
               </div>
             </div>
 
-            {/* Pricing stats */}
+            {/* ── PINNED PRODUCTS ───────────────────────────── */}
+            {pinnedProducts.length > 0 && (
+              <div className="bg-white rounded-2xl p-4 shadow-sm">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">📌 Pinned Products</p>
+                  <button onClick={() => goToEdit()} className="text-[10px] text-orange-500 font-medium">Manage →</button>
+                </div>
+                <div className="space-y-1">
+                  {pinnedProducts.slice(0, 6).map(p => (
+                    <button key={p.id} onClick={() => goToEditProduct(p)} className="w-full flex items-center gap-3 hover:bg-orange-50 rounded-xl px-2 py-2 transition active:scale-95">
+                      <span className="text-xs font-bold text-orange-400 w-5 flex-none">#{p.sort_order}</span>
+                      {p.img ? <img src={p.img} alt={p.name} className="w-8 h-8 rounded-lg object-cover flex-none" /> : <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center text-sm flex-none">{p.emoji}</div>}
+                      <div className="min-w-0 flex-1 text-left">
+                        <p className="text-xs font-semibold text-gray-800 truncate">{p.name}</p>
+                        <p className="text-[10px] text-gray-400">{SERVICES.find(s => s.cat === p.cat)?.name || p.cat}</p>
+                      </div>
+                      <span className="text-xs font-bold text-orange-600 flex-none">₹{Number(p.price).toLocaleString('en-IN')}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ── PRICING STATS ─────────────────────────────── */}
             <div className="bg-white rounded-2xl p-4 shadow-sm">
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">💰 Pricing</p>
-              <div className="grid grid-cols-3 gap-3 mb-4">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">💰 Pricing Overview</p>
+              <div className="grid grid-cols-4 gap-2 mb-4">
                 {[
-                  { label: 'Avg Price', value: `₹${avgPrice.toLocaleString('en-IN')}` },
-                  { label: 'Min Price', value: `₹${minPrice.toLocaleString('en-IN')}` },
-                  { label: 'Max Price', value: `₹${maxPrice.toLocaleString('en-IN')}` },
+                  { label: 'Avg', value: `₹${avgPrice.toLocaleString('en-IN')}` },
+                  { label: 'Median', value: `₹${medianPrice.toLocaleString('en-IN')}` },
+                  { label: 'Min', value: `₹${minPrice.toLocaleString('en-IN')}` },
+                  { label: 'Max', value: `₹${maxPrice.toLocaleString('en-IN')}` },
                 ].map(stat => (
-                  <div key={stat.label} className="bg-gray-50 rounded-xl p-3 text-center">
-                    <p className="text-[10px] text-gray-400 mb-0.5">{stat.label}</p>
-                    <p className="text-sm font-bold text-orange-600">{stat.value}</p>
+                  <div key={stat.label} className="bg-gray-50 rounded-xl p-2 text-center">
+                    <p className="text-[9px] text-gray-400 mb-0.5">{stat.label}</p>
+                    <p className="text-xs font-bold text-orange-600 leading-tight">{stat.value}</p>
                   </div>
                 ))}
               </div>
-              <p className="text-[11px] font-semibold text-gray-500 mb-2">Discount distribution</p>
+              {/* Price range distribution */}
+              <p className="text-[11px] font-semibold text-gray-500 mb-2">Price range distribution</p>
+              <div className="space-y-1.5">
+                {priceBuckets.map(b => (
+                  <div key={b.label} className="flex items-center gap-2">
+                    <span className="text-[10px] text-gray-500 w-20 flex-none">{b.label}</span>
+                    <div className="flex-1 bg-gray-100 rounded-full h-4 relative overflow-hidden">
+                      <div className="h-full rounded-full bg-gradient-to-r from-orange-300 to-orange-500 transition-all" style={{ width: `${(b.count / maxPriceBucket) * 100}%` }} />
+                    </div>
+                    <span className="text-[10px] font-bold text-gray-600 w-5 text-right flex-none">{b.count}</span>
+                  </div>
+                ))}
+              </div>
+              {/* Discount buckets */}
+              <p className="text-[11px] font-semibold text-gray-500 mt-4 mb-2">Discount distribution</p>
               <div className="flex gap-2">
                 {[
-                  { label: 'No discount', value: discBuckets.none, color: 'bg-gray-200 text-gray-700' },
+                  { label: 'No disc', value: discBuckets.none, color: 'bg-gray-100 text-gray-700' },
                   { label: '1–15%', value: discBuckets.low, color: 'bg-green-100 text-green-700' },
                   { label: '16–30%', value: discBuckets.mid, color: 'bg-yellow-100 text-yellow-700' },
                   { label: '31%+', value: discBuckets.high, color: 'bg-orange-100 text-orange-700' },
@@ -858,68 +1002,112 @@ export default function AdminPage() {
                   </div>
                 ))}
               </div>
+              {noDiscountCount > 0 && (
+                <p className="mt-2 text-[10px] text-amber-600 bg-amber-50 rounded-lg px-3 py-1.5">
+                  💡 {noDiscountCount} products have a higher original price but 0% discount set — check in Edit tab.
+                </p>
+              )}
             </div>
 
-            {/* City coverage */}
-            {Object.keys(cityCoverage).length > 0 && (
-              <div className="bg-white rounded-2xl p-4 shadow-sm">
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">🏙️ City-wise Pricing Coverage</p>
-                <div className="flex flex-wrap gap-2">
-                  {CITIES.map(city => {
-                    const count = cityCoverage[city.slug] || 0;
-                    return count > 0 ? (
-                      <div key={city.slug} className="bg-orange-50 border border-orange-200 text-orange-700 rounded-full px-3 py-1 text-xs font-semibold flex items-center gap-1">
-                        {city.name}
-                        <span className="bg-orange-200 text-orange-800 rounded-full px-1.5 py-0.5 text-[10px] font-bold">{count}</span>
-                      </div>
-                    ) : null;
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Top 5 by price */}
+            {/* ── TOP & BOTTOM BY PRICE ─────────────────────── */}
             <div className="bg-white rounded-2xl p-4 shadow-sm">
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">🏆 Top 5 by Price</p>
-              <div className="space-y-2">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">🏆 Price Leaderboard</p>
+              <p className="text-[11px] text-gray-400 font-semibold mb-2">Most expensive</p>
+              <div className="space-y-1 mb-4">
                 {top5.map((p, i) => (
-                  <div key={p.id} className="flex items-center gap-3">
-                    <span className="text-xs font-bold text-gray-400 w-4 flex-none">#{i + 1}</span>
-                    {p.img ? (
-                      <img src={p.img} alt={p.name} className="w-10 h-10 rounded-lg object-cover flex-none" />
-                    ) : (
-                      <div className="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center text-lg flex-none">{p.emoji || '🎉'}</div>
-                    )}
-                    <div className="min-w-0 flex-1">
+                  <button key={p.id} onClick={() => goToEditProduct(p)} className="w-full flex items-center gap-3 hover:bg-orange-50 rounded-xl px-2 py-1.5 transition active:scale-95">
+                    <span className="text-xs font-bold text-orange-400 w-5 flex-none">#{i + 1}</span>
+                    {p.img ? <img src={p.img} alt={p.name} className="w-9 h-9 rounded-lg object-cover flex-none" /> : <div className="w-9 h-9 rounded-lg bg-orange-50 flex items-center justify-center text-base flex-none">{p.emoji || '🎉'}</div>}
+                    <div className="min-w-0 flex-1 text-left">
                       <p className="text-xs font-semibold text-gray-800 truncate">{p.name}</p>
                       <p className="text-[10px] text-gray-400">{SERVICES.find(s => s.cat === p.cat)?.name || p.cat}</p>
                     </div>
-                    <p className="text-sm font-bold text-orange-600 flex-none">₹{Number(p.price).toLocaleString('en-IN')}</p>
-                  </div>
+                    <span className="text-sm font-bold text-orange-600 flex-none">₹{Number(p.price).toLocaleString('en-IN')}</span>
+                  </button>
+                ))}
+              </div>
+              <p className="text-[11px] text-gray-400 font-semibold mb-2">Most affordable</p>
+              <div className="space-y-1">
+                {bottom5.map((p, i) => (
+                  <button key={p.id} onClick={() => goToEditProduct(p)} className="w-full flex items-center gap-3 hover:bg-green-50 rounded-xl px-2 py-1.5 transition active:scale-95">
+                    <span className="text-xs font-bold text-green-500 w-5 flex-none">#{i + 1}</span>
+                    {p.img ? <img src={p.img} alt={p.name} className="w-9 h-9 rounded-lg object-cover flex-none" /> : <div className="w-9 h-9 rounded-lg bg-green-50 flex items-center justify-center text-base flex-none">{p.emoji || '🎉'}</div>}
+                    <div className="min-w-0 flex-1 text-left">
+                      <p className="text-xs font-semibold text-gray-800 truncate">{p.name}</p>
+                      <p className="text-[10px] text-gray-400">{SERVICES.find(s => s.cat === p.cat)?.name || p.cat}</p>
+                    </div>
+                    <span className="text-sm font-bold text-green-600 flex-none">₹{Number(p.price).toLocaleString('en-IN')}</span>
+                  </button>
                 ))}
               </div>
             </div>
 
-            {/* Sub-category breakdown */}
-            {(() => {
-              const subCounts: Record<string, number> = {};
-              all.forEach(p => { if (p.sub) subCounts[p.sub] = (subCounts[p.sub] || 0) + 1; });
-              const subList = Object.entries(subCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
-              if (!subList.length) return null;
-              return (
-                <div className="bg-white rounded-2xl p-4 shadow-sm">
-                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">🏷️ Top Sub-categories</p>
-                  <div className="flex flex-wrap gap-2">
-                    {subList.map(([sub, count]) => (
-                      <div key={sub} className="bg-gray-100 text-gray-700 rounded-full px-3 py-1 text-xs font-medium flex items-center gap-1.5">
-                        {sub}
-                        <span className="bg-gray-300 text-gray-700 rounded-full px-1.5 text-[10px] font-bold">{count}</span>
-                      </div>
-                    ))}
-                  </div>
+            {/* ── CITY COVERAGE ─────────────────────────────── */}
+            <div className="bg-white rounded-2xl p-4 shadow-sm">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">🏙️ City Coverage</p>
+                <span className="text-xs font-bold text-orange-600">{coveredCities}/{CITIES.length} cities</span>
+              </div>
+              <div className="flex flex-wrap gap-2 mb-3">
+                {CITIES.map(city => {
+                  const count = cityCoverage[city.slug] || 0;
+                  return (
+                    <button key={city.slug}
+                      onClick={() => count > 0 ? goToEdit() : undefined}
+                      disabled={count === 0}
+                      className={`rounded-full px-3 py-1 text-xs font-semibold flex items-center gap-1 transition active:scale-95 ${
+                        count > 0
+                          ? 'bg-orange-50 border border-orange-200 text-orange-700 hover:bg-orange-100 cursor-pointer'
+                          : 'bg-gray-50 border border-gray-200 text-gray-400 cursor-default opacity-60'
+                      }`}>
+                      {city.name}
+                      {count > 0 && <span className="bg-orange-200 text-orange-800 rounded-full px-1.5 py-0.5 text-[10px] font-bold">{count}</span>}
+                    </button>
+                  );
+                })}
+              </div>
+              {uncoveredCities.length > 0 && (
+                <p className="text-[10px] text-gray-400 bg-gray-50 rounded-lg px-3 py-2">
+                  📍 {uncoveredCities.length} cities with no custom pricing: {uncoveredCities.map(c => c.name).join(', ')}
+                </p>
+              )}
+            </div>
+
+            {/* ── SUB-CATEGORIES ────────────────────────────── */}
+            {subList.length > 0 && (
+              <div className="bg-white rounded-2xl p-4 shadow-sm">
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">🏷️ Sub-categories <span className="text-gray-400 font-normal normal-case">— tap to filter</span></p>
+                <div className="flex flex-wrap gap-2">
+                  {subList.map(([sub, info]) => (
+                    <button key={sub} onClick={() => { setFilterCat(info.cat); setFilterStatus('all'); setSearchQ(sub); setTab('edit'); }}
+                      className="bg-gray-100 hover:bg-orange-100 text-gray-700 hover:text-orange-800 rounded-full px-3 py-1 text-xs font-medium flex items-center gap-1.5 transition active:scale-95">
+                      {sub}
+                      <span className="bg-gray-300 hover:bg-orange-200 text-gray-700 rounded-full px-1.5 text-[10px] font-bold">{info.count}</span>
+                    </button>
+                  ))}
                 </div>
-              );
-            })()}
+              </div>
+            )}
+
+            {/* ── QUICK ACTIONS ─────────────────────────────── */}
+            <div className="bg-white rounded-2xl p-4 shadow-sm">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">⚡ Quick Actions</p>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { label: '➕ Add New Product', action: () => { setForm(emptyForm()); setTab('add'); }, color: 'bg-orange-500 text-white hover:bg-orange-600' },
+                  { label: '✏️ Edit All Products', action: () => goToEdit(), color: 'bg-gray-800 text-white hover:bg-gray-900' },
+                  { label: '○ View Hidden', action: () => goToEdit('all', 'hidden'), color: 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200' },
+                  { label: '● View Live', action: () => goToEdit('all', 'live'), color: 'bg-green-50 text-green-700 hover:bg-green-100 border border-green-200' },
+                  { label: '📋 Upload History', action: () => setTab('history'), color: 'bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200' },
+                  { label: '↻ Refresh Data', action: loadAllProducts, color: 'bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200' },
+                ].map(action => (
+                  <button key={action.label} onClick={action.action}
+                    className={`rounded-xl px-4 py-3 text-xs font-semibold transition active:scale-95 text-center ${action.color}`}>
+                    {action.label}
+                  </button>
+                ))}
+              </div>
+            </div>
 
           </div>
         );
