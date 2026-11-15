@@ -193,7 +193,7 @@ export default function AdminPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState('');
-  const [tab, setTab] = useState<'add' | 'edit' | 'history'>('add');
+  const [tab, setTab] = useState<'add' | 'edit' | 'history' | 'dashboard'>('add');
   const [history, setHistory] = useState<HistoryItem[]>([]);
 
   // Edit tab state
@@ -247,6 +247,10 @@ export default function AdminPage() {
   useEffect(() => {
     if (tab === 'edit' && !editingProduct) loadAllProducts();
   }, [tab, editingProduct, loadAllProducts]);
+
+  useEffect(() => {
+    if (tab === 'dashboard') loadAllProducts();
+  }, [tab, loadAllProducts]);
 
   const set = (k: keyof FormData, v: string | boolean) => {
     setForm(f => {
@@ -474,12 +478,12 @@ export default function AdminPage() {
       {/* Tabs — hide when editing */}
       {!editingProduct && (
         <div className="bg-white border-b border-gray-200 flex">
-          {(['add', 'edit', 'history'] as const).map(t => (
+          {(['add', 'edit', 'history', 'dashboard'] as const).map(t => (
             <button key={t} onClick={() => setTab(t)}
               className={`flex-1 py-3 text-xs font-semibold transition border-b-2 ${
                 tab === t ? 'border-orange-500 text-orange-600' : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}>
-              {t === 'add' ? '➕ Add' : t === 'edit' ? '✏️ Edit Products' : '📋 History'}
+              {t === 'add' ? '➕ Add' : t === 'edit' ? '✏️ Edit' : t === 'history' ? '📋 History' : '📊 Dashboard'}
             </button>
           ))}
         </div>
@@ -689,6 +693,237 @@ export default function AdminPage() {
           )}
         </div>
       )}
+
+      {/* ── DASHBOARD TAB ───────────────────────────────────────────────── */}
+      {tab === 'dashboard' && !editingProduct && (() => {
+        if (productsLoading) return (
+          <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+            <div className="w-8 h-8 border-2 border-orange-400 border-t-transparent rounded-full animate-spin mb-3" />
+            <p className="text-sm">Loading dashboard…</p>
+          </div>
+        );
+
+        const all = allProducts;
+        const live = all.filter(p => p.active !== 'false');
+        const hidden = all.filter(p => p.active === 'false');
+
+        // Category counts
+        const catCounts: Record<string, number> = {};
+        all.forEach(p => { catCounts[p.cat] = (catCounts[p.cat] || 0) + 1; });
+        const catList = SERVICES.map(s => ({ ...s, count: catCounts[s.cat] || 0 }))
+          .filter(s => s.count > 0)
+          .sort((a, b) => b.count - a.count);
+
+        // Image health
+        let imgOk = 0, imgWrongCloud = 0, imgDrive = 0, imgMissing = 0, multiImg = 0;
+        const imgKeys = ['img', 'img1', 'img2', 'img3', 'img4', 'img5'];
+        all.forEach(p => {
+          const imgs = imgKeys.map(k => p[k]).filter(Boolean);
+          if (imgs.length === 0) { imgMissing++; return; }
+          if (imgs.length > 1) multiImg++;
+          const main = imgs[0];
+          if (main.includes('res.cloudinary.com/w1ficzbb')) imgOk++;
+          else if (main.includes('res.cloudinary.com')) imgWrongCloud++;
+          else if (main.includes('drive.google.com') || main.includes('lh3.googleusercontent.com')) imgDrive++;
+          else imgMissing++;
+        });
+
+        // Pricing
+        const prices = all.map(p => parseFloat(p.price)).filter(n => !isNaN(n) && n > 0);
+        const avgPrice = prices.length ? Math.round(prices.reduce((a, b) => a + b, 0) / prices.length) : 0;
+        const minPrice = prices.length ? Math.min(...prices) : 0;
+        const maxPrice = prices.length ? Math.max(...prices) : 0;
+
+        // Discount buckets
+        const discBuckets = { none: 0, low: 0, mid: 0, high: 0 };
+        all.forEach(p => {
+          const d = parseInt(p.disc || '0') || 0;
+          if (d === 0) discBuckets.none++;
+          else if (d <= 15) discBuckets.low++;
+          else if (d <= 30) discBuckets.mid++;
+          else discBuckets.high++;
+        });
+
+        // City coverage — count products with city-specific prices
+        const cityCoverage: Record<string, number> = {};
+        all.forEach(p => {
+          CITIES.forEach(city => {
+            if (p[`price_${city.slug}`]) cityCoverage[city.slug] = (cityCoverage[city.slug] || 0) + 1;
+          });
+        });
+
+        // Pinned products
+        const pinned = all.filter(p => p.sort_order && parseInt(p.sort_order) > 0).length;
+
+        // Top 5 by price
+        const top5 = [...all]
+          .filter(p => parseFloat(p.price) > 0)
+          .sort((a, b) => parseFloat(b.price) - parseFloat(a.price))
+          .slice(0, 5);
+
+        const maxCatCount = Math.max(...catList.map(c => c.count), 1);
+
+        return (
+          <div className="max-w-2xl mx-auto px-4 py-5 space-y-4">
+            {/* Refresh */}
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-bold text-gray-700">📊 Product Dashboard</h2>
+              <button onClick={loadAllProducts} className="text-xs text-orange-500 font-medium border border-orange-200 px-3 py-1.5 rounded-full hover:bg-orange-50 transition">↻ Refresh</button>
+            </div>
+
+            {/* KPI tiles row */}
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { label: 'Total Products', value: all.length, icon: '📦', color: 'text-gray-800' },
+                { label: 'Live / Hidden', value: `${live.length} / ${hidden.length}`, icon: '●', color: 'text-green-600' },
+                { label: 'Multi-Photo', value: multiImg, icon: '🖼️', color: 'text-blue-600' },
+                { label: 'Pinned', value: pinned, icon: '📌', color: 'text-orange-600' },
+              ].map(tile => (
+                <div key={tile.label} className="bg-white rounded-2xl p-4 shadow-sm">
+                  <p className="text-xs text-gray-400 mb-1">{tile.icon} {tile.label}</p>
+                  <p className={`text-2xl font-extrabold ${tile.color}`}>{tile.value}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Image Health */}
+            <div className="bg-white rounded-2xl p-4 shadow-sm">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">🖼 Image Health</p>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { label: 'Cloudinary ✓', value: imgOk, color: 'bg-green-100 text-green-700', border: 'border-green-200' },
+                  { label: 'Wrong Cloud ⚠️', value: imgWrongCloud, color: 'bg-purple-100 text-purple-700', border: 'border-purple-200' },
+                  { label: 'Google Drive', value: imgDrive, color: 'bg-yellow-100 text-yellow-700', border: 'border-yellow-200' },
+                  { label: 'Missing / Other', value: imgMissing, color: 'bg-red-100 text-red-600', border: 'border-red-200' },
+                ].map(item => (
+                  <div key={item.label} className={`rounded-xl p-3 border ${item.border} ${item.color}`}>
+                    <p className="text-[11px] font-semibold leading-tight">{item.label}</p>
+                    <p className="text-xl font-extrabold mt-0.5">{item.value}</p>
+                  </div>
+                ))}
+              </div>
+              {imgWrongCloud > 0 && (
+                <p className="mt-3 text-[11px] text-purple-600 bg-purple-50 rounded-xl px-3 py-2 border border-purple-100">
+                  ⚠️ {imgWrongCloud} product{imgWrongCloud !== 1 ? 's' : ''} use old Cloudinary account <strong>thksowin</strong> — re-upload via Edit tab to fix.
+                </p>
+              )}
+            </div>
+
+            {/* Category bar chart */}
+            <div className="bg-white rounded-2xl p-4 shadow-sm">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">📂 Products by Category</p>
+              <div className="space-y-2">
+                {catList.map(cat => (
+                  <div key={cat.cat} className="flex items-center gap-2">
+                    <span className="text-sm w-5 flex-none">{cat.emoji}</span>
+                    <span className="text-xs text-gray-600 w-28 flex-none truncate">{cat.name.replace(' Decoration', '').replace(' Party', '')}</span>
+                    <div className="flex-1 bg-gray-100 rounded-full h-5 relative overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-orange-400 transition-all"
+                        style={{ width: `${(cat.count / maxCatCount) * 100}%` }}
+                      />
+                      <span className="absolute right-2 top-0 h-full flex items-center text-[10px] font-bold text-gray-600">{cat.count}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Pricing stats */}
+            <div className="bg-white rounded-2xl p-4 shadow-sm">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">💰 Pricing</p>
+              <div className="grid grid-cols-3 gap-3 mb-4">
+                {[
+                  { label: 'Avg Price', value: `₹${avgPrice.toLocaleString('en-IN')}` },
+                  { label: 'Min Price', value: `₹${minPrice.toLocaleString('en-IN')}` },
+                  { label: 'Max Price', value: `₹${maxPrice.toLocaleString('en-IN')}` },
+                ].map(stat => (
+                  <div key={stat.label} className="bg-gray-50 rounded-xl p-3 text-center">
+                    <p className="text-[10px] text-gray-400 mb-0.5">{stat.label}</p>
+                    <p className="text-sm font-bold text-orange-600">{stat.value}</p>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[11px] font-semibold text-gray-500 mb-2">Discount distribution</p>
+              <div className="flex gap-2">
+                {[
+                  { label: 'No discount', value: discBuckets.none, color: 'bg-gray-200 text-gray-700' },
+                  { label: '1–15%', value: discBuckets.low, color: 'bg-green-100 text-green-700' },
+                  { label: '16–30%', value: discBuckets.mid, color: 'bg-yellow-100 text-yellow-700' },
+                  { label: '31%+', value: discBuckets.high, color: 'bg-orange-100 text-orange-700' },
+                ].map(b => (
+                  <div key={b.label} className={`flex-1 rounded-xl p-2 text-center ${b.color}`}>
+                    <p className="text-lg font-extrabold">{b.value}</p>
+                    <p className="text-[9px] font-semibold leading-tight mt-0.5">{b.label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* City coverage */}
+            {Object.keys(cityCoverage).length > 0 && (
+              <div className="bg-white rounded-2xl p-4 shadow-sm">
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">🏙️ City-wise Pricing Coverage</p>
+                <div className="flex flex-wrap gap-2">
+                  {CITIES.map(city => {
+                    const count = cityCoverage[city.slug] || 0;
+                    return count > 0 ? (
+                      <div key={city.slug} className="bg-orange-50 border border-orange-200 text-orange-700 rounded-full px-3 py-1 text-xs font-semibold flex items-center gap-1">
+                        {city.name}
+                        <span className="bg-orange-200 text-orange-800 rounded-full px-1.5 py-0.5 text-[10px] font-bold">{count}</span>
+                      </div>
+                    ) : null;
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Top 5 by price */}
+            <div className="bg-white rounded-2xl p-4 shadow-sm">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">🏆 Top 5 by Price</p>
+              <div className="space-y-2">
+                {top5.map((p, i) => (
+                  <div key={p.id} className="flex items-center gap-3">
+                    <span className="text-xs font-bold text-gray-400 w-4 flex-none">#{i + 1}</span>
+                    {p.img ? (
+                      <img src={p.img} alt={p.name} className="w-10 h-10 rounded-lg object-cover flex-none" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center text-lg flex-none">{p.emoji || '🎉'}</div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-semibold text-gray-800 truncate">{p.name}</p>
+                      <p className="text-[10px] text-gray-400">{SERVICES.find(s => s.cat === p.cat)?.name || p.cat}</p>
+                    </div>
+                    <p className="text-sm font-bold text-orange-600 flex-none">₹{Number(p.price).toLocaleString('en-IN')}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Sub-category breakdown */}
+            {(() => {
+              const subCounts: Record<string, number> = {};
+              all.forEach(p => { if (p.sub) subCounts[p.sub] = (subCounts[p.sub] || 0) + 1; });
+              const subList = Object.entries(subCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+              if (!subList.length) return null;
+              return (
+                <div className="bg-white rounded-2xl p-4 shadow-sm">
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">🏷️ Top Sub-categories</p>
+                  <div className="flex flex-wrap gap-2">
+                    {subList.map(([sub, count]) => (
+                      <div key={sub} className="bg-gray-100 text-gray-700 rounded-full px-3 py-1 text-xs font-medium flex items-center gap-1.5">
+                        {sub}
+                        <span className="bg-gray-300 text-gray-700 rounded-full px-1.5 text-[10px] font-bold">{count}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+
+          </div>
+        );
+      })()}
 
       {/* ── ADD / EDIT FORM ─────────────────────────────────────────────── */}
       {(tab === 'add' || editingProduct) && (
