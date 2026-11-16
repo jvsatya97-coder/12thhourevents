@@ -2,14 +2,14 @@
 import Link from 'next/link';
 
 const OCCASIONS = [
-  { label: 'All Popular', emoji: '⭐', href: '/birthday-decoration' },
   { label: 'Kids Activities', emoji: '🎪', href: '/activities' },
+  { label: 'Pinterest', emoji: '📌', href: '/pinterest-edition' },
+  { label: 'Theme Decor', emoji: '🎨', href: '/theme-decoration' },
   { label: 'Birthday', emoji: '🎂', href: '/birthday-decoration' },
+  { label: 'Balloon Decor', emoji: '🎈', href: '/balloon-decoration' },
   { label: 'Anniversary', emoji: '💑', href: '/anniversary-decoration' },
   { label: 'Baby Shower', emoji: '🍼', href: '/baby-shower' },
   { label: 'Bachelorette', emoji: '👰', href: '/bachelorette-party' },
-  { label: 'Room Decor', emoji: '🛏️', href: '/room-decoration' },
-  { label: 'Pinterest', emoji: '📌', href: '/pinterest-edition' },
 ];
 
 export default function OccasionBar() {
