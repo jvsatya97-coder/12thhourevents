@@ -14,6 +14,9 @@ import InspirationGallery from '@/components/InspirationGallery';
 import ReferralCard from '@/components/ReferralCard';
 import MidnightSetup from '@/components/MidnightSetup';
 import ThemeStylePicker from '@/components/ThemeStylePicker';
+import PartyPlannerQuiz from '@/components/PartyPlannerQuiz';
+import SlotChecker from '@/components/SlotChecker';
+import PhotoMoodBoard from '@/components/PhotoMoodBoard';
 
 export const metadata: Metadata = {
   title: '12th Hour Events | Party & Birthday Decoration Service — Pan India',
@@ -186,6 +189,19 @@ export default function Home() {
       {/* Theme Style Picker */}
       <ThemeStylePicker />
 
+      {/* Photo Mood Board — explore themes visually */}
+      <section className="py-10 md:py-14">
+        <div className="max-w-2xl mx-auto px-4">
+          <ScrollReveal>
+            <h2 className="section-title">Find Your <span className="grad-text">Perfect Theme</span></h2>
+            <p className="section-sub">Browse real styles, save your favourites, and get a quote instantly on WhatsApp</p>
+          </ScrollReveal>
+          <ScrollReveal delay={100}>
+            <PhotoMoodBoard />
+          </ScrollReveal>
+        </div>
+      </section>
+
       {/* Popular packages */}
       <section className="py-12 md:py-16">
         <div className="max-w-7xl mx-auto px-4">
@@ -291,6 +307,32 @@ export default function Home() {
 
       {/* Budget Estimator */}
       <BudgetEstimator />
+
+      {/* Party Planner Quiz */}
+      <section className="py-10 md:py-14 bg-gradient-to-br from-orange-50 to-pink-50">
+        <div className="max-w-2xl mx-auto px-4">
+          <ScrollReveal>
+            <h2 className="section-title">Not Sure Where to <span className="grad-text">Start?</span></h2>
+            <p className="section-sub">Answer 5 quick questions and get a personalised package recommendation on WhatsApp</p>
+          </ScrollReveal>
+          <ScrollReveal delay={100}>
+            <PartyPlannerQuiz />
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* Slot Availability Checker */}
+      <section className="py-10 md:py-14">
+        <div className="max-w-2xl mx-auto px-4">
+          <ScrollReveal>
+            <h2 className="section-title">Check <span className="grad-text">Availability</span></h2>
+            <p className="section-sub">Pick your event date and see open slots instantly — same-day bookings welcome</p>
+          </ScrollReveal>
+          <ScrollReveal delay={100}>
+            <SlotChecker />
+          </ScrollReveal>
+        </div>
+      </section>
 
       {/* Before/After Transformation Gallery */}
       <TransformationGallery />
