@@ -49,6 +49,7 @@ const THEMES = [
   { slug: 'barbie',       emoji: '👛', name: 'Barbie',            keywords: ['barbie', 'pink glam', 'doll'] },
   { slug: 'frozen',       emoji: '❄️', name: 'Frozen',            keywords: ['frozen', 'elsa', 'anna', 'olaf'] },
   { slug: 'hotairballoon',emoji: '🎈', name: 'Hot Air Balloon',   keywords: ['hot air balloon', 'balloon theme', 'sky'] },
+  { slug: 'ocean',        emoji: '🌊', name: 'Ocean',             keywords: ['ocean', 'sea', 'beach', 'nautical', 'waves', 'fish', 'coral', 'underwater'] },
   { slug: 'moana',        emoji: '🌺', name: 'Moana',             keywords: ['moana', 'hawaii', 'tropical'] },
   { slug: 'kuromi',       emoji: '🖤', name: 'Kuromi',            keywords: ['kuromi', 'my melody'] },
   { slug: 'gabby',        emoji: '🏠', name: "Gabby's Dollhouse", keywords: ["gabby's dollhouse", 'gabby dollhouse', 'gabby'] },

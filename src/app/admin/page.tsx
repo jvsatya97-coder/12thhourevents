@@ -11,7 +11,7 @@ const SUBCAT_MAP: Record<string, string[]> = {
   theme:        [
     // Girl themes
     'Unicorn', 'Mermaid', 'Butterfly', 'Rainbow', 'Barbie', 'Princess', 'Hello Kitty',
-    'Frozen', 'Moana', 'Candyland', 'Hot Air Balloon', 'Kuromi', "Gabby's Dollhouse",
+    'Frozen', 'Moana', 'Candyland', 'Hot Air Balloon', 'Ocean', 'Kuromi', "Gabby's Dollhouse",
     'K-Pop',
     // Boy themes
     'Cars', 'Superhero', 'Spider-Man', 'Batman', 'Hulk', 'Space', 'Football',
