@@ -8,7 +8,20 @@ const ADMIN_PIN = '12he2024';
 
 const SUBCAT_MAP: Record<string, string[]> = {
   bday:         ['Basic', 'Standard', 'Premium', 'Luxury', 'Wall Decor', 'Ring Decor', 'Balloon Arch', 'Balloon Ceiling', 'Table Setup', 'Theme', 'Outdoor', 'Balloon Bouquet'],
-  theme:        ['Mermaid', 'Cars', 'Superhero', 'Butterfly', 'Jungle', '1st Birthday', 'Peppa Pig', 'Hello Kitty', 'Rainbow', 'Barbie', 'K-Pop', 'Space', 'Unicorn', 'Princess', 'Football', 'Frozen', 'Harry Potter', 'Minions', 'Disney Princess', 'Mickey Mouse'],
+  theme:        [
+    // Girl themes
+    'Unicorn', 'Mermaid', 'Butterfly', 'Rainbow', 'Barbie', 'Princess', 'Hello Kitty',
+    'Frozen', 'Moana', 'Candyland', 'Hot Air Balloon', 'Kuromi', "Gabby's Dollhouse",
+    'K-Pop',
+    // Boy themes
+    'Cars', 'Superhero', 'Spider-Man', 'Batman', 'Hulk', 'Space', 'Football',
+    'Mickey Mouse', 'Minions', 'Jungle', 'Peppa Pig', 'PAW Patrol', 'Doraemon',
+    'Baby Shark', 'LEGO', 'Minecraft', 'Pokémon', 'Sonic', 'Bluey', 'Beyblade',
+    'SpongeBob', 'Shin-Chan', 'Tom & Jerry', 'Winnie the Pooh', 'Boss Baby',
+    'Construction',
+    // Classic / All
+    '1st Birthday', 'Harry Potter', 'Carnival', 'Donut', 'Disney Princess',
+  ],
   anniv:        ['Romantic', 'Rose Setup', 'Candle Setup', 'Flower Wall', 'Luxury'],
   balloon:      ['Basic', 'Wall Decor', 'Ring Decor', 'Balloon Arch', 'Balloon Ceiling', 'Balloon Bouquet', 'Room Decoration', 'Surprise Room', 'LED Lights', 'Fairy Lights', 'Premium', 'Luxury'],
   baby:         ['Blue Theme', 'Pink Theme', 'Gender Neutral', 'Boho', 'Luxury'],
