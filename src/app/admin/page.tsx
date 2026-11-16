@@ -710,9 +710,17 @@ export default function AdminPage() {
         // Category counts
         const catCounts: Record<string, number> = {};
         all.forEach(p => { catCounts[p.cat] = (catCounts[p.cat] || 0) + 1; });
+        const knownCats = new Set(SERVICES.map(s => s.cat));
         const catList = SERVICES.map(s => ({ ...s, count: catCounts[s.cat] || 0 }))
           .filter(s => s.count > 0)
           .sort((a, b) => b.count - a.count);
+        // Unknown cats — products whose cat doesn't match any SERVICES entry
+        const unknownCats: { cat: string; count: number; products: SheetProduct[] }[] = [];
+        Object.entries(catCounts).forEach(([cat, count]) => {
+          if (!knownCats.has(cat)) {
+            unknownCats.push({ cat, count, products: all.filter(p => p.cat === cat) });
+          }
+        });
 
         // Image health — per-product classification
         const imgKeys = ['img', 'img1', 'img2', 'img3', 'img4', 'img5'];
@@ -793,6 +801,18 @@ export default function AdminPage() {
 
         // No-discount products
         const noDiscountCount = all.filter(p => { const d = parseInt(p.disc || '0') || 0; return d === 0 && parseFloat(p.orig || '0') > parseFloat(p.price || '0'); }).length;
+
+        // Missing / zero price
+        const missingPriceProducts = all.filter(p => { const pr = parseFloat(p.price || '0'); return isNaN(pr) || pr <= 0; });
+
+        // Missing sub-category
+        const missingSubProducts = all.filter(p => !p.sub || !p.sub.trim());
+
+        // Missing name or very short name (< 5 chars)
+        const badNameProducts = all.filter(p => !p.name || p.name.trim().length < 5);
+
+        // No description
+        const noDescProducts = all.filter(p => !p.desc || p.desc.trim().length < 10);
 
         // ── CROSS-CATEGORY PRODUCTS (cats2) ─────────────────────────────
         // Products intentionally listed in a second category via cats2 field
@@ -890,6 +910,21 @@ export default function AdminPage() {
 
         const totalDupIssues = exactNameDups.length + diffCatDups.length + similarDups.length + sameImgDups.length;
 
+        // Health score (0–100) — penalties for each issue
+        const totalIssues =
+          missingImgProducts.length +
+          wrongCloudProducts.length +
+          driveProducts.length +
+          missingPriceProducts.length +
+          missingSubProducts.length +
+          badNameProducts.length +
+          totalDupIssues +
+          unknownCats.length * 3; // unknown cat is a bigger problem
+        const healthPct = all.length > 0 ? Math.max(0, Math.round(100 - (totalIssues / all.length) * 100)) : 100;
+        const healthGrade = healthPct >= 90 ? 'A' : healthPct >= 75 ? 'B' : healthPct >= 60 ? 'C' : healthPct >= 40 ? 'D' : 'F';
+        const healthColor = healthPct >= 90 ? 'text-green-600' : healthPct >= 75 ? 'text-blue-600' : healthPct >= 60 ? 'text-amber-600' : 'text-red-600';
+        const healthBg = healthPct >= 90 ? 'bg-green-50 border-green-200' : healthPct >= 75 ? 'bg-blue-50 border-blue-200' : healthPct >= 60 ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200';
+
         // Sub-category breakdown
         const subCounts: Record<string, { count: number; cat: string }> = {};
         all.forEach(p => { if (p.sub) { subCounts[p.sub] = { count: (subCounts[p.sub]?.count || 0) + 1, cat: p.cat }; } });
@@ -976,6 +1011,42 @@ export default function AdminPage() {
                   <span className="text-2xl">{crossCatProducts.length > 0 ? '🔀' : '—'}</span>
                 </div>
               </button>
+              {/* Health Score */}
+              <button
+                onClick={() => { const el = document.getElementById('health-panel'); el?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
+                className={`rounded-2xl p-4 shadow-sm text-left border transition active:scale-95 hover:shadow-md ${healthBg}`}>
+                <p className="text-xs text-gray-500 mb-1">🏥 Health Score</p>
+                <p className={`text-3xl font-extrabold ${healthColor}`}>{healthGrade} <span className="text-lg">{healthPct}%</span></p>
+                <p className="text-[10px] text-gray-400 mt-1">{totalIssues} issue{totalIssues !== 1 ? 's' : ''} to fix</p>
+              </button>
+              {/* Missing Data */}
+              <button
+                onClick={() => { const el = document.getElementById('missing-panel'); el?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
+                className={`rounded-2xl p-4 shadow-sm text-left border transition active:scale-95 hover:shadow-md ${
+                  (missingPriceProducts.length + missingSubProducts.length + badNameProducts.length) > 0
+                    ? 'bg-orange-50 border-orange-200 hover:bg-orange-100'
+                    : 'bg-green-50 border-green-200'
+                }`}>
+                <p className="text-xs text-gray-500 mb-1">📋 Missing Data</p>
+                <p className={`text-3xl font-extrabold ${(missingPriceProducts.length + missingSubProducts.length) > 0 ? 'text-orange-600' : 'text-green-600'}`}>
+                  {missingPriceProducts.length + missingSubProducts.length + badNameProducts.length}
+                </p>
+                <p className="text-[10px] text-gray-400 mt-1">
+                  {missingPriceProducts.length > 0 ? `${missingPriceProducts.length} no price · ` : ''}
+                  {missingSubProducts.length > 0 ? `${missingSubProducts.length} no sub` : ''}
+                  {missingPriceProducts.length === 0 && missingSubProducts.length === 0 ? 'All complete ✓' : ''}
+                </p>
+              </button>
+              {/* Unknown cats */}
+              {unknownCats.length > 0 && (
+                <button
+                  onClick={() => { const el = document.getElementById('unknowncats-panel'); el?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
+                  className="rounded-2xl p-4 shadow-sm text-left border border-red-200 bg-red-50 hover:bg-red-100 transition active:scale-95 hover:shadow-md">
+                  <p className="text-xs text-gray-500 mb-1">❓ Unknown Cats</p>
+                  <p className="text-3xl font-extrabold text-red-600">{unknownCats.reduce((s, c) => s + c.count, 0)}</p>
+                  <p className="text-[10px] text-gray-400 mt-1">{unknownCats.length} unmapped categor{unknownCats.length !== 1 ? 'ies' : 'y'}</p>
+                </button>
+              )}
             </div>
 
             {/* ── RECENT ACTIVITY ───────────────────────────── */}
@@ -1396,6 +1467,160 @@ export default function AdminPage() {
               </div>
             )}
 
+            {/* ── UNKNOWN CATEGORIES ────────────────────────── */}
+            {unknownCats.length > 0 && (
+              <div id="unknowncats-panel" className="bg-red-50 rounded-2xl p-4 shadow-sm border-2 border-red-200">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <p className="text-xs font-bold text-red-600 uppercase tracking-wide">❓ Unknown Categories</p>
+                    <p className="text-[10px] text-gray-500 mt-0.5">These cat values don't match any known service — check for typos</p>
+                  </div>
+                  <span className="text-sm font-extrabold text-red-600 bg-red-100 px-2.5 py-1 rounded-full">{unknownCats.reduce((s,c)=>s+c.count,0)}</span>
+                </div>
+                <div className="space-y-3">
+                  {unknownCats.map(uc => (
+                    <div key={uc.cat} className="bg-white rounded-xl p-3 border border-red-100">
+                      <div className="flex items-center justify-between mb-2">
+                        <code className="text-xs font-bold text-red-700 bg-red-100 px-2 py-0.5 rounded">{uc.cat || '(empty)'}</code>
+                        <span className="text-xs text-gray-500">{uc.count} product{uc.count !== 1 ? 's' : ''}</span>
+                      </div>
+                      <div className="text-[10px] text-gray-500 mb-2">
+                        Known cats: {SERVICES.map(s => s.cat).join(', ')}
+                      </div>
+                      {uc.products.slice(0, 3).map(p => (
+                        <button key={p.id} onClick={() => goToEditProduct(p)}
+                          className="w-full flex items-center gap-2 bg-red-50 hover:bg-red-100 rounded-lg px-2 py-1.5 mb-1 transition active:scale-95">
+                          <span className="text-sm flex-none">{p.emoji || '📦'}</span>
+                          <span className="text-xs text-gray-700 truncate flex-1 text-left">{p.name}</span>
+                          <span className="text-[10px] text-red-500 font-medium flex-none">Fix cat →</span>
+                        </button>
+                      ))}
+                      {uc.products.length > 3 && (
+                        <p className="text-[10px] text-red-400 text-center pt-1">+{uc.products.length - 3} more</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ── MISSING DATA PANEL ────────────────────────── */}
+            {(missingPriceProducts.length + missingSubProducts.length + badNameProducts.length + noDescProducts.length) > 0 && (
+              <div id="missing-panel" className="bg-white rounded-2xl p-4 shadow-sm">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">📋 Incomplete Products</p>
+                  <span className="text-xs font-semibold text-orange-600 bg-orange-100 px-2.5 py-1 rounded-full">
+                    {missingPriceProducts.length + missingSubProducts.length + badNameProducts.length + noDescProducts.length} issues
+                  </span>
+                </div>
+
+                {/* Stat row */}
+                <div className="grid grid-cols-4 gap-2 mb-4">
+                  {[
+                    { label: 'No Price', count: missingPriceProducts.length, color: 'text-red-600 bg-red-50' },
+                    { label: 'No Sub', count: missingSubProducts.length, color: 'text-amber-600 bg-amber-50' },
+                    { label: 'Bad Name', count: badNameProducts.length, color: 'text-orange-600 bg-orange-50' },
+                    { label: 'No Desc', count: noDescProducts.length, color: 'text-gray-500 bg-gray-50' },
+                  ].map(item => (
+                    <div key={item.label} className={`rounded-xl p-2 text-center ${item.color}`}>
+                      <p className="text-lg font-extrabold">{item.count}</p>
+                      <p className="text-[9px] font-semibold mt-0.5">{item.label}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Missing price */}
+                {missingPriceProducts.length > 0 && (
+                  <div className="mb-3">
+                    <p className="text-[11px] font-bold text-red-600 mb-1.5">💰 No / Zero Price ({missingPriceProducts.length})</p>
+                    <div className="space-y-1">
+                      {missingPriceProducts.slice(0, 5).map(p => (
+                        <button key={p.id} onClick={() => goToEditProduct(p)}
+                          className="w-full flex items-center gap-2 bg-red-50 hover:bg-red-100 rounded-lg px-3 py-2 transition active:scale-95">
+                          {p.img ? <img src={p.img} alt="" className="w-7 h-7 rounded-lg object-cover flex-none" /> : <span className="w-7 h-7 rounded-lg bg-red-100 flex items-center justify-center text-xs flex-none">{p.emoji || '📦'}</span>}
+                          <span className="text-xs text-gray-700 truncate flex-1 text-left">{p.name}</span>
+                          <span className="text-[10px] font-bold text-red-500 flex-none">Add price →</span>
+                        </button>
+                      ))}
+                      {missingPriceProducts.length > 5 && <p className="text-[10px] text-red-400 text-center pt-1">+{missingPriceProducts.length - 5} more</p>}
+                    </div>
+                  </div>
+                )}
+
+                {/* Missing sub */}
+                {missingSubProducts.length > 0 && (
+                  <div className="mb-3">
+                    <p className="text-[11px] font-bold text-amber-600 mb-1.5">🏷️ No Sub-category ({missingSubProducts.length})</p>
+                    <div className="space-y-1">
+                      {missingSubProducts.slice(0, 5).map(p => (
+                        <button key={p.id} onClick={() => goToEditProduct(p)}
+                          className="w-full flex items-center gap-2 bg-amber-50 hover:bg-amber-100 rounded-lg px-3 py-2 transition active:scale-95">
+                          {p.img ? <img src={p.img} alt="" className="w-7 h-7 rounded-lg object-cover flex-none" /> : <span className="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center text-xs flex-none">{p.emoji || '📦'}</span>}
+                          <div className="min-w-0 flex-1 text-left">
+                            <p className="text-xs text-gray-700 truncate">{p.name}</p>
+                            <p className="text-[10px] text-gray-400">{SERVICES.find(s=>s.cat===p.cat)?.name || p.cat}</p>
+                          </div>
+                          <span className="text-[10px] font-bold text-amber-500 flex-none">Add sub →</span>
+                        </button>
+                      ))}
+                      {missingSubProducts.length > 5 && <p className="text-[10px] text-amber-400 text-center pt-1">+{missingSubProducts.length - 5} more</p>}
+                    </div>
+                  </div>
+                )}
+
+                {/* Bad names */}
+                {badNameProducts.length > 0 && (
+                  <div>
+                    <p className="text-[11px] font-bold text-orange-600 mb-1.5">✏️ Short / Missing Name ({badNameProducts.length})</p>
+                    <div className="space-y-1">
+                      {badNameProducts.slice(0, 4).map(p => (
+                        <button key={p.id} onClick={() => goToEditProduct(p)}
+                          className="w-full flex items-center gap-2 bg-orange-50 hover:bg-orange-100 rounded-lg px-3 py-2 transition active:scale-95">
+                          <span className="text-xs font-mono text-orange-700 bg-orange-100 px-2 py-0.5 rounded flex-none truncate max-w-[140px]">&ldquo;{p.name || '(empty)'}&rdquo;</span>
+                          <span className="text-[10px] font-bold text-orange-500 flex-none ml-auto">Fix →</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ── HEALTH SCORE ──────────────────────────────── */}
+            <div id="health-panel" className={`rounded-2xl p-4 shadow-sm border ${healthBg}`}>
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">🏥 Catalog Health Score</p>
+                  <p className="text-[10px] text-gray-400 mt-0.5">Based on images, prices, names and duplicates</p>
+                </div>
+                <div className="text-right">
+                  <p className={`text-4xl font-extrabold ${healthColor}`}>{healthGrade}</p>
+                  <p className={`text-sm font-bold ${healthColor}`}>{healthPct}%</p>
+                </div>
+              </div>
+              {/* Score bar */}
+              <div className="h-2 bg-gray-100 rounded-full mb-4 overflow-hidden">
+                <div className={`h-full rounded-full transition-all ${healthPct >= 90 ? 'bg-green-500' : healthPct >= 75 ? 'bg-blue-500' : healthPct >= 60 ? 'bg-amber-500' : 'bg-red-500'}`}
+                  style={{ width: `${healthPct}%` }} />
+              </div>
+              {/* Issue breakdown */}
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { label: '📸 Missing Image', count: missingImgProducts.length, bad: missingImgProducts.length > 0 },
+                  { label: '☁️ Wrong Cloud', count: wrongCloudProducts.length, bad: wrongCloudProducts.length > 0 },
+                  { label: '💰 No Price', count: missingPriceProducts.length, bad: missingPriceProducts.length > 0 },
+                  { label: '🏷️ No Sub-cat', count: missingSubProducts.length, bad: missingSubProducts.length > 0 },
+                  { label: '🔍 Duplicates', count: totalDupIssues, bad: totalDupIssues > 0 },
+                  { label: '❓ Unknown Cat', count: unknownCats.reduce((s,c)=>s+c.count,0), bad: unknownCats.length > 0 },
+                ].map(item => (
+                  <div key={item.label} className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs ${item.bad ? 'bg-white/70' : 'bg-green-50'}`}>
+                    <span className={item.bad ? 'text-gray-600' : 'text-green-600'}>{item.label}</span>
+                    <span className={`font-bold ${item.bad ? 'text-red-500' : 'text-green-600'}`}>{item.count === 0 ? '✓' : item.count}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* ── QUICK ACTIONS ─────────────────────────────── */}
             <div className="bg-white rounded-2xl p-4 shadow-sm">
               <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">⚡ Quick Actions</p>
@@ -1405,6 +1630,8 @@ export default function AdminPage() {
                   { label: '✏️ Edit All Products', action: () => goToEdit(), color: 'bg-gray-800 text-white hover:bg-gray-900' },
                   { label: '○ View Hidden', action: () => goToEdit('all', 'hidden'), color: 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200' },
                   { label: '● View Live', action: () => goToEdit('all', 'live'), color: 'bg-green-50 text-green-700 hover:bg-green-100 border border-green-200' },
+                  { label: '💰 Fix No-Price', action: () => { setFilterCat('all'); setFilterStatus('all'); setSearchQ(''); setTab('edit'); }, color: missingPriceProducts.length > 0 ? 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200' : 'bg-gray-50 text-gray-400 border border-gray-100 cursor-default opacity-50' },
+                  { label: '🏷️ Fix No-Sub', action: () => { setFilterCat('all'); setFilterStatus('all'); setSearchQ(''); setTab('edit'); }, color: missingSubProducts.length > 0 ? 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200' : 'bg-gray-50 text-gray-400 border border-gray-100 cursor-default opacity-50' },
                   { label: '📋 Upload History', action: () => setTab('history'), color: 'bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200' },
                   { label: '↻ Refresh Data', action: loadAllProducts, color: 'bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200' },
                 ].map(action => (
