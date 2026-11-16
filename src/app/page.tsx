@@ -13,7 +13,6 @@ import ReferralCard from '@/components/ReferralCard';
 import MidnightSetup from '@/components/MidnightSetup';
 import PartyPlannerQuiz from '@/components/PartyPlannerQuiz';
 import SlotChecker from '@/components/SlotChecker';
-import PhotoMoodBoard from '@/components/PhotoMoodBoard';
 
 export const metadata: Metadata = {
   title: '12th Hour Events | Party & Birthday Decoration Service — Pan India',
@@ -226,16 +225,31 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Photo Mood Board — explore themes visually */}
-      <section className="py-10 md:py-14">
-        <div className="max-w-2xl mx-auto px-4">
+      {/* Anniversary packages */}
+      <section className="py-12 md:py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4">
           <ScrollReveal>
-            <h2 className="section-title">Find Your <span className="grad-text">Perfect Theme</span></h2>
-            <p className="section-sub">Browse real styles, save your favourites, and get a quote instantly on WhatsApp</p>
+            <h2 className="section-title">Anniversary <span className="grad-text">Packages</span></h2>
+            <p className="section-sub">Romantic setups for your special milestone</p>
           </ScrollReveal>
-          <ScrollReveal delay={100}>
-            <PhotoMoodBoard />
+          <ProductGrid cat="anniv" limit={8} />
+          <div className="text-center mt-8">
+            <Link href="/anniversary-decoration" className="btn-pink px-8 py-3">See All Anniversary Packages →</Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Theme Decoration packages */}
+      <section className="py-12 md:py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4">
+          <ScrollReveal>
+            <h2 className="section-title">Theme <span className="grad-text">Decorations</span></h2>
+            <p className="section-sub">Unicorn, Superhero, Barbie & 40+ more themes</p>
           </ScrollReveal>
+          <ProductGrid cat="theme" limit={8} />
+          <div className="text-center mt-8">
+            <Link href="/theme-decoration" className="btn-pink px-8 py-3">Explore All Themes →</Link>
+          </div>
         </div>
       </section>
 
