@@ -204,6 +204,8 @@ export default function AdminPage() {
   const [filterStatus, setFilterStatus] = useState<'all' | 'live' | 'hidden'>('all');
   const [editingProduct, setEditingProduct] = useState<SheetProduct | null>(null);
   const [productMeta, setProductMeta] = useState<Record<string, ProductMeta>>({});
+  const [showMore, setShowMore] = useState<Record<string, boolean>>({});
+  const toggleMore = (key: string) => setShowMore(prev => ({ ...prev, [key]: !prev[key] }));
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState<FormData>(emptyForm());
@@ -1063,7 +1065,7 @@ export default function AdminPage() {
                     <p className="text-[10px] text-purple-500 font-semibold mt-0.5">Edited</p>
                   </div>
                 </div>
-                {recentlyAdded.slice(0, 3).map(p => (
+                {(showMore['recent'] ? recentlyAdded : recentlyAdded.slice(0, 3)).map(p => (
                   <button key={p.id} onClick={() => goToEditProduct(p)} className="w-full flex items-center gap-2 py-1.5 hover:bg-orange-50 rounded-xl px-2 transition active:scale-95">
                     {p.img ? <img src={p.img} alt={p.name} className="w-8 h-8 rounded-lg object-cover flex-none" /> : <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center text-sm flex-none">{p.emoji || '🎉'}</div>}
                     <div className="min-w-0 flex-1 text-left">
@@ -1073,6 +1075,12 @@ export default function AdminPage() {
                     <span className="text-[10px] text-orange-500 font-medium flex-none">Edit →</span>
                   </button>
                 ))}
+                {recentlyAdded.length > 3 && (
+                  <button onClick={() => toggleMore('recent')}
+                    className="mt-1 w-full text-xs font-semibold text-orange-400 hover:text-orange-600 py-1.5 rounded-xl hover:bg-orange-50 transition">
+                    {showMore['recent'] ? '▲ Show less' : `▼ Show ${recentlyAdded.length - 3} more`}
+                  </button>
+                )}
               </div>
             )}
 
@@ -1148,7 +1156,7 @@ export default function AdminPage() {
                     <p className="text-xs font-bold text-amber-600">Similar Names ({similarDups.length} pair{similarDups.length !== 1 ? 's' : ''})</p>
                   </div>
                   <div className="space-y-2">
-                    {similarDups.slice(0, 8).map(([a, b, pct], i) => (
+                    {(showMore['similardups'] ? similarDups : similarDups.slice(0, 8)).map(([a, b, pct], i) => (
                       <div key={i} className="bg-amber-50 border border-amber-100 rounded-xl p-3">
                         <div className="flex items-center gap-1 mb-2">
                           <span className="text-[10px] font-bold text-amber-600 bg-amber-200 px-1.5 py-0.5 rounded-full">{pct}% match</span>
@@ -1172,7 +1180,10 @@ export default function AdminPage() {
                       </div>
                     ))}
                     {similarDups.length > 8 && (
-                      <p className="text-[10px] text-amber-500 text-center py-1">+{similarDups.length - 8} more similar pairs</p>
+                      <button onClick={() => toggleMore('similardups')}
+                        className="mt-1 w-full text-xs font-semibold text-amber-500 hover:text-amber-700 py-1.5 rounded-xl hover:bg-amber-50 transition">
+                        {showMore['similardups'] ? '▲ Show less' : `▼ Show ${similarDups.length - 8} more similar pairs`}
+                      </button>
                     )}
                   </div>
                 </div>
@@ -1222,7 +1233,7 @@ export default function AdminPage() {
                   <span className="text-sm font-extrabold text-indigo-600 bg-indigo-100 px-2.5 py-1 rounded-full">{crossCatProducts.length}</span>
                 </div>
                 <div className="space-y-2">
-                  {crossCatProducts.map(p => {
+                  {(showMore['crosscat'] ? crossCatProducts : crossCatProducts.slice(0, 2)).map(p => {
                     const svc1 = SERVICES.find(s => s.cat === p.cat);
                     const svc2 = SERVICES.find(s => s.cat === p.cats2);
                     return (
@@ -1252,7 +1263,13 @@ export default function AdminPage() {
                     );
                   })}
                 </div>
-                <p className="text-[10px] text-gray-400 mt-3 px-1">
+                {crossCatProducts.length > 2 && (
+                  <button onClick={() => toggleMore('crosscat')}
+                    className="mt-2 w-full text-xs font-semibold text-indigo-500 hover:text-indigo-700 py-2 rounded-xl hover:bg-indigo-50 transition">
+                    {showMore['crosscat'] ? '▲ Show less' : `▼ Show ${crossCatProducts.length - 2} more`}
+                  </button>
+                )}
+                <p className="text-[10px] text-gray-400 mt-1 px-1">
                   💡 These are intentional — each product is cross-listed into a second category. Remove cats2 from a product to unlist it.
                 </p>
               </div>
@@ -1282,14 +1299,19 @@ export default function AdminPage() {
                 <div className="mt-3 bg-purple-50 border border-purple-100 rounded-xl p-3">
                   <p className="text-[11px] text-purple-700 font-semibold mb-2">⚠️ {imgWrongCloud} products on old Cloudinary (thksowin)</p>
                   <div className="space-y-1">
-                    {wrongCloudProducts.slice(0, 3).map(p => (
+                    {(showMore['wrongcloud'] ? wrongCloudProducts : wrongCloudProducts.slice(0, 3)).map(p => (
                       <button key={p.id} onClick={() => goToEditProduct(p)} className="w-full flex items-center gap-2 bg-white rounded-lg px-2 py-1.5 hover:bg-purple-50 transition active:scale-95">
                         {p.img ? <img src={p.img} alt="" className="w-6 h-6 rounded object-cover flex-none" /> : <span className="w-6 h-6 rounded bg-purple-100 flex items-center justify-center text-xs flex-none">{p.emoji}</span>}
                         <span className="text-[11px] text-gray-700 truncate flex-1 text-left">{p.name}</span>
                         <span className="text-[10px] text-purple-500 font-medium flex-none">Fix →</span>
                       </button>
                     ))}
-                    {wrongCloudProducts.length > 3 && <p className="text-[10px] text-purple-400 text-center pt-1">+{wrongCloudProducts.length - 3} more</p>}
+                    {wrongCloudProducts.length > 3 && (
+                      <button onClick={() => toggleMore('wrongcloud')}
+                        className="mt-1 w-full text-xs font-semibold text-purple-400 hover:text-purple-600 py-1.5 rounded-xl hover:bg-purple-50 transition">
+                        {showMore['wrongcloud'] ? '▲ Show less' : `▼ Show ${wrongCloudProducts.length - 3} more`}
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
@@ -1321,7 +1343,7 @@ export default function AdminPage() {
                   <button onClick={() => goToEdit()} className="text-[10px] text-orange-500 font-medium">Manage →</button>
                 </div>
                 <div className="space-y-1">
-                  {pinnedProducts.slice(0, 6).map(p => (
+                  {(showMore['pinned'] ? pinnedProducts : pinnedProducts.slice(0, 6)).map(p => (
                     <button key={p.id} onClick={() => goToEditProduct(p)} className="w-full flex items-center gap-3 hover:bg-orange-50 rounded-xl px-2 py-2 transition active:scale-95">
                       <span className="text-xs font-bold text-orange-400 w-5 flex-none">#{p.sort_order}</span>
                       {p.img ? <img src={p.img} alt={p.name} className="w-8 h-8 rounded-lg object-cover flex-none" /> : <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center text-sm flex-none">{p.emoji}</div>}
@@ -1332,6 +1354,12 @@ export default function AdminPage() {
                       <span className="text-xs font-bold text-orange-600 flex-none">₹{Number(p.price).toLocaleString('en-IN')}</span>
                     </button>
                   ))}
+                  {pinnedProducts.length > 6 && (
+                    <button onClick={() => toggleMore('pinned')}
+                      className="mt-1 w-full text-xs font-semibold text-orange-400 hover:text-orange-600 py-1.5 rounded-xl hover:bg-orange-50 transition">
+                      {showMore['pinned'] ? '▲ Show less' : `▼ Show ${pinnedProducts.length - 6} more`}
+                    </button>
+                  )}
                 </div>
               </div>
             )}
@@ -1487,7 +1515,7 @@ export default function AdminPage() {
                       <div className="text-[10px] text-gray-500 mb-2">
                         Known cats: {SERVICES.map(s => s.cat).join(', ')}
                       </div>
-                      {uc.products.slice(0, 3).map(p => (
+                      {(showMore[`unknowncat_${uc.cat}`] ? uc.products : uc.products.slice(0, 3)).map(p => (
                         <button key={p.id} onClick={() => goToEditProduct(p)}
                           className="w-full flex items-center gap-2 bg-red-50 hover:bg-red-100 rounded-lg px-2 py-1.5 mb-1 transition active:scale-95">
                           <span className="text-sm flex-none">{p.emoji || '📦'}</span>
@@ -1496,7 +1524,10 @@ export default function AdminPage() {
                         </button>
                       ))}
                       {uc.products.length > 3 && (
-                        <p className="text-[10px] text-red-400 text-center pt-1">+{uc.products.length - 3} more</p>
+                        <button onClick={() => toggleMore(`unknowncat_${uc.cat}`)}
+                          className="mt-0.5 w-full text-xs font-semibold text-red-400 hover:text-red-600 py-1.5 rounded-xl hover:bg-red-50 transition">
+                          {showMore[`unknowncat_${uc.cat}`] ? '▲ Show less' : `▼ Show ${uc.products.length - 3} more`}
+                        </button>
                       )}
                     </div>
                   ))}
@@ -1534,7 +1565,7 @@ export default function AdminPage() {
                   <div className="mb-3">
                     <p className="text-[11px] font-bold text-red-600 mb-1.5">💰 No / Zero Price ({missingPriceProducts.length})</p>
                     <div className="space-y-1">
-                      {missingPriceProducts.slice(0, 5).map(p => (
+                      {(showMore['missingprice'] ? missingPriceProducts : missingPriceProducts.slice(0, 5)).map(p => (
                         <button key={p.id} onClick={() => goToEditProduct(p)}
                           className="w-full flex items-center gap-2 bg-red-50 hover:bg-red-100 rounded-lg px-3 py-2 transition active:scale-95">
                           {p.img ? <img src={p.img} alt="" className="w-7 h-7 rounded-lg object-cover flex-none" /> : <span className="w-7 h-7 rounded-lg bg-red-100 flex items-center justify-center text-xs flex-none">{p.emoji || '📦'}</span>}
@@ -1542,7 +1573,12 @@ export default function AdminPage() {
                           <span className="text-[10px] font-bold text-red-500 flex-none">Add price →</span>
                         </button>
                       ))}
-                      {missingPriceProducts.length > 5 && <p className="text-[10px] text-red-400 text-center pt-1">+{missingPriceProducts.length - 5} more</p>}
+                      {missingPriceProducts.length > 5 && (
+                        <button onClick={() => toggleMore('missingprice')}
+                          className="mt-1 w-full text-xs font-semibold text-red-400 hover:text-red-600 py-1.5 rounded-xl hover:bg-red-50 transition">
+                          {showMore['missingprice'] ? '▲ Show less' : `▼ Show ${missingPriceProducts.length - 5} more`}
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}
@@ -1552,7 +1588,7 @@ export default function AdminPage() {
                   <div className="mb-3">
                     <p className="text-[11px] font-bold text-amber-600 mb-1.5">🏷️ No Sub-category ({missingSubProducts.length})</p>
                     <div className="space-y-1">
-                      {missingSubProducts.slice(0, 5).map(p => (
+                      {(showMore['missingsub'] ? missingSubProducts : missingSubProducts.slice(0, 5)).map(p => (
                         <button key={p.id} onClick={() => goToEditProduct(p)}
                           className="w-full flex items-center gap-2 bg-amber-50 hover:bg-amber-100 rounded-lg px-3 py-2 transition active:scale-95">
                           {p.img ? <img src={p.img} alt="" className="w-7 h-7 rounded-lg object-cover flex-none" /> : <span className="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center text-xs flex-none">{p.emoji || '📦'}</span>}
@@ -1563,7 +1599,12 @@ export default function AdminPage() {
                           <span className="text-[10px] font-bold text-amber-500 flex-none">Add sub →</span>
                         </button>
                       ))}
-                      {missingSubProducts.length > 5 && <p className="text-[10px] text-amber-400 text-center pt-1">+{missingSubProducts.length - 5} more</p>}
+                      {missingSubProducts.length > 5 && (
+                        <button onClick={() => toggleMore('missingsub')}
+                          className="mt-1 w-full text-xs font-semibold text-amber-400 hover:text-amber-600 py-1.5 rounded-xl hover:bg-amber-50 transition">
+                          {showMore['missingsub'] ? '▲ Show less' : `▼ Show ${missingSubProducts.length - 5} more`}
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}
@@ -1573,13 +1614,19 @@ export default function AdminPage() {
                   <div>
                     <p className="text-[11px] font-bold text-orange-600 mb-1.5">✏️ Short / Missing Name ({badNameProducts.length})</p>
                     <div className="space-y-1">
-                      {badNameProducts.slice(0, 4).map(p => (
+                      {(showMore['badname'] ? badNameProducts : badNameProducts.slice(0, 4)).map(p => (
                         <button key={p.id} onClick={() => goToEditProduct(p)}
                           className="w-full flex items-center gap-2 bg-orange-50 hover:bg-orange-100 rounded-lg px-3 py-2 transition active:scale-95">
                           <span className="text-xs font-mono text-orange-700 bg-orange-100 px-2 py-0.5 rounded flex-none truncate max-w-[140px]">&ldquo;{p.name || '(empty)'}&rdquo;</span>
                           <span className="text-[10px] font-bold text-orange-500 flex-none ml-auto">Fix →</span>
                         </button>
                       ))}
+                      {badNameProducts.length > 4 && (
+                        <button onClick={() => toggleMore('badname')}
+                          className="mt-1 w-full text-xs font-semibold text-orange-400 hover:text-orange-600 py-1.5 rounded-xl hover:bg-orange-50 transition">
+                          {showMore['badname'] ? '▲ Show less' : `▼ Show ${badNameProducts.length - 4} more`}
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}
