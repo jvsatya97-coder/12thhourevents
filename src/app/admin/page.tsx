@@ -794,43 +794,69 @@ export default function AdminPage() {
         // No-discount products
         const noDiscountCount = all.filter(p => { const d = parseInt(p.disc || '0') || 0; return d === 0 && parseFloat(p.orig || '0') > parseFloat(p.price || '0'); }).length;
 
+        // ── CROSS-CATEGORY PRODUCTS (cats2) ─────────────────────────────
+        // Products intentionally listed in a second category via cats2 field
+        const crossCatProducts = all.filter(p => p.cats2 && p.cats2.trim());
+        // Build a set of "intentional cross-cat pairs" so we can exclude them from dup warnings
+        // Key = sorted pair of ids for same product showing in two cats (same name + cats2 relationship)
+        const intentionalCrossPairs = new Set<string>();
+        crossCatProducts.forEach(p => {
+          // Any other product with same name whose cat === this product's cats2 is intentional
+          const name = (p.name || '').toLowerCase().trim();
+          all.forEach(q => {
+            if (p.id !== q.id && (q.name || '').toLowerCase().trim() === name && q.cat === p.cats2) {
+              intentionalCrossPairs.add([p.id, q.id].sort().join('|'));
+            }
+          });
+        });
+
         // ── DUPLICATE DETECTION ──────────────────────────────────────────
         // Normalize name for comparison
         const normName = (n: string) => n.toLowerCase().replace(/[^a-z0-9]/g, ' ').replace(/\s+/g, ' ').trim();
 
-        // 1. Exact same name (case-insensitive) across any categories
+        // 1. Exact same name (case-insensitive) in the SAME category = real duplicate
         const nameMap: Record<string, SheetProduct[]> = {};
         all.forEach(p => {
-          const key = normName(p.name || '');
+          const key = normName(p.name || '') + '||' + (p.cat || '');
           if (!key) return;
           if (!nameMap[key]) nameMap[key] = [];
           nameMap[key].push(p);
         });
         const exactNameDups = Object.values(nameMap).filter(group => group.length > 1);
 
-        // 2. Same name but different category (potential cross-cat duplicates, not cats2 intentional ones)
-        // These are already captured in exactNameDups, but we split out same-cat vs diff-cat
-        const sameCatDups = exactNameDups.filter(group => {
-          const cats = new Set(group.map(p => p.cat));
-          return cats.size === 1; // all in same category = likely true duplicate
+        // 2. Same name in DIFFERENT categories — but only flag if NOT an intentional cats2 pair
+        const diffCatNameMap: Record<string, SheetProduct[]> = {};
+        all.forEach(p => {
+          const key = normName(p.name || '');
+          if (!key) return;
+          if (!diffCatNameMap[key]) diffCatNameMap[key] = [];
+          diffCatNameMap[key].push(p);
         });
-        const diffCatDups = exactNameDups.filter(group => {
-          const cats = new Set(group.map(p => p.cat));
-          return cats.size > 1; // same name, different categories
-        });
+        const diffCatDups = Object.values(diffCatNameMap)
+          .filter(group => {
+            const cats = new Set(group.map(p => p.cat));
+            if (cats.size <= 1) return false; // same cat already caught above
+            // Check if every pair in this group is an intentional cats2 cross-listing
+            for (let i = 0; i < group.length; i++) {
+              for (let j = i + 1; j < group.length; j++) {
+                const pairKey = [group[i].id, group[j].id].sort().join('|');
+                if (!intentionalCrossPairs.has(pairKey)) return true; // at least one non-intentional pair
+              }
+            }
+            return false;
+          });
 
-        // 3. Similar name (edit distance / word overlap) — catch "Birthday Balloon Setup" vs "Balloon Birthday Setup"
+        // 3. Similar name (word overlap ≥75%) — skip exact matches and intentional cross pairs
         const similarDups: Array<[SheetProduct, SheetProduct, number]> = [];
         const checked = new Set<string>();
         for (let i = 0; i < all.length; i++) {
           for (let j = i + 1; j < all.length; j++) {
             const a = all[i], b = all[j];
-            const key = [a.id, b.id].sort().join('|');
-            if (checked.has(key)) continue;
-            checked.add(key);
-            // Skip if already in exact dups
-            if (normName(a.name || '') === normName(b.name || '')) continue;
-            // Word overlap similarity
+            const pairKey = [a.id, b.id].sort().join('|');
+            if (checked.has(pairKey)) continue;
+            checked.add(pairKey);
+            if (normName(a.name || '') === normName(b.name || '')) continue; // exact — handled above
+            if (intentionalCrossPairs.has(pairKey)) continue; // intentional cats2 — skip
             const wa = new Set(normName(a.name || '').split(' ').filter(w => w.length > 2));
             const wb = new Set(normName(b.name || '').split(' ').filter(w => w.length > 2));
             if (wa.size === 0 || wb.size === 0) continue;
@@ -841,7 +867,7 @@ export default function AdminPage() {
           }
         }
 
-        // 4. Same main image URL used by multiple products
+        // 4. Same main image URL used by multiple products (skip intentional cross pairs)
         const imgUrlMap: Record<string, SheetProduct[]> = {};
         all.forEach(p => {
           const url = (p.img || '').trim();
@@ -849,9 +875,20 @@ export default function AdminPage() {
           if (!imgUrlMap[url]) imgUrlMap[url] = [];
           imgUrlMap[url].push(p);
         });
-        const sameImgDups = Object.values(imgUrlMap).filter(group => group.length > 1);
+        const sameImgDups = Object.values(imgUrlMap)
+          .filter(group => {
+            if (group.length <= 1) return false;
+            // Only flag if at least one pair is NOT an intentional cats2 pair
+            for (let i = 0; i < group.length; i++) {
+              for (let j = i + 1; j < group.length; j++) {
+                const pk = [group[i].id, group[j].id].sort().join('|');
+                if (!intentionalCrossPairs.has(pk)) return true;
+              }
+            }
+            return false;
+          });
 
-        const totalDupIssues = exactNameDups.length + similarDups.length + sameImgDups.length;
+        const totalDupIssues = exactNameDups.length + diffCatDups.length + similarDups.length + sameImgDups.length;
 
         // Sub-category breakdown
         const subCounts: Record<string, { count: number; cat: string }> = {};
@@ -912,19 +949,31 @@ export default function AdminPage() {
               </button>
               <button
                 onClick={() => { const el = document.getElementById('dup-panel'); el?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
-                className={`col-span-2 rounded-2xl p-4 shadow-sm text-left border transition active:scale-95 ${
+                className={`rounded-2xl p-4 shadow-sm text-left border transition active:scale-95 ${
                   totalDupIssues > 0
                     ? 'bg-amber-50 hover:bg-amber-100 border-amber-200 hover:shadow-md'
                     : 'bg-green-50 border-green-200'
                 }`}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs text-gray-500 mb-1">🔍 Duplicate Issues</p>
+                    <p className="text-xs text-gray-500 mb-1">🔍 Dup Issues</p>
                     <p className={`text-3xl font-extrabold ${totalDupIssues > 0 ? 'text-amber-600' : 'text-green-600'}`}>{totalDupIssues}</p>
-                    <p className="text-[10px] text-gray-400 mt-1">{totalDupIssues > 0 ? `${exactNameDups.length} name · ${similarDups.length} similar · ${sameImgDups.length} image` : 'No duplicates found ✓'}</p>
+                    <p className="text-[10px] text-gray-400 mt-1">{totalDupIssues > 0 ? `${exactNameDups.length + diffCatDups.length} name · ${similarDups.length} similar · ${sameImgDups.length} img` : 'All clean ✓'}</p>
                   </div>
                   {totalDupIssues > 0 && <span className="text-2xl">⚠️</span>}
                   {totalDupIssues === 0 && <span className="text-2xl">✅</span>}
+                </div>
+              </button>
+              <button
+                onClick={() => { const el = document.getElementById('crosscat-panel'); el?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
+                className="rounded-2xl p-4 shadow-sm text-left border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 transition active:scale-95 hover:shadow-md">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">🔀 2 Categories</p>
+                    <p className="text-3xl font-extrabold text-indigo-600">{crossCatProducts.length}</p>
+                    <p className="text-[10px] text-gray-400 mt-1">Cross-listed products</p>
+                  </div>
+                  <span className="text-2xl">{crossCatProducts.length > 0 ? '🔀' : '—'}</span>
                 </div>
               </button>
             </div>
@@ -1090,6 +1139,53 @@ export default function AdminPage() {
                 </div>
               )}
             </div>
+
+            {/* ── CROSS-CATEGORY PRODUCTS (cats2) ──────────── */}
+            {crossCatProducts.length > 0 && (
+              <div id="crosscat-panel" className="bg-white rounded-2xl p-4 shadow-sm border-2 border-indigo-100">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <p className="text-xs font-bold text-indigo-600 uppercase tracking-wide">🔀 Listed in 2 Categories</p>
+                    <p className="text-[10px] text-gray-400 mt-0.5">These products appear in two places on the site via cats2</p>
+                  </div>
+                  <span className="text-sm font-extrabold text-indigo-600 bg-indigo-100 px-2.5 py-1 rounded-full">{crossCatProducts.length}</span>
+                </div>
+                <div className="space-y-2">
+                  {crossCatProducts.map(p => {
+                    const svc1 = SERVICES.find(s => s.cat === p.cat);
+                    const svc2 = SERVICES.find(s => s.cat === p.cats2);
+                    return (
+                      <button key={p.id} onClick={() => goToEditProduct(p)}
+                        className="w-full flex items-center gap-2 hover:bg-indigo-50 rounded-xl px-2 py-2 transition active:scale-95">
+                        {p.img
+                          ? <img src={p.img} alt="" className="w-10 h-10 rounded-xl object-cover flex-none" />
+                          : <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center text-lg flex-none">{p.emoji || '🎉'}</div>
+                        }
+                        <div className="min-w-0 flex-1 text-left">
+                          <p className="text-xs font-semibold text-gray-800 truncate">{p.name}</p>
+                          <div className="flex items-center gap-1 mt-0.5 flex-wrap">
+                            <span className="text-[10px] bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded-full font-medium">
+                              {svc1?.emoji} {svc1?.name || p.cat}
+                            </span>
+                            <span className="text-[10px] text-gray-400">+</span>
+                            <span className="text-[10px] bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded-full font-medium">
+                              {svc2?.emoji} {svc2?.name || p.cats2}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="text-right flex-none">
+                          <p className="text-xs font-bold text-orange-600">₹{Number(p.price).toLocaleString('en-IN')}</p>
+                          <p className="text-[9px] text-indigo-400 font-medium">Edit →</p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="text-[10px] text-gray-400 mt-3 px-1">
+                  💡 These are intentional — each product is cross-listed into a second category. Remove cats2 from a product to unlist it.
+                </p>
+              </div>
+            )}
 
             {/* ── IMAGE HEALTH ──────────────────────────────── */}
             <div className="bg-white rounded-2xl p-4 shadow-sm">
