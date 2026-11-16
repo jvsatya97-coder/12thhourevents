@@ -45,6 +45,9 @@ export default function Navbar() {
                 ))}
               </div>
             </div>
+            <Link href="/budget-estimator" className="flex items-center gap-1 text-sm font-semibold text-gray-700 hover:text-orange-600 border border-gray-200 rounded-full px-3 py-1.5 hover:bg-orange-50 transition">
+              🧮 Estimator
+            </Link>
             <button onClick={() => setCityModalOpen(true)} className="flex items-center gap-1 text-sm font-semibold text-orange-600 border-2 border-orange-200 rounded-full px-3 py-1.5 hover:bg-orange-50 transition">
               📍 {cityName}
             </button>
@@ -99,6 +102,9 @@ export default function Navbar() {
                 ))}
               </div>
             )}
+            <Link href="/budget-estimator" onClick={() => setMobileOpen(false)} className="nav-link py-1 font-medium flex items-center gap-2">
+              🧮 Budget Estimator
+            </Link>
             <Link href="/contact" onClick={() => setMobileOpen(false)} className="nav-link py-1 font-medium">Contact</Link>
             <div className="border-t border-gray-100 pt-2">
               <a href="https://wa.me/918073552837?text=Hi! I want to book a decoration."
