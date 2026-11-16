@@ -225,16 +225,16 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Anniversary packages */}
+      {/* Pinterest Edition packages */}
       <section className="py-12 md:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <ScrollReveal>
-            <h2 className="section-title">Anniversary <span className="grad-text">Packages</span></h2>
-            <p className="section-sub">Romantic setups for your special milestone</p>
+            <h2 className="section-title">Pinterest <span className="grad-text">Edition</span></h2>
+            <p className="section-sub">Trending décor styles straight from Pinterest, recreated for your event</p>
           </ScrollReveal>
-          <ProductGrid cat="anniv" limit={8} />
+          <ProductGrid cat="pinterest" limit={8} />
           <div className="text-center mt-8">
-            <Link href="/anniversary-decoration" className="btn-pink px-8 py-3">See All Anniversary Packages →</Link>
+            <Link href="/pinterest-edition" className="btn-pink px-8 py-3">Explore Pinterest Edition →</Link>
           </div>
         </div>
       </section>
