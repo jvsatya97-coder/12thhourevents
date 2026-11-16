@@ -794,6 +794,65 @@ export default function AdminPage() {
         // No-discount products
         const noDiscountCount = all.filter(p => { const d = parseInt(p.disc || '0') || 0; return d === 0 && parseFloat(p.orig || '0') > parseFloat(p.price || '0'); }).length;
 
+        // ── DUPLICATE DETECTION ──────────────────────────────────────────
+        // Normalize name for comparison
+        const normName = (n: string) => n.toLowerCase().replace(/[^a-z0-9]/g, ' ').replace(/\s+/g, ' ').trim();
+
+        // 1. Exact same name (case-insensitive) across any categories
+        const nameMap: Record<string, SheetProduct[]> = {};
+        all.forEach(p => {
+          const key = normName(p.name || '');
+          if (!key) return;
+          if (!nameMap[key]) nameMap[key] = [];
+          nameMap[key].push(p);
+        });
+        const exactNameDups = Object.values(nameMap).filter(group => group.length > 1);
+
+        // 2. Same name but different category (potential cross-cat duplicates, not cats2 intentional ones)
+        // These are already captured in exactNameDups, but we split out same-cat vs diff-cat
+        const sameCatDups = exactNameDups.filter(group => {
+          const cats = new Set(group.map(p => p.cat));
+          return cats.size === 1; // all in same category = likely true duplicate
+        });
+        const diffCatDups = exactNameDups.filter(group => {
+          const cats = new Set(group.map(p => p.cat));
+          return cats.size > 1; // same name, different categories
+        });
+
+        // 3. Similar name (edit distance / word overlap) — catch "Birthday Balloon Setup" vs "Balloon Birthday Setup"
+        const similarDups: Array<[SheetProduct, SheetProduct, number]> = [];
+        const checked = new Set<string>();
+        for (let i = 0; i < all.length; i++) {
+          for (let j = i + 1; j < all.length; j++) {
+            const a = all[i], b = all[j];
+            const key = [a.id, b.id].sort().join('|');
+            if (checked.has(key)) continue;
+            checked.add(key);
+            // Skip if already in exact dups
+            if (normName(a.name || '') === normName(b.name || '')) continue;
+            // Word overlap similarity
+            const wa = new Set(normName(a.name || '').split(' ').filter(w => w.length > 2));
+            const wb = new Set(normName(b.name || '').split(' ').filter(w => w.length > 2));
+            if (wa.size === 0 || wb.size === 0) continue;
+            const intersection = [...wa].filter(w => wb.has(w)).length;
+            const union = new Set([...wa, ...wb]).size;
+            const similarity = intersection / union;
+            if (similarity >= 0.75) similarDups.push([a, b, Math.round(similarity * 100)]);
+          }
+        }
+
+        // 4. Same main image URL used by multiple products
+        const imgUrlMap: Record<string, SheetProduct[]> = {};
+        all.forEach(p => {
+          const url = (p.img || '').trim();
+          if (!url) return;
+          if (!imgUrlMap[url]) imgUrlMap[url] = [];
+          imgUrlMap[url].push(p);
+        });
+        const sameImgDups = Object.values(imgUrlMap).filter(group => group.length > 1);
+
+        const totalDupIssues = exactNameDups.length + similarDups.length + sameImgDups.length;
+
         // Sub-category breakdown
         const subCounts: Record<string, { count: number; cat: string }> = {};
         all.forEach(p => { if (p.sub) { subCounts[p.sub] = { count: (subCounts[p.sub]?.count || 0) + 1, cat: p.cat }; } });
@@ -851,6 +910,23 @@ export default function AdminPage() {
                 <p className="text-3xl font-extrabold text-orange-600">{pinnedProducts.length}</p>
                 <p className="text-[10px] text-gray-400 mt-1">featured on top</p>
               </button>
+              <button
+                onClick={() => { const el = document.getElementById('dup-panel'); el?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
+                className={`col-span-2 rounded-2xl p-4 shadow-sm text-left border transition active:scale-95 ${
+                  totalDupIssues > 0
+                    ? 'bg-amber-50 hover:bg-amber-100 border-amber-200 hover:shadow-md'
+                    : 'bg-green-50 border-green-200'
+                }`}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">🔍 Duplicate Issues</p>
+                    <p className={`text-3xl font-extrabold ${totalDupIssues > 0 ? 'text-amber-600' : 'text-green-600'}`}>{totalDupIssues}</p>
+                    <p className="text-[10px] text-gray-400 mt-1">{totalDupIssues > 0 ? `${exactNameDups.length} name · ${similarDups.length} similar · ${sameImgDups.length} image` : 'No duplicates found ✓'}</p>
+                  </div>
+                  {totalDupIssues > 0 && <span className="text-2xl">⚠️</span>}
+                  {totalDupIssues === 0 && <span className="text-2xl">✅</span>}
+                </div>
+              </button>
             </div>
 
             {/* ── RECENT ACTIVITY ───────────────────────────── */}
@@ -879,6 +955,141 @@ export default function AdminPage() {
                 ))}
               </div>
             )}
+
+            {/* ── DUPLICATES PANEL ──────────────────────────── */}
+            <div id="dup-panel" className={`rounded-2xl p-4 shadow-sm ${totalDupIssues > 0 ? 'bg-white border-2 border-amber-200' : 'bg-green-50 border border-green-200'}`}>
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">🔍 Duplicate Checker</p>
+                {totalDupIssues === 0 && <span className="text-xs font-semibold text-green-600 bg-green-100 px-2 py-1 rounded-full">All Clean ✓</span>}
+                {totalDupIssues > 0 && <span className="text-xs font-semibold text-amber-600 bg-amber-100 px-2 py-1 rounded-full">{totalDupIssues} issue{totalDupIssues !== 1 ? 's' : ''}</span>}
+              </div>
+
+              {totalDupIssues === 0 && (
+                <p className="text-xs text-green-600 text-center py-2">No duplicate names, similar names, or shared images found 🎉</p>
+              )}
+
+              {/* ── Exact same name ── */}
+              {exactNameDups.length > 0 && (
+                <div className="mb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-2 h-2 rounded-full bg-red-500 flex-none" />
+                    <p className="text-xs font-bold text-red-600">Exact Same Name ({exactNameDups.length} group{exactNameDups.length !== 1 ? 's' : ''})</p>
+                  </div>
+                  <div className="space-y-3">
+                    {exactNameDups.map((group, gi) => (
+                      <div key={gi} className="bg-red-50 border border-red-100 rounded-xl p-3">
+                        <p className="text-[11px] font-bold text-red-700 mb-2 truncate">
+                          &ldquo;{group[0].name}&rdquo;
+                          {new Set(group.map(p => p.cat)).size > 1
+                            ? <span className="ml-1 text-purple-600 font-normal">· different categories</span>
+                            : <span className="ml-1 text-red-400 font-normal">· same category</span>
+                          }
+                        </p>
+                        {group.map(p => (
+                          <button key={p.id} onClick={() => goToEditProduct(p)}
+                            className="w-full flex items-center gap-2 bg-white hover:bg-red-50 rounded-lg px-2 py-2 mb-1 transition active:scale-95">
+                            {p.img
+                              ? <img src={p.img} alt="" className="w-9 h-9 rounded-lg object-cover flex-none" />
+                              : <div className="w-9 h-9 rounded-lg bg-red-100 flex items-center justify-center text-base flex-none">{p.emoji || '🎉'}</div>
+                            }
+                            <div className="min-w-0 flex-1 text-left">
+                              <p className="text-xs font-semibold text-gray-800 truncate">{p.name}</p>
+                              <p className="text-[10px] text-gray-500">
+                                {SERVICES.find(s => s.cat === p.cat)?.emoji} {SERVICES.find(s => s.cat === p.cat)?.name || p.cat}
+                                {p.sub && ` · ${p.sub}`}
+                                <span className={`ml-2 px-1.5 py-0.5 rounded-full text-[9px] font-bold ${p.active === 'false' ? 'bg-red-100 text-red-500' : 'bg-green-100 text-green-600'}`}>
+                                  {p.active === 'false' ? 'Hidden' : 'Live'}
+                                </span>
+                              </p>
+                            </div>
+                            <div className="text-right flex-none">
+                              <p className="text-xs font-bold text-orange-600">₹{Number(p.price).toLocaleString('en-IN')}</p>
+                              <p className="text-[9px] text-orange-400">Edit →</p>
+                            </div>
+                          </button>
+                        ))}
+                        <p className="text-[9px] text-red-400 mt-1 px-1">
+                          {new Set(group.map(p => p.cat)).size > 1
+                            ? '💡 Same name in different categories — intentional cross-listing or accidental duplicate?'
+                            : '⚠️ Same name in same category — likely an accidental duplicate'
+                          }
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* ── Similar names ── */}
+              {similarDups.length > 0 && (
+                <div className="mb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-2 h-2 rounded-full bg-amber-500 flex-none" />
+                    <p className="text-xs font-bold text-amber-600">Similar Names ({similarDups.length} pair{similarDups.length !== 1 ? 's' : ''})</p>
+                  </div>
+                  <div className="space-y-2">
+                    {similarDups.slice(0, 8).map(([a, b, pct], i) => (
+                      <div key={i} className="bg-amber-50 border border-amber-100 rounded-xl p-3">
+                        <div className="flex items-center gap-1 mb-2">
+                          <span className="text-[10px] font-bold text-amber-600 bg-amber-200 px-1.5 py-0.5 rounded-full">{pct}% match</span>
+                        </div>
+                        {[a, b].map(p => (
+                          <button key={p.id} onClick={() => goToEditProduct(p)}
+                            className="w-full flex items-center gap-2 bg-white hover:bg-amber-50 rounded-lg px-2 py-2 mb-1 transition active:scale-95">
+                            {p.img
+                              ? <img src={p.img} alt="" className="w-8 h-8 rounded-lg object-cover flex-none" />
+                              : <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-sm flex-none">{p.emoji || '🎉'}</div>
+                            }
+                            <div className="min-w-0 flex-1 text-left">
+                              <p className="text-xs font-semibold text-gray-800 truncate">{p.name}</p>
+                              <p className="text-[10px] text-gray-500">
+                                {SERVICES.find(s => s.cat === p.cat)?.emoji} {SERVICES.find(s => s.cat === p.cat)?.name || p.cat}
+                              </p>
+                            </div>
+                            <p className="text-xs font-bold text-orange-600 flex-none">₹{Number(p.price).toLocaleString('en-IN')}</p>
+                          </button>
+                        ))}
+                      </div>
+                    ))}
+                    {similarDups.length > 8 && (
+                      <p className="text-[10px] text-amber-500 text-center py-1">+{similarDups.length - 8} more similar pairs</p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* ── Same image ── */}
+              {sameImgDups.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-2 h-2 rounded-full bg-blue-500 flex-none" />
+                    <p className="text-xs font-bold text-blue-600">Same Main Image ({sameImgDups.length} group{sameImgDups.length !== 1 ? 's' : ''})</p>
+                  </div>
+                  <div className="space-y-3">
+                    {sameImgDups.map((group, gi) => (
+                      <div key={gi} className="bg-blue-50 border border-blue-100 rounded-xl p-3">
+                        <div className="flex gap-3 mb-2">
+                          <img src={group[0].img} alt="" className="w-12 h-12 rounded-xl object-cover flex-none" />
+                          <p className="text-[10px] text-blue-700 font-medium leading-tight pt-1">
+                            Same photo used by {group.length} products — tap each to fix
+                          </p>
+                        </div>
+                        {group.map(p => (
+                          <button key={p.id} onClick={() => goToEditProduct(p)}
+                            className="w-full flex items-center gap-2 bg-white hover:bg-blue-50 rounded-lg px-2 py-2 mb-1 transition active:scale-95">
+                            <div className="min-w-0 flex-1 text-left">
+                              <p className="text-xs font-semibold text-gray-800 truncate">{p.emoji} {p.name}</p>
+                              <p className="text-[10px] text-gray-500">{SERVICES.find(s => s.cat === p.cat)?.name || p.cat}</p>
+                            </div>
+                            <p className="text-[9px] text-blue-500 font-medium flex-none">Fix →</p>
+                          </button>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* ── IMAGE HEALTH ──────────────────────────────── */}
             <div className="bg-white rounded-2xl p-4 shadow-sm">
