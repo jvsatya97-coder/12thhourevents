@@ -122,7 +122,12 @@ export default function Home() {
       {/* Services */}
       <section className="py-12 md:py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="section-title">Our <span className="grad-text">Services</span></h2>
+          <div className="flex items-end justify-between mb-1">
+            <h2 className="section-title mb-0">Our <span className="grad-text">Services</span></h2>
+            <Link href="/browse" className="text-sm font-semibold text-orange-500 hover:text-orange-700 flex items-center gap-1 pb-1">
+              Browse All →
+            </Link>
+          </div>
           <p className="section-sub">Everything you need for the perfect celebration</p>
 
           {/* Kids Activities highlight banner */}
@@ -203,8 +208,11 @@ export default function Home() {
             </div>
           </ScrollReveal>
           <ProductGrid limit={8} />
-          <div className="text-center mt-8">
+          <div className="text-center mt-8 flex flex-col sm:flex-row gap-3 justify-center">
             <Link href="/birthday-decoration" className="btn-pink px-8 py-3">Explore All Packages →</Link>
+            <Link href="/browse" className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-2xl border-2 border-orange-400 text-orange-600 font-semibold hover:bg-orange-50 transition-colors">
+              🗂️ Browse All Categories
+            </Link>
           </div>
         </div>
       </section>
