@@ -276,10 +276,12 @@ export default function PackageFinder({ onClose }: { onClose: () => void }) {
 
     return (
       <>
-        <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={onClose}>
+        <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={onClose}
+          style={{ WebkitOverflowScrolling: 'touch' }}>
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
           <div
-            className="relative bg-white w-full sm:max-w-xl rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[90vh] flex flex-col"
+            className="relative bg-white w-full sm:max-w-xl rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col"
+            style={{ maxHeight: '90dvh', maxWidth: '100vw', overflowX: 'hidden' }}
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}
@@ -300,7 +302,7 @@ export default function PackageFinder({ onClose }: { onClose: () => void }) {
             </div>
 
             {/* Results */}
-            <div className="overflow-y-auto flex-1 px-4 py-3 space-y-3">
+            <div className="overflow-y-auto flex-1 px-4 py-3 space-y-3" style={{ WebkitOverflowScrolling: 'touch', overflowX: 'hidden' }}>
               {results.length === 0 ? (
                 <div className="text-center py-10">
                   <div className="text-4xl mb-3">😕</div>
@@ -349,7 +351,8 @@ export default function PackageFinder({ onClose }: { onClose: () => void }) {
   /* ─── Loading screen ─────────────────────────────────────────── */
   if (loading) {
     return (
-      <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+        style={{ WebkitOverflowScrolling: 'touch' }}>
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
         <div className="relative bg-white rounded-3xl p-10 flex flex-col items-center gap-4 shadow-2xl">
           <div className="text-5xl animate-bounce">🎯</div>
@@ -381,11 +384,13 @@ export default function PackageFinder({ onClose }: { onClose: () => void }) {
   return (
     <div
       className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-0 sm:p-4"
+      style={{ WebkitOverflowScrolling: 'touch' }}
       onClick={onClose}
     >
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
       <div
-        className="relative bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden"
+        className="relative bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl"
+        style={{ maxHeight: '92dvh', maxWidth: '100vw', overflowX: 'hidden', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
@@ -422,7 +427,8 @@ export default function PackageFinder({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* Options */}
-        <div className={`px-4 py-4 -mt-3 bg-white rounded-t-3xl grid gap-2.5 ${current.cols === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+        <div className={`px-4 py-4 -mt-3 bg-white rounded-t-3xl grid gap-2.5 w-full ${current.cols === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}
+          style={{ overflowX: 'hidden' }}>
           {currentOptions.map(opt => (
             <button
               key={opt.value}

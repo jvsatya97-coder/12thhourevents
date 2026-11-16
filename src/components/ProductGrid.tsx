@@ -8,11 +8,17 @@ type SortKey = 'featured' | 'price_asc' | 'price_desc' | 'discount' | 'name_asc'
 
 interface Props { cat?: string; limit?: number; title?: string; showFilters?: boolean; }
 
-function sortProducts(products: Product[], sort: SortKey, city: string): Product[] {
+function sortProducts(products: Product[], sort: SortKey, city: string, cat?: string): Product[] {
   const copy = [...products];
   if (sort === 'featured') {
-    // Pinned first (by sort_order asc), then rest
-    return copy.sort((a, b) => (a.sort_order ?? Infinity) - (b.sort_order ?? Infinity));
+    // sort_order only applies when it comes from the product's PRIMARY category.
+    // A product cross-listed into this category via cats2 should not steal the top
+    // spots — it gets sorted to the bottom of the pinned group.
+    return copy.sort((a, b) => {
+      const aOrder = (!cat || a.cat === cat) ? (a.sort_order ?? Infinity) : Infinity;
+      const bOrder = (!cat || b.cat === cat) ? (b.sort_order ?? Infinity) : Infinity;
+      return aOrder - bOrder;
+    });
   }
   if (sort === 'price_asc' || sort === 'price_desc') {
     copy.sort((a, b) => {
@@ -58,7 +64,7 @@ export default function ProductGrid({ cat, limit, title, showFilters = false }: 
         const seen = new Set<string>();
         filtered = filtered.filter(p => { if (seen.has(p.id)) return false; seen.add(p.id); return true; });
       }
-      const sorted = sortProducts(filtered, 'featured', city);
+      const sorted = sortProducts(filtered, 'featured', city, cat);
       const subSet = new Set<string>();
       sorted.forEach(p => { if (p.sub) subSet.add(p.sub); });
       setSubs(['All', ...Array.from(subSet)]);
@@ -73,7 +79,7 @@ export default function ProductGrid({ cat, limit, title, showFilters = false }: 
   useEffect(() => {
     if (!baseProducts.length) return;
     let filtered = activeSub === 'All' ? baseProducts : baseProducts.filter(p => p.sub === activeSub);
-    filtered = sortProducts(filtered, activeSort, city);
+    filtered = sortProducts(filtered, activeSort, city, cat);
     setProducts(limit ? filtered.slice(0, limit) : filtered);
   }, [activeSub, activeSort, baseProducts, city, limit]);
 
