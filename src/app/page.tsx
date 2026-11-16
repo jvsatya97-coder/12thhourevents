@@ -10,10 +10,8 @@ import SameDayCountdown from '@/components/SameDayCountdown';
 import TrendingSection from '@/components/TrendingSection';
 import EventCountdown from '@/components/EventCountdown';
 import BudgetEstimator from '@/components/BudgetEstimator';
-import InspirationGallery from '@/components/InspirationGallery';
 import ReferralCard from '@/components/ReferralCard';
 import MidnightSetup from '@/components/MidnightSetup';
-import ThemeStylePicker from '@/components/ThemeStylePicker';
 import PartyPlannerQuiz from '@/components/PartyPlannerQuiz';
 import SlotChecker from '@/components/SlotChecker';
 import PhotoMoodBoard from '@/components/PhotoMoodBoard';
@@ -186,22 +184,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Theme Style Picker */}
-      <ThemeStylePicker />
-
-      {/* Photo Mood Board — explore themes visually */}
-      <section className="py-10 md:py-14">
-        <div className="max-w-2xl mx-auto px-4">
-          <ScrollReveal>
-            <h2 className="section-title">Find Your <span className="grad-text">Perfect Theme</span></h2>
-            <p className="section-sub">Browse real styles, save your favourites, and get a quote instantly on WhatsApp</p>
-          </ScrollReveal>
-          <ScrollReveal delay={100}>
-            <PhotoMoodBoard />
-          </ScrollReveal>
-        </div>
-      </section>
-
       {/* Popular packages */}
       <section className="py-12 md:py-16">
         <div className="max-w-7xl mx-auto px-4">
@@ -227,8 +209,18 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Photo Inspiration Gallery */}
-      <InspirationGallery />
+      {/* Photo Mood Board — explore themes visually */}
+      <section className="py-10 md:py-14">
+        <div className="max-w-2xl mx-auto px-4">
+          <ScrollReveal>
+            <h2 className="section-title">Find Your <span className="grad-text">Perfect Theme</span></h2>
+            <p className="section-sub">Browse real styles, save your favourites, and get a quote instantly on WhatsApp</p>
+          </ScrollReveal>
+          <ScrollReveal delay={100}>
+            <PhotoMoodBoard />
+          </ScrollReveal>
+        </div>
+      </section>
 
       {/* Midnight / Secret Setup */}
       <MidnightSetup />
