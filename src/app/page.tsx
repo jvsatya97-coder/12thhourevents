@@ -9,7 +9,6 @@ import TransformationGallery from '@/components/TransformationGallery';
 import SameDayCountdown from '@/components/SameDayCountdown';
 import TrendingSection from '@/components/TrendingSection';
 import EventCountdown from '@/components/EventCountdown';
-import BudgetEstimator from '@/components/BudgetEstimator';
 import ReferralCard from '@/components/ReferralCard';
 import MidnightSetup from '@/components/MidnightSetup';
 import PartyPlannerQuiz from '@/components/PartyPlannerQuiz';
@@ -122,13 +121,23 @@ export default function Home() {
       {/* Services */}
       <section className="py-12 md:py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-end justify-between mb-1">
-            <h2 className="section-title mb-0">Our <span className="grad-text">Services</span></h2>
-            <Link href="/browse" className="text-sm font-semibold text-orange-500 hover:text-orange-700 flex items-center gap-1 pb-1">
-              Browse All →
-            </Link>
-          </div>
+          <h2 className="section-title">Our <span className="grad-text">Services</span></h2>
           <p className="section-sub">Everything you need for the perfect celebration</p>
+
+          {/* Browse All banner */}
+          <Link href="/browse"
+            className="mb-6 flex items-center justify-between rounded-2xl px-5 py-4 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 transition-all shadow-lg shadow-orange-200 group">
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">🗂️</span>
+              <div>
+                <div className="font-extrabold text-white text-base leading-tight">Browse All Services</div>
+                <div className="text-white/80 text-xs mt-0.5">All categories · swipe rows · compare packages</div>
+              </div>
+            </div>
+            <div className="bg-white text-orange-600 font-bold text-sm px-4 py-2 rounded-full shadow group-hover:scale-105 transition-transform flex-shrink-0">
+              Browse All →
+            </div>
+          </Link>
 
           {/* Kids Activities highlight banner */}
           <div className="mb-4">
@@ -305,8 +314,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Budget Estimator */}
-      <BudgetEstimator />
+      {/* Budget Estimator removed — now lives at /budget-estimator */}
 
       {/* Party Planner Quiz */}
       <section className="py-10 md:py-14 bg-gradient-to-br from-orange-50 to-pink-50">
