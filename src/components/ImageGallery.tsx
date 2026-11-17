@@ -68,16 +68,16 @@ export default function ImageGallery({ imgs, name }: { imgs: string[]; name: str
           onClick={() => setLightbox(true)}
         />
 
-        {/* Nav arrows */}
+        {/* Nav arrows — always visible on mobile, hover-only on desktop */}
         {imgs.length > 1 && (
           <>
             <button
               onClick={e => { e.stopPropagation(); prev(); }}
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-sm font-bold"
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white w-9 h-9 rounded-full flex items-center justify-center transition-opacity text-base font-bold md:opacity-0 md:group-hover:opacity-100 opacity-100 shadow-lg"
             >‹</button>
             <button
               onClick={e => { e.stopPropagation(); next(); }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-sm font-bold"
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white w-9 h-9 rounded-full flex items-center justify-center transition-opacity text-base font-bold md:opacity-0 md:group-hover:opacity-100 opacity-100 shadow-lg"
             >›</button>
             {/* Counter */}
             <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs font-bold px-2 py-0.5 rounded-full">
@@ -86,8 +86,8 @@ export default function ImageGallery({ imgs, name }: { imgs: string[]; name: str
           </>
         )}
 
-        {/* Zoom hint */}
-        <div className="absolute top-2 right-2 bg-black/40 text-white text-[10px] px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+        {/* Zoom hint — desktop only */}
+        <div className="absolute top-2 right-2 bg-black/40 text-white text-[10px] px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hidden md:block">
           🔍 Zoom
         </div>
       </div>
