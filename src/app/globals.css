@@ -355,7 +355,7 @@ html {
 .back-to-top {
   position: fixed;
   bottom: 5.5rem;
-  right: 1rem;
+  left: 1rem;      /* mobile: left side so it doesn't overlap the WA float on the right */
   z-index: 40;
   width: 40px;
   height: 40px;
@@ -387,6 +387,7 @@ html {
 @media (min-width: 768px) {
   .back-to-top {
     bottom: 6rem;
+    left: auto;      /* desktop: back to right side */
     right: 1.5rem;
   }
 }
