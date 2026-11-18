@@ -20,13 +20,16 @@ export default function SearchContent() {
     fetchProducts().then(products => { setAll(products); setLoading(false); });
   }, []);
 
+  // fetchProducts() expands cats2 into duplicate entries — deduplicate by id for search display
+  const deduped = all.filter((p, idx, arr) => arr.findIndex(x => x.id === p.id) === idx);
+
   const results = q.trim().length > 1
-    ? all.filter(p =>
+    ? deduped.filter(p =>
         p.name.toLowerCase().includes(q.toLowerCase()) ||
         p.cat.toLowerCase().includes(q.toLowerCase()) ||
         p.sub.toLowerCase().includes(q.toLowerCase())
       )
-    : all;
+    : deduped;
 
   return (
     <div className="pb-mobile">

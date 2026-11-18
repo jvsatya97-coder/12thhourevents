@@ -1,5 +1,6 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useCity } from '@/context/CityContext';
 import { Product, getPrice, submitLead, openWhatsApp } from '@/lib/products';
 
@@ -38,6 +39,8 @@ export default function BookingModal({ product, onClose, mode = 'book' }: Props)
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [mapPickerOpen, setMapPickerOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
   const price = getPrice(product, city);
 
@@ -83,8 +86,10 @@ export default function BookingModal({ product, onClose, mode = 'book' }: Props)
     setStep(2);
   };
 
-  if (step === 2) return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" onClick={onClose}>
+  if (!mounted) return null;
+
+  if (step === 2) return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
       <div className="relative bg-white rounded-2xl p-8 w-full max-w-sm shadow-2xl text-center" onClick={e => e.stopPropagation()}>
         <div className="text-5xl mb-3">{isEnquiry ? '💬' : '🎉'}</div>
@@ -93,11 +98,12 @@ export default function BookingModal({ product, onClose, mode = 'book' }: Props)
         <p className="text-gray-400 text-xs mb-6">Also check WhatsApp — we just sent you the details.</p>
         <button onClick={onClose} className="btn-pink w-full justify-center">Done</button>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 
-  return (
-    <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center sm:p-4" onClick={onClose}>
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center sm:p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
       <div className="relative bg-white rounded-t-3xl sm:rounded-2xl w-full sm:max-w-sm shadow-2xl max-h-[92vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}>
@@ -208,6 +214,7 @@ export default function BookingModal({ product, onClose, mode = 'book' }: Props)
           </p>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
