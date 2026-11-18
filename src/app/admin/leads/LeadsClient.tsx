@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { LEADS_URL, CITIES, SERVICES } from '@/lib/config';
 
 const ADMIN_PIN = '12he2024';
@@ -41,6 +41,25 @@ type Lead = {
 
 function statusMeta(s: string) {
   return STATUS_OPTIONS.find(x => x.value === s.toLowerCase()) || STATUS_OPTIONS[0];
+}
+
+/** Returns Tailwind bg class for a lead row based on urgency / status rules */
+function getLeadRowBg(lead: Lead, isNew: boolean): string {
+  // Booked/done → green
+  const st = (lead.status || 'new').toLowerCase();
+  if (st === 'confirmed' || st === 'done') return 'bg-green-50';
+  // Brand-new lead arrived this refresh cycle → orange
+  if (isNew) return 'bg-orange-100';
+  // Color by event date proximity
+  if (lead.date) {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const event = new Date(lead.date); event.setHours(0, 0, 0, 0);
+    const days = Math.round((event.getTime() - today.getTime()) / 86400000);
+    if (days >= 0 && days <= 7)  return 'bg-red-50';
+    if (days >= 0 && days <= 14) return 'bg-yellow-50';
+    if (days > 14)                return 'bg-pink-50';
+  }
+  return '';
 }
 
 function getLeadsFromSheet(url: string): Promise<Lead[]> {
@@ -117,20 +136,45 @@ function LeadsCRM() {
   const [view, setView] = useState<'table' | 'kanban'>('table');
   const [showBooking, setShowBooking] = useState(false);
   const [bookingLead, setBookingLead] = useState<Lead | null>(null);
+  // Track row IDs we've already seen so we can highlight new arrivals
+  const knownRowsRef = useRef<Set<number> | null>(null);
+  const [newRowIds, setNewRowIds] = useState<Set<number>>(new Set());
+  const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
 
-  const loadLeads = useCallback(async () => {
-    setLoading(true);
+  const loadLeads = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     setError('');
     try {
       const data = await getLeadsFromSheet(LEADS_URL);
+      // On first load, seed knownRows without marking anything new
+      if (knownRowsRef.current === null) {
+        knownRowsRef.current = new Set(data.map(l => l.row));
+        setNewRowIds(new Set());
+      } else {
+        const freshIds = new Set<number>();
+        data.forEach(l => {
+          if (!knownRowsRef.current!.has(l.row)) freshIds.add(l.row);
+        });
+        // Update known set
+        knownRowsRef.current = new Set(data.map(l => l.row));
+        if (freshIds.size > 0) setNewRowIds(freshIds);
+      }
       setLeads(data);
+      setLastRefresh(new Date());
     } catch {
-      setError('Could not load leads. Check Apps Script is deployed with getLeads action.');
+      if (!silent) setError('Could not load leads. Check Apps Script is deployed with getLeads action.');
     }
-    setLoading(false);
+    if (!silent) setLoading(false);
   }, []);
 
+  // Initial load
   useEffect(() => { loadLeads(); }, [loadLeads]);
+
+  // Auto-refresh every 5 seconds (silent)
+  useEffect(() => {
+    const id = setInterval(() => loadLeads(true), 5000);
+    return () => clearInterval(id);
+  }, [loadLeads]);
 
   const updateLead = useCallback(async (lead: Lead, field: keyof Lead, value: string) => {
     setSavingRow(lead.row);
@@ -197,13 +241,23 @@ function LeadsCRM() {
             <span className="text-gray-300">|</span>
             <h1 className="text-lg font-extrabold text-gray-800">📊 Leads CRM</h1>
             <span className="bg-orange-100 text-orange-700 text-xs font-bold px-2 py-0.5 rounded-full">{leads.length} total</span>
+            {newRowIds.size > 0 && (
+              <span className="bg-orange-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
+                🔔 {newRowIds.size} new!
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-2">
+            {lastRefresh && (
+              <span className="text-xs text-gray-400 hidden md:block">
+                🔄 auto-refresh on
+              </span>
+            )}
             <button onClick={() => setView(v => v === 'table' ? 'kanban' : 'table')}
               className="text-sm font-medium px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
               {view === 'table' ? '📋 Kanban' : '📃 Table'}
             </button>
-            <button onClick={loadLeads}
+            <button onClick={() => { loadLeads(false); }}
               className="text-sm font-medium px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
               🔄 Refresh
             </button>
@@ -218,7 +272,7 @@ function LeadsCRM() {
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4 text-red-700 text-sm">
             ⚠️ {error}
-            <button onClick={loadLeads} className="ml-3 underline font-medium">Retry</button>
+            <button onClick={() => loadLeads(false)} className="ml-3 underline font-medium">Retry</button>
           </div>
         )}
 
@@ -291,11 +345,20 @@ function LeadsCRM() {
           <span className="text-xs text-gray-400 ml-auto">{filtered.length} leads</span>
         </div>
 
+        {/* Color coding legend */}
+        <div className="flex flex-wrap gap-2 mb-3 text-xs">
+          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-orange-200 inline-block"></span>New lead</span>
+          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-red-100 inline-block"></span>Event ≤7 days</span>
+          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-yellow-100 inline-block"></span>Event 8–14 days</span>
+          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-pink-100 inline-block"></span>Event &gt;14 days</span>
+          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-green-100 inline-block"></span>Confirmed/Done</span>
+        </div>
+
         {/* Table / Kanban */}
         {view === 'kanban' ? (
-          <KanbanView leads={filtered} onUpdate={updateLead} onSelect={setSelected} savingRow={savingRow} />
+          <KanbanView leads={filtered} onUpdate={updateLead} onSelect={setSelected} savingRow={savingRow} newRowIds={newRowIds} />
         ) : (
-          <LeadsTable leads={filtered} onUpdate={updateLead} onSelect={setSelected} savingRow={savingRow} isFollowupDue={isFollowupDue} />
+          <LeadsTable leads={filtered} onUpdate={updateLead} onSelect={setSelected} savingRow={savingRow} isFollowupDue={isFollowupDue} newRowIds={newRowIds} />
         )}
       </div>
 
@@ -315,12 +378,13 @@ function LeadsCRM() {
   );
 }
 
-function LeadsTable({ leads, onUpdate, onSelect, savingRow, isFollowupDue }: {
+function LeadsTable({ leads, onUpdate, onSelect, savingRow, isFollowupDue, newRowIds }: {
   leads: Lead[];
   onUpdate: (l: Lead, field: keyof Lead, value: string) => void;
   onSelect: (l: Lead) => void;
   savingRow: number | null;
   isFollowupDue: (l: Lead) => boolean | string;
+  newRowIds: Set<number>;
 }) {
   if (!leads.length) return (
     <div className="bg-white rounded-xl p-10 text-center text-gray-400 border border-gray-100">
@@ -350,8 +414,10 @@ function LeadsTable({ leads, onUpdate, onSelect, savingRow, isFollowupDue }: {
             {leads.map((lead, i) => {
               const sm = statusMeta(lead.status || 'new');
               const due = isFollowupDue(lead);
+              const isNew = newRowIds.has(lead.row);
+              const rowBg = getLeadRowBg(lead, isNew);
               return (
-                <tr key={lead.row} className={`border-b border-gray-50 hover:bg-orange-50/40 transition-colors cursor-pointer ${due ? 'bg-red-50/30' : ''}`}>
+                <tr key={lead.row} className={`border-b border-gray-100 hover:brightness-95 transition-all cursor-pointer ${rowBg}`}>
                   <td className="px-4 py-3 text-gray-400 text-xs" onClick={() => onSelect(lead)}>{leads.length - i}</td>
                   <td className="px-4 py-3" onClick={() => onSelect(lead)}>
                     <p className="font-semibold text-gray-800">{lead.name || '—'}</p>
@@ -407,11 +473,12 @@ function LeadsTable({ leads, onUpdate, onSelect, savingRow, isFollowupDue }: {
   );
 }
 
-function KanbanView({ leads, onUpdate, onSelect, savingRow }: {
+function KanbanView({ leads, onUpdate, onSelect, savingRow, newRowIds }: {
   leads: Lead[];
   onUpdate: (l: Lead, field: keyof Lead, value: string) => void;
   onSelect: (l: Lead) => void;
   savingRow: number | null;
+  newRowIds: Set<number>;
 }) {
   return (
     <div className="flex gap-3 overflow-x-auto pb-4" style={{ scrollSnapType: 'x mandatory' }}>
@@ -425,9 +492,12 @@ function KanbanView({ leads, onUpdate, onSelect, savingRow }: {
               <span className="font-black text-lg">{colLeads.length}</span>
             </div>
             <div className="bg-gray-100 rounded-b-xl min-h-32 p-2 space-y-2 max-h-[70vh] overflow-y-auto">
-              {colLeads.map(lead => (
+              {colLeads.map(lead => {
+                const isNew = newRowIds.has(lead.row);
+                const cardBg = getLeadRowBg(lead, isNew);
+                return (
                 <div key={lead.row} onClick={() => onSelect(lead)}
-                  className="bg-white rounded-xl p-3 shadow-sm cursor-pointer hover:shadow-md hover:border-orange-200 border border-transparent transition-all">
+                  className={`rounded-xl p-3 shadow-sm cursor-pointer hover:shadow-md hover:border-orange-200 border border-transparent transition-all ${cardBg || 'bg-white'}`}>
                   <p className="font-semibold text-gray-800 text-sm">{lead.name}</p>
                   <p className="text-xs text-gray-500">{lead.phone}</p>
                   <p className="text-xs text-gray-400 mt-1 line-clamp-1">{lead.product}</p>
@@ -453,7 +523,8 @@ function KanbanView({ leads, onUpdate, onSelect, savingRow }: {
                       className="text-xs px-2 py-1 rounded-lg bg-green-50 text-green-600 font-medium hover:bg-green-100">💬 WA</a>
                   </div>
                 </div>
-              ))}
+                );
+              })}
               {!colLeads.length && <p className="text-xs text-gray-400 text-center py-6">Empty</p>}
             </div>
           </div>
