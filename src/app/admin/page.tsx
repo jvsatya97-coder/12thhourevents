@@ -718,9 +718,13 @@ export default function AdminPage() {
           </div>
         );
 
-        const all = allProducts;
+        // Separate add-ons from main products — addons are not counted in product stats
+        const addonsAll = allProducts.filter(p => p.cat === 'addons');
+        const all = allProducts.filter(p => p.cat !== 'addons');
         const live = all.filter(p => p.active !== 'false');
         const hidden = all.filter(p => p.active === 'false');
+        const addonsLive = addonsAll.filter(p => p.active !== 'false');
+        const addonsHidden = addonsAll.filter(p => p.active === 'false');
 
         // Category counts
         const catCounts: Record<string, number> = {};
@@ -1024,6 +1028,15 @@ export default function AdminPage() {
                     <p className="text-[10px] text-gray-400 mt-1">Cross-listed products</p>
                   </div>
                   <span className="text-2xl">{crossCatProducts.length > 0 ? '🔀' : '—'}</span>
+                </div>
+              </button>
+              {/* Add-ons — separate tile, not counted in products */}
+              <button onClick={() => goToEdit('addons')} className="bg-white rounded-2xl p-4 shadow-sm text-left hover:shadow-md hover:border-purple-200 border border-purple-100 transition active:scale-95">
+                <p className="text-xs text-gray-400 mb-1">✨ Add-ons</p>
+                <p className="text-3xl font-extrabold text-purple-600">{addonsAll.length}</p>
+                <div className="flex gap-2 mt-1">
+                  <span className="text-[10px] font-semibold text-green-600">● {addonsLive.length} live</span>
+                  {addonsHidden.length > 0 && <span className="text-[10px] font-semibold text-red-500">○ {addonsHidden.length} hidden</span>}
                 </div>
               </button>
               {/* Health Score */}
