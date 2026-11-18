@@ -5,11 +5,22 @@ import { Product, getPrice, submitLead, openWhatsApp } from '@/lib/products';
 
 interface Props { product: Product; onClose: () => void; mode?: 'book' | 'enquire'; }
 
+// Specific clock times so users can pick exactly when they want
 const TIME_SLOTS = [
-  'Morning (9 AM - 12 PM)',
-  'Afternoon (12 PM - 4 PM)',
-  'Evening (4 PM - 8 PM)',
-  'Night (8 PM - 11 PM)',
+  '9:00 AM',
+  '10:00 AM',
+  '11:00 AM',
+  '12:00 PM',
+  '1:00 PM',
+  '2:00 PM',
+  '3:00 PM',
+  '4:00 PM',
+  '5:00 PM',
+  '6:00 PM',
+  '7:00 PM',
+  '8:00 PM',
+  '9:00 PM',
+  '10:00 PM',
 ];
 
 export default function BookingModal({ product, onClose, mode = 'book' }: Props) {
@@ -26,6 +37,7 @@ export default function BookingModal({ product, onClose, mode = 'book' }: Props)
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [mapPickerOpen, setMapPickerOpen] = useState(false);
 
   const price = getPrice(product, city);
 
@@ -72,7 +84,7 @@ export default function BookingModal({ product, onClose, mode = 'book' }: Props)
   };
 
   if (step === 2) return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
       <div className="relative bg-white rounded-2xl p-8 w-full max-w-sm shadow-2xl text-center" onClick={e => e.stopPropagation()}>
         <div className="text-5xl mb-3">{isEnquiry ? '💬' : '🎉'}</div>
@@ -85,9 +97,9 @@ export default function BookingModal({ product, onClose, mode = 'book' }: Props)
   );
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center sm:p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-      <div className="relative bg-white rounded-2xl w-full max-w-sm shadow-2xl max-h-[90vh] overflow-y-auto"
+      <div className="relative bg-white rounded-t-3xl sm:rounded-2xl w-full sm:max-w-sm shadow-2xl max-h-[92vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}>
 
         {/* Header */}
@@ -106,7 +118,7 @@ export default function BookingModal({ product, onClose, mode = 'book' }: Props)
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-5 py-4 space-y-3.5">
+        <form onSubmit={handleSubmit} className="px-5 py-4 space-y-3.5 pb-8">
 
           {/* Name */}
           <div>
@@ -142,11 +154,11 @@ export default function BookingModal({ product, onClose, mode = 'book' }: Props)
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1.5">Time Slot</label>
+              <label className="block text-xs font-semibold text-gray-600 mb-1.5">Start Time</label>
               <select value={form.timeslot} onChange={e => f('timeslot', e.target.value)}
                 className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-orange-400 bg-white">
-                <option value="">Select time</option>
-                {TIME_SLOTS.map(t => <option key={t} value={t}>{t.split(' ')[0]}</option>)}
+                <option value="">Pick time</option>
+                {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
           </div>
@@ -154,11 +166,25 @@ export default function BookingModal({ product, onClose, mode = 'book' }: Props)
           {/* Venue */}
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1.5">Venue / Area</label>
-            <input
-              value={form.venue} onChange={e => f('venue', e.target.value)}
-              placeholder="e.g. Sector 18, Noida"
-              className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-orange-400"
-            />
+            <div className="flex gap-2">
+              <input
+                value={form.venue} onChange={e => f('venue', e.target.value)}
+                placeholder="e.g. Sector 18, Noida"
+                className="flex-1 border-2 border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-orange-400"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  // Open Google Maps — user searches for venue and can copy the link/name
+                  window.open('https://maps.google.com', '_blank');
+                }}
+                title="Open Google Maps to find venue"
+                className="shrink-0 w-11 h-11 flex items-center justify-center border-2 border-gray-200 rounded-xl hover:border-orange-400 hover:bg-orange-50 transition-colors text-lg"
+              >
+                📍
+              </button>
+            </div>
+            <p className="text-xs text-gray-400 mt-1">Tap 📍 to find your venue on Google Maps, then paste the name here</p>
           </div>
 
           {/* Special requests */}
@@ -173,11 +199,12 @@ export default function BookingModal({ product, onClose, mode = 'book' }: Props)
           </div>
 
           <button type="submit" disabled={loading}
-            className={`w-full justify-center !py-3 text-base font-bold ${isEnquiry ? 'btn-pink' : 'btn-wa'}`}>
+            className={`w-full justify-center !py-3.5 text-base font-bold rounded-2xl ${isEnquiry ? 'btn-pink' : 'btn-wa'}`}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             {loading ? '⏳ Sending...' : isEnquiry ? '💬 Send Enquiry on WhatsApp' : '📲 Confirm on WhatsApp'}
           </button>
-          <p className="text-center text-xs text-gray-400">
-            {isEnquiry ? 'We\'ll get back to you within 2 hours' : 'We\'ll confirm your booking within 2 hours'}
+          <p className="text-center text-xs text-gray-400 pb-2">
+            {isEnquiry ? "We'll get back to you within 2 hours" : "We'll confirm your booking within 2 hours"}
           </p>
         </form>
       </div>

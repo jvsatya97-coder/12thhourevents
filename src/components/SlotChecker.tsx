@@ -19,10 +19,10 @@ function getSlotsForDate(dateStr: string): SlotInfo[] {
 
   // Base: more bookings on weekends
   const slotDefs = [
-    { label: 'Morning', time: '9 AM – 12 PM', emoji: '🌅' },
-    { label: 'Afternoon', time: '12 PM – 4 PM', emoji: '☀️' },
-    { label: 'Evening', time: '4 PM – 7 PM', emoji: '🌆' },
-    { label: 'Night', time: '8 PM – 11 PM', emoji: '🌙' },
+    { label: '9 AM – 12 PM', time: '9 AM – 12 PM', emoji: '🌅' },
+    { label: '12 PM – 4 PM', time: '12 PM – 4 PM', emoji: '☀️' },
+    { label: '4 PM – 7 PM', time: '4 PM – 7 PM', emoji: '🌆' },
+    { label: '8 PM – 11 PM', time: '8 PM – 11 PM', emoji: '🌙' },
   ];
 
   return slotDefs.map((s, i) => {
