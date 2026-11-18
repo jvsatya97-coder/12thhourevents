@@ -79,7 +79,7 @@ export default function HomeHero() {
             className="btn-wa text-base px-7 py-3 shadow-lg shadow-orange-800/30">
             💬 Free Quote on WhatsApp
           </a>
-          <Link href="/birthday-decoration"
+          <Link href="/browse"
             className="border border-white/30 text-white/80 px-7 py-3 rounded-full font-medium hover:bg-white/10 transition text-sm backdrop-blur-sm">
             Browse All Packages →
           </Link>

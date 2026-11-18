@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useCity } from '@/context/CityContext';
 import { Product, getPrice, submitLead, openWhatsApp } from '@/lib/products';
@@ -38,7 +38,6 @@ export default function BookingModal({ product, onClose, mode = 'book' }: Props)
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [mapPickerOpen, setMapPickerOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
 
