@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Product, fetchProducts, getPrice, getOrig, submitLead } from '@/lib/products';
+import { Product, fetchProducts, getPrice, getOrig, submitLead, toThumbUrl } from '@/lib/products';
 import { useCity } from '@/context/CityContext';
 import ImageGallery from '@/components/ImageGallery';
 import BookingModal from '@/components/BookingModal';
@@ -162,46 +162,61 @@ function AddOns({ allProducts, city }: { allProducts: Product[]; city: string })
   }, 0);
 
   return (
-    <div className="mt-6 border-t border-gray-100 pt-5">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="font-bold text-gray-800 text-base">✨ Make it special</h3>
+    <div className="mt-10 border-t border-gray-100 pt-6">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-extrabold text-gray-800 text-lg">✨ Make it special</h3>
         <span className="text-xs text-gray-400">{addons.length} add-ons · same visit</span>
       </div>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
         {addons.map(addon => {
           const isOn = selected.has(addon.id);
           const aPrice = getPrice(addon, city);
+          const thumb = toThumbUrl(addon.img);
           return (
             <button
               key={addon.id}
               onClick={() => toggle(addon.id)}
-              className={`flex items-center gap-2 rounded-xl border-2 px-3 py-2.5 text-left transition-all ${
+              className={`relative rounded-2xl border-2 text-left transition-all overflow-hidden ${
                 isOn
-                  ? 'border-orange-400 bg-orange-50'
+                  ? 'border-orange-400 shadow-md shadow-orange-100'
                   : 'border-gray-200 bg-white hover:border-orange-300'
               }`}
             >
-              <span className="text-xl flex-shrink-0">{addon.emoji || '✨'}</span>
-              <div className="min-w-0">
-                <p className="text-xs font-semibold text-gray-800 leading-tight truncate">{addon.name}</p>
-                <p className="text-xs font-bold text-orange-600 mt-0.5">{aPrice}</p>
+              {/* Image */}
+              <div className="aspect-square w-full overflow-hidden bg-orange-50">
+                {thumb ? (
+                  <img
+                    src={thumb}
+                    alt={addon.name}
+                    className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-3xl">
+                    {addon.emoji || '✨'}
+                  </div>
+                )}
               </div>
-              <span className={`ml-auto flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center text-[10px] font-bold transition-colors ${
-                isOn ? 'border-orange-500 bg-orange-500 text-white' : 'border-gray-300 text-transparent'
-              }`}>
-                ✓
-              </span>
+              {/* Check badge */}
+              <span className={`absolute top-2 right-2 w-6 h-6 rounded-full border-2 flex items-center justify-center text-[10px] font-bold transition-colors shadow ${
+                isOn ? 'border-orange-500 bg-orange-500 text-white' : 'border-white bg-white/80 text-transparent'
+              }`}>✓</span>
+              {/* Info */}
+              <div className="px-2.5 py-2">
+                <p className="text-xs font-semibold text-gray-800 leading-tight line-clamp-2 min-h-[2.4em]">{addon.name}</p>
+                <p className="text-sm font-bold text-orange-600 mt-1">{aPrice}</p>
+              </div>
             </button>
           );
         })}
       </div>
       {selected.size > 0 && (
-        <div className="mt-3 bg-orange-50 rounded-xl px-3 py-2 flex items-center justify-between">
-          <span className="text-xs text-orange-700 font-medium">
-            {selected.size} add-on{selected.size > 1 ? 's' : ''} selected
+        <div className="mt-4 bg-orange-50 border border-orange-100 rounded-2xl px-4 py-3 flex items-center justify-between">
+          <span className="text-sm text-orange-700 font-semibold">
+            {selected.size} add-on{selected.size > 1 ? 's' : ''} added
           </span>
-          <span className="text-sm font-bold text-orange-600">
-            +₹{totalExtra.toLocaleString('en-IN')}
+          <span className="text-base font-extrabold text-orange-600">
+            +₹{totalExtra.toLocaleString('en-IN')} extra
           </span>
         </div>
       )}
@@ -356,11 +371,11 @@ export default function ProductContent({ id }: { id: string }) {
               </ul>
             </div>
           )}
-
-          {/* Add-ons */}
-          <AddOns allProducts={allProducts} city={city} />
         </div>
       </div>
+
+      {/* Add-ons — full width below the 2-col layout */}
+      <AddOns allProducts={allProducts} city={city} />
       {bookingOpen && <BookingModal product={product} onClose={() => setBookingOpen(false)} mode="book" />}
       {enquireOpen && <BookingModal product={product} onClose={() => setEnquireOpen(false)} mode="enquire" />}
 
