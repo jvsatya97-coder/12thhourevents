@@ -134,7 +134,7 @@ function StyleVariants({ product, allProducts, city }: { product: Product; allPr
 
 /* ─── Add-ons ──────────────────────────────────────────────────────────────── */
 function AddOns({ allProducts, city }: { allProducts: Product[]; city: string }) {
-  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [selected, setSelected] = useState<Map<string, number>>(new Map());
 
   // Deduplicate add-on products
   const seen = new Set<string>();
@@ -147,19 +147,21 @@ function AddOns({ allProducts, city }: { allProducts: Product[]; city: string })
 
   if (!addons.length) return null;
 
-  const toggle = (id: string) => {
+  const setQty = (id: string, qty: number) => {
     setSelected(prev => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      const next = new Map(prev);
+      if (qty <= 0) next.delete(id);
+      else next.set(id, qty);
       return next;
     });
   };
 
-  const selectedItems = addons.filter(a => selected.has(a.id));
-  const totalExtra = selectedItems.reduce((sum, a) => {
+  const totalExtra = addons.reduce((sum, a) => {
+    const qty = selected.get(a.id) || 0;
     const v = parseFloat(a.city_prices[city] || a.price || '0') || 0;
-    return sum + v;
+    return sum + v * qty;
   }, 0);
+  const totalQty = Array.from(selected.values()).reduce((s, q) => s + q, 0);
 
   return (
     <div className="mt-10 border-t border-gray-100 pt-6">
@@ -169,17 +171,17 @@ function AddOns({ allProducts, city }: { allProducts: Product[]; city: string })
       </div>
       <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4" style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}>
         {addons.map(addon => {
-          const isOn = selected.has(addon.id);
+          const qty = selected.get(addon.id) || 0;
+          const isOn = qty > 0;
           const aPrice = getPrice(addon, city);
           const thumb = toThumbUrl(addon.img);
           return (
-            <button
+            <div
               key={addon.id}
-              onClick={() => toggle(addon.id)}
               className={`relative flex-shrink-0 w-36 rounded-2xl border-2 text-left transition-all overflow-hidden ${
                 isOn
                   ? 'border-orange-400 shadow-md shadow-orange-100'
-                  : 'border-gray-200 bg-white hover:border-orange-300'
+                  : 'border-gray-200 bg-white'
               }`}
             >
               {/* Image */}
@@ -197,23 +199,40 @@ function AddOns({ allProducts, city }: { allProducts: Product[]; city: string })
                   </div>
                 )}
               </div>
-              {/* Check badge */}
-              <span className={`absolute top-2 right-2 w-6 h-6 rounded-full border-2 flex items-center justify-center text-[10px] font-bold transition-colors shadow ${
-                isOn ? 'border-orange-500 bg-orange-500 text-white' : 'border-white bg-white/80 text-transparent'
-              }`}>✓</span>
               {/* Info */}
-              <div className="px-2.5 py-2">
+              <div className="px-2.5 pt-2 pb-1">
                 <p className="text-xs font-semibold text-gray-800 leading-tight line-clamp-2 min-h-[2.4em]">{addon.name}</p>
-                <p className="text-sm font-bold text-orange-600 mt-1">{aPrice}</p>
+                <p className="text-sm font-bold text-orange-600 mt-0.5 mb-2">{aPrice}</p>
               </div>
-            </button>
+              {/* Quantity control */}
+              {isOn ? (
+                <div className="flex items-center justify-between px-2 pb-2 gap-1">
+                  <button
+                    onClick={() => setQty(addon.id, qty - 1)}
+                    className="w-7 h-7 rounded-full bg-orange-100 text-orange-600 font-bold text-base flex items-center justify-center hover:bg-orange-200 transition-colors"
+                  >−</button>
+                  <span className="text-sm font-bold text-gray-800 w-5 text-center">{qty}</span>
+                  <button
+                    onClick={() => setQty(addon.id, qty + 1)}
+                    className="w-7 h-7 rounded-full bg-orange-500 text-white font-bold text-base flex items-center justify-center hover:bg-orange-600 transition-colors"
+                  >+</button>
+                </div>
+              ) : (
+                <div className="px-2 pb-2">
+                  <button
+                    onClick={() => setQty(addon.id, 1)}
+                    className="w-full py-1.5 rounded-xl bg-orange-50 border border-orange-200 text-orange-600 text-xs font-bold hover:bg-orange-100 transition-colors"
+                  >+ Add</button>
+                </div>
+              )}
+            </div>
           );
         })}
       </div>
-      {selected.size > 0 && (
+      {totalQty > 0 && (
         <div className="mt-4 bg-orange-50 border border-orange-100 rounded-2xl px-4 py-3 flex items-center justify-between">
           <span className="text-sm text-orange-700 font-semibold">
-            {selected.size} add-on{selected.size > 1 ? 's' : ''} added
+            {totalQty} add-on{totalQty > 1 ? 's' : ''} added
           </span>
           <span className="text-base font-extrabold text-orange-600">
             +₹{totalExtra.toLocaleString('en-IN')} extra
@@ -379,8 +398,8 @@ export default function ProductContent({ id }: { id: string }) {
       {bookingOpen && <BookingModal product={product} onClose={() => setBookingOpen(false)} mode="book" />}
       {enquireOpen && <BookingModal product={product} onClose={() => setEnquireOpen(false)} mode="enquire" />}
 
-      {/* Mobile sticky bottom bar */}
-      <div className="fixed bottom-14 left-0 right-0 z-40 md:hidden bg-white border-t border-gray-200 px-4 py-2.5 shadow-[0_-4px_16px_rgba(0,0,0,0.08)]">
+      {/* Mobile sticky bottom bar — sits above the mobile nav bar */}
+      <div className="fixed bottom-14 left-0 right-0 z-[110] md:hidden bg-white border-t border-gray-200 px-4 py-2.5 shadow-[0_-4px_16px_rgba(0,0,0,0.08)]">
         <div className="flex gap-2 max-w-lg mx-auto">
           <button onClick={() => setEnquireOpen(true)}
             className="flex-1 border-2 border-orange-400 text-orange-500 font-semibold py-2.5 text-sm rounded-2xl hover:bg-orange-50 transition-colors">
