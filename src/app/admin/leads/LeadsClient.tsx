@@ -4,6 +4,12 @@ import { LEADS_URL, CITIES, SERVICES } from '@/lib/config';
 
 const ADMIN_PIN = '12he2024';
 
+// Strip timezone suffix like "GMT+0530 (India Standard Time)" from timestamps
+function cleanTs(ts: string) {
+  if (!ts) return ts;
+  return ts.replace(/\s*GMT[+-]\d{4}\s*\([^)]*\)/g, '').trim();
+}
+
 const TEAM = ['Satya', 'Priya', 'Rahul', 'Anjali', 'Unassigned'];
 
 const STATUS_OPTIONS = [
@@ -350,7 +356,7 @@ function LeadsTable({ leads, onUpdate, onSelect, savingRow, isFollowupDue }: {
                   <td className="px-4 py-3" onClick={() => onSelect(lead)}>
                     <p className="font-semibold text-gray-800">{lead.name || '—'}</p>
                     <p className="text-xs text-gray-500">{lead.phone}</p>
-                    <p className="text-xs text-gray-400">{lead.timestamp}</p>
+                    <p className="text-xs text-gray-400">{cleanTs(lead.timestamp)}</p>
                   </td>
                   <td className="px-4 py-3 max-w-[180px]" onClick={() => onSelect(lead)}>
                     <p className="font-medium text-gray-800 text-xs line-clamp-2">{lead.product || '—'}</p>
@@ -499,7 +505,7 @@ function LeadDrawer({ lead, onClose, onUpdate, onBook, savingRow }: {
                   className="p-2.5 rounded-xl text-white text-lg hover:opacity-90 transition-colors shadow-sm" style={{ background: '#25d366' }} title="WhatsApp">💬</a>
               </div>
             </div>
-            <p className="text-xs text-gray-400 mt-2">Lead received: {lead.timestamp}</p>
+            <p className="text-xs text-gray-400 mt-2">Lead received: {cleanTs(lead.timestamp)}</p>
           </div>
 
           {/* Package */}
