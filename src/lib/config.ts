@@ -32,4 +32,5 @@ export const SERVICES = [
   { slug: 'welcome-baby',           name: 'Welcome Baby',           cat: 'welcomebaby',  emoji: '🍼' },
   { slug: 'bachelorette-party',     name: 'Bachelorette Party',     cat: 'bachelorette', emoji: '💃' },
   { slug: 'corporate-events',       name: 'Corporate Events',       cat: 'corporate',    emoji: '🏢' },
+  { slug: 'addons',                 name: 'Add-ons',                cat: 'addons',       emoji: '✨' },
 ];

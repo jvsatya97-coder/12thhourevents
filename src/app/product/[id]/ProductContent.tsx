@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Product, fetchProducts, getPrice, getOrig, openWhatsApp } from '@/lib/products';
+import { Product, fetchProducts, getPrice, getOrig, submitLead } from '@/lib/products';
 import { useCity } from '@/context/CityContext';
 import ImageGallery from '@/components/ImageGallery';
 import BookingModal from '@/components/BookingModal';
@@ -10,8 +10,209 @@ import RecentlyViewed, { saveRecentlyViewed } from '@/components/RecentlyViewed'
 import ShareButton from '@/components/ShareButton';
 import { SERVICES } from '@/lib/config';
 
+/* ─── Phone + Pincode capture ──────────────────────────────────────────────── */
+function LeadCapture({ product, city }: { product: Product; city: string }) {
+  const [phone, setPhone] = useState('');
+  const [pincode, setPincode] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (phone.length < 10) return;
+    setSubmitting(true);
+    await submitLead({
+      action: 'saveLead',
+      name: '',
+      phone,
+      pincode,
+      product: product.name,
+      cat: product.cat,
+      city,
+      source: 'product_page',
+      timestamp: new Date().toLocaleString('en-IN'),
+    });
+    setSubmitted(true);
+    setSubmitting(false);
+  };
+
+  if (submitted) {
+    return (
+      <div className="bg-green-50 border border-green-200 rounded-2xl px-4 py-3 mb-4 flex items-center gap-2">
+        <span className="text-green-500 text-lg">✓</span>
+        <div>
+          <p className="text-sm font-semibold text-green-700">Got it! We'll reach out soon.</p>
+          <p className="text-xs text-green-600">Our team will call/WhatsApp you within the hour.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="bg-orange-50 border border-orange-100 rounded-2xl px-4 py-3 mb-4">
+      <p className="text-xs font-bold text-orange-700 mb-2">📲 Get instant availability & price</p>
+      <div className="flex gap-2">
+        <input
+          type="tel"
+          inputMode="numeric"
+          placeholder="Mobile number"
+          value={phone}
+          onChange={e => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+          className="flex-1 min-w-0 border border-orange-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-orange-400 bg-white"
+          required
+        />
+        <input
+          type="text"
+          inputMode="numeric"
+          placeholder="Pincode"
+          value={pincode}
+          onChange={e => setPincode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+          className="w-24 border border-orange-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-orange-400 bg-white"
+        />
+        <button
+          type="submit"
+          disabled={submitting || phone.length < 10}
+          className="btn-pink py-2 px-4 text-sm disabled:opacity-50 flex-shrink-0"
+        >
+          {submitting ? '…' : 'Check'}
+        </button>
+      </div>
+      <p className="text-[10px] text-orange-500 mt-1.5">No spam · Free availability check</p>
+    </form>
+  );
+}
+
+/* ─── Style variants ───────────────────────────────────────────────────────── */
+function StyleVariants({ product, allProducts, city }: { product: Product; allProducts: Product[]; city: string }) {
+  if (!product.variant_group) return null;
+
+  // Deduplicate by id — allProducts has cats2 duplicates
+  const seen = new Set<string>();
+  const variants = allProducts.filter(p => {
+    if (p.variant_group !== product.variant_group) return false;
+    if (seen.has(p.id)) return false;
+    seen.add(p.id);
+    return true;
+  });
+
+  if (variants.length < 2) return null;
+
+  return (
+    <div className="mb-5">
+      <h3 className="font-bold text-gray-700 mb-2 text-sm">🎨 Choose your style</h3>
+      <div className="flex flex-col gap-2">
+        {variants.map(v => {
+          const isActive = v.id === product.id;
+          const vPrice = getPrice(v, city);
+          return (
+            <a
+              key={v.id}
+              href={`/product/${encodeURIComponent(v.id)}`}
+              className={`flex items-center justify-between rounded-xl px-3 py-2.5 border-2 transition-all ${
+                isActive
+                  ? 'border-orange-400 bg-orange-50'
+                  : 'border-gray-200 bg-white hover:border-orange-300 hover:bg-orange-50/50'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                {isActive && <span className="w-2 h-2 rounded-full bg-orange-500 flex-shrink-0" />}
+                {!isActive && <span className="w-2 h-2 rounded-full bg-gray-300 flex-shrink-0" />}
+                <span className={`text-sm font-semibold ${isActive ? 'text-orange-700' : 'text-gray-700'}`}>
+                  {v.name}
+                </span>
+              </div>
+              <span className={`text-sm font-bold flex-shrink-0 ${isActive ? 'text-orange-600' : 'text-gray-600'}`}>
+                {vPrice}
+              </span>
+            </a>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Add-ons ──────────────────────────────────────────────────────────────── */
+function AddOns({ allProducts, city }: { allProducts: Product[]; city: string }) {
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  // Deduplicate add-on products
+  const seen = new Set<string>();
+  const addons = allProducts.filter(p => {
+    if (p.cat !== 'addons') return false;
+    if (seen.has(p.id)) return false;
+    seen.add(p.id);
+    return true;
+  });
+
+  if (!addons.length) return null;
+
+  const toggle = (id: string) => {
+    setSelected(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const selectedItems = addons.filter(a => selected.has(a.id));
+  const totalExtra = selectedItems.reduce((sum, a) => {
+    const v = parseFloat(a.city_prices[city] || a.price || '0') || 0;
+    return sum + v;
+  }, 0);
+
+  return (
+    <div className="mt-6 border-t border-gray-100 pt-5">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="font-bold text-gray-800 text-base">✨ Make it special</h3>
+        <span className="text-xs text-gray-400">{addons.length} add-ons · same visit</span>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        {addons.map(addon => {
+          const isOn = selected.has(addon.id);
+          const aPrice = getPrice(addon, city);
+          return (
+            <button
+              key={addon.id}
+              onClick={() => toggle(addon.id)}
+              className={`flex items-center gap-2 rounded-xl border-2 px-3 py-2.5 text-left transition-all ${
+                isOn
+                  ? 'border-orange-400 bg-orange-50'
+                  : 'border-gray-200 bg-white hover:border-orange-300'
+              }`}
+            >
+              <span className="text-xl flex-shrink-0">{addon.emoji || '✨'}</span>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-gray-800 leading-tight truncate">{addon.name}</p>
+                <p className="text-xs font-bold text-orange-600 mt-0.5">{aPrice}</p>
+              </div>
+              <span className={`ml-auto flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center text-[10px] font-bold transition-colors ${
+                isOn ? 'border-orange-500 bg-orange-500 text-white' : 'border-gray-300 text-transparent'
+              }`}>
+                ✓
+              </span>
+            </button>
+          );
+        })}
+      </div>
+      {selected.size > 0 && (
+        <div className="mt-3 bg-orange-50 rounded-xl px-3 py-2 flex items-center justify-between">
+          <span className="text-xs text-orange-700 font-medium">
+            {selected.size} add-on{selected.size > 1 ? 's' : ''} selected
+          </span>
+          <span className="text-sm font-bold text-orange-600">
+            +₹{totalExtra.toLocaleString('en-IN')}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── Main component ───────────────────────────────────────────────────────── */
 export default function ProductContent({ id }: { id: string }) {
   const [product, setProduct] = useState<Product | null>(null);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [similar, setSimilar] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [bookingOpen, setBookingOpen] = useState(false);
@@ -23,6 +224,8 @@ export default function ProductContent({ id }: { id: string }) {
     setLoading(true);
     const decodedId = (() => { try { return decodeURIComponent(id); } catch { return id; } })();
     fetchProducts().then(products => {
+      setAllProducts(products);
+
       // Try exact match first, then decoded, then case-insensitive
       const found = products.find(p => p.id === id)
         || products.find(p => p.id === decodedId)
@@ -35,7 +238,6 @@ export default function ProductContent({ id }: { id: string }) {
         const others = products.filter(
           p => p.id !== found.id && p.cat === found.cat
         );
-        // Shuffle deterministically by id so it feels curated
         const shuffled = [...others].sort((a, b) => {
           const ha = a.id.split('').reduce((acc, c) => acc * 31 + c.charCodeAt(0), 0);
           const hb = b.id.split('').reduce((acc, c) => acc * 31 + c.charCodeAt(0), 0);
@@ -104,7 +306,13 @@ export default function ProductContent({ id }: { id: string }) {
             {orig && orig !== price && <span className="text-gray-400 text-lg line-through">{orig}</span>}
             {product.disc > 0 && <span className="disc-badge">{product.disc}% OFF</span>}
           </div>
-          <p className="text-xs text-gray-400 mb-5">📍 Price shown for <strong>{cityName}</strong> · Inclusive of setup</p>
+          <p className="text-xs text-gray-400 mb-4">📍 Price shown for <strong>{cityName}</strong> · Inclusive of setup</p>
+
+          {/* Style variants */}
+          <StyleVariants product={product} allProducts={allProducts} city={city} />
+
+          {/* Phone + Pincode lead capture */}
+          <LeadCapture product={product} city={city} />
 
           {/* Trust badges */}
           <div className="grid grid-cols-3 gap-2 mb-5">
@@ -148,6 +356,9 @@ export default function ProductContent({ id }: { id: string }) {
               </ul>
             </div>
           )}
+
+          {/* Add-ons */}
+          <AddOns allProducts={allProducts} city={city} />
         </div>
       </div>
       {bookingOpen && <BookingModal product={product} onClose={() => setBookingOpen(false)} mode="book" />}

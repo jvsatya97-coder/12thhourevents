@@ -87,8 +87,9 @@ export function getImgFallbacks(url: string): string[] {
 
 export interface Product {
   id: string; name: string; cat: string; sub: string;
-  cats2?: string;      // optional second category slug
-  sort_order?: number; // lower number = shown first; undefined = no preference
+  cats2?: string;        // optional second category slug
+  sort_order?: number;   // lower number = shown first; undefined = no preference
+  variant_group?: string; // products sharing a group show as "Choose your style" options
   price: string; orig: string; disc: number; emoji: string;
   img: string; imgs: string[]; incs: string[]; excs: string[];
   city_prices: Record<string, string>; city_orig: Record<string, string>;
@@ -137,6 +138,7 @@ export async function fetchProducts(): Promise<Product[]> {
 
         const cats2 = String(p.cats2 || '').trim();
         const sortRaw = parseInt(String(p.sort_order || '').trim());
+        const variantGroup = String(p.variant_group || '').trim();
         return {
           id: String(p.id || '').trim(),
           name: String(p.name || '').trim(),
@@ -144,6 +146,7 @@ export async function fetchProducts(): Promise<Product[]> {
           sub: String(p.sub || '').trim(),
           cats2: cats2 || undefined,
           sort_order: isNaN(sortRaw) ? undefined : sortRaw,
+          variant_group: variantGroup || undefined,
           price: String(p.price || '').trim().replace(/,/g, ''),
           orig: String(p.orig || '').trim().replace(/,/g, ''),
           disc: parseInt(String(p.disc || '0')) || 0,
