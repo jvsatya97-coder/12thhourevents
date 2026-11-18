@@ -59,8 +59,8 @@ export default function ImageGallery({ imgs, name }: { imgs: string[]; name: str
 
   return (
     <div>
-      {/* Main image — no border radius on mobile (parent clips it edge-to-edge) */}
-      <div className="md:rounded-2xl overflow-hidden mb-2 md:mb-3 relative group cursor-zoom-in" style={{ aspectRatio: '4/3' }}>
+      {/* Main image */}
+      <div className="rounded-2xl overflow-hidden mb-3 relative group cursor-zoom-in" style={{ aspectRatio: '1/1' }}>
         <DriveImg
           src={imgs[active]}
           alt={`${name} ${active + 1}`}

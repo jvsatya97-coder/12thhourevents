@@ -7,14 +7,9 @@
 
 * { box-sizing: border-box; }
 
-html {
-  /* Do NOT set overflow-x: hidden on html — it collapses the right edge on iOS Safari */
-  width: 100%;
-}
-
-body {
+html, body {
   overflow-x: hidden;
-  width: 100%;
+  max-width: 100vw;
 }
 
 body {
