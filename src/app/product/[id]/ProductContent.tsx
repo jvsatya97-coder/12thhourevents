@@ -167,7 +167,7 @@ function AddOns({ allProducts, city }: { allProducts: Product[]; city: string })
         <h3 className="font-extrabold text-gray-800 text-lg">✨ Make it special</h3>
         <span className="text-xs text-gray-400">{addons.length} add-ons · same visit</span>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+      <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4" style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}>
         {addons.map(addon => {
           const isOn = selected.has(addon.id);
           const aPrice = getPrice(addon, city);
@@ -176,7 +176,7 @@ function AddOns({ allProducts, city }: { allProducts: Product[]; city: string })
             <button
               key={addon.id}
               onClick={() => toggle(addon.id)}
-              className={`relative rounded-2xl border-2 text-left transition-all overflow-hidden ${
+              className={`relative flex-shrink-0 w-36 rounded-2xl border-2 text-left transition-all overflow-hidden ${
                 isOn
                   ? 'border-orange-400 shadow-md shadow-orange-100'
                   : 'border-gray-200 bg-white hover:border-orange-300'
