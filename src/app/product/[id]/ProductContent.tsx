@@ -323,8 +323,8 @@ export default function ProductContent({ id }: { id: string }) {
       {/* Inner content wrapper — constrained for readability on wide screens */}
       <div className="max-w-5xl mx-auto">
       <div className="grid md:grid-cols-2 gap-0 md:gap-8 md:items-start">
-        {/* Image: full-bleed on mobile, rounded on desktop */}
-        <div className="md:rounded-2xl overflow-hidden">
+        {/* Image: full-bleed on mobile, rounded+clipped on desktop */}
+        <div className="md:rounded-2xl md:overflow-hidden">
           <ImageGallery imgs={product.imgs} name={product.name} mobileFullBleed />
         </div>
         <div className="min-w-0 px-4 pt-4 md:px-0 md:pt-0">
