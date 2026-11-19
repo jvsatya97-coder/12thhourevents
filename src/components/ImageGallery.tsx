@@ -49,7 +49,7 @@ export default function ImageGallery({ imgs, name, mobileFullBleed }: { imgs: st
   const [lightbox, setLightbox] = useState(false);
 
   if (!imgs.length) return (
-    <div className={`${mobileFullBleed ? 'md:rounded-2xl' : 'rounded-2xl'} overflow-hidden bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center`} style={{ aspectRatio: '4/3' }}>
+    <div className={`${mobileFullBleed ? 'md:rounded-2xl' : 'rounded-2xl'} overflow-hidden bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center aspect-[4/3] md:aspect-square w-full`}>
       <span className="text-6xl">🎉</span>
     </div>
   );
@@ -58,9 +58,9 @@ export default function ImageGallery({ imgs, name, mobileFullBleed }: { imgs: st
   const next = () => setActive(a => (a + 1) % imgs.length);
 
   return (
-    <div>
+    <div className="w-full">
       {/* Main image */}
-      <div className={`${mobileFullBleed ? 'md:rounded-2xl' : 'rounded-2xl'} overflow-hidden mb-3 relative group cursor-zoom-in`} style={{ aspectRatio: '4/3' }}>
+      <div className={`${mobileFullBleed ? 'md:rounded-2xl' : 'rounded-2xl'} overflow-hidden mb-3 relative group cursor-zoom-in aspect-[4/3] md:aspect-square w-full`}>
         <DriveImg
           src={imgs[active]}
           alt={`${name} ${active + 1}`}
