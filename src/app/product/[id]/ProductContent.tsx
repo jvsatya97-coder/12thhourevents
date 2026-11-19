@@ -290,7 +290,7 @@ export default function ProductContent({ id }: { id: string }) {
   if (loading) return (
     <div className="max-w-screen-2xl mx-auto px-4 py-12 animate-pulse">
       <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8">
-        <div className="bg-gray-200 rounded-2xl aspect-[4/3]" />
+        <div className="bg-gray-200 md:rounded-2xl aspect-[4/3]" />
         <div className="space-y-4">
           <div className="h-8 bg-gray-200 rounded w-3/4" />
           <div className="h-6 bg-gray-200 rounded w-1/2" />
@@ -323,9 +323,9 @@ export default function ProductContent({ id }: { id: string }) {
       {/* Inner content wrapper — constrained for readability on wide screens */}
       <div className="max-w-5xl mx-auto">
       <div className="grid md:grid-cols-2 gap-0 md:gap-8">
-        {/* Image: full-bleed on mobile, normal on desktop */}
-        <div className="md:rounded-2xl overflow-hidden">
-          <ImageGallery imgs={product.imgs} name={product.name} />
+        {/* Image: full-bleed on mobile, rounded on desktop */}
+        <div className="overflow-hidden md:rounded-2xl">
+          <ImageGallery imgs={product.imgs} name={product.name} mobileFullBleed />
         </div>
         <div className="px-4 pt-4 md:px-0 md:pt-0">
           <h1 className="text-2xl md:text-3xl font-extrabold text-gray-800 mb-2">{product.name}</h1>

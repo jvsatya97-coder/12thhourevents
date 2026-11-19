@@ -44,12 +44,12 @@ function DriveImg({ src, alt, className, onClick }: { src: string; alt: string; 
   );
 }
 
-export default function ImageGallery({ imgs, name }: { imgs: string[]; name: string }) {
+export default function ImageGallery({ imgs, name, mobileFullBleed }: { imgs: string[]; name: string; mobileFullBleed?: boolean }) {
   const [active, setActive] = useState(0);
   const [lightbox, setLightbox] = useState(false);
 
   if (!imgs.length) return (
-    <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center" style={{ aspectRatio: '1/1' }}>
+    <div className={`${mobileFullBleed ? 'md:rounded-2xl' : 'rounded-2xl'} overflow-hidden bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center`} style={{ aspectRatio: '4/3' }}>
       <span className="text-6xl">🎉</span>
     </div>
   );
@@ -60,7 +60,7 @@ export default function ImageGallery({ imgs, name }: { imgs: string[]; name: str
   return (
     <div>
       {/* Main image */}
-      <div className="rounded-2xl overflow-hidden mb-3 relative group cursor-zoom-in" style={{ aspectRatio: '1/1' }}>
+      <div className={`${mobileFullBleed ? 'md:rounded-2xl' : 'rounded-2xl'} overflow-hidden mb-3 relative group cursor-zoom-in`} style={{ aspectRatio: '4/3' }}>
         <DriveImg
           src={imgs[active]}
           alt={`${name} ${active + 1}`}

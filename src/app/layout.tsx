@@ -51,7 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="icon" href="/favicon.png" type="image/png" sizes="64x64" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
         <meta name="theme-color" content="#ff6b00" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=5" />
         <meta name="format-detection" content="telephone=yes" />
         {/* Google Ads / Facebook Pixel friendly — no blocking scripts */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify({
