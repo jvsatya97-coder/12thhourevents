@@ -155,7 +155,10 @@ body {
   display: flex;
   align-items: stretch;
   box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  /* Extend bg under iOS home indicator */
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
 }
 
 .mobile-nav-item {
@@ -197,9 +200,9 @@ body {
   flex: 1.2;
 }
 
-/* Mobile bottom bar spacing — push content above sticky nav */
+/* Mobile bottom bar spacing — push content above sticky nav + iOS safe area */
 @media (max-width: 768px) {
-  .pb-mobile { padding-bottom: 5rem; }
+  .pb-mobile { padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px)); }
 }
 
 /* ─── Floating WhatsApp button (desktop) ─── */

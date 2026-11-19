@@ -288,8 +288,8 @@ export default function ProductContent({ id }: { id: string }) {
   }, [id]);
 
   if (loading) return (
-    <div className="max-w-5xl mx-auto px-4 py-12 animate-pulse">
-      <div className="grid md:grid-cols-2 gap-8">
+    <div className="max-w-screen-2xl mx-auto px-4 py-12 animate-pulse">
+      <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8">
         <div className="bg-gray-200 rounded-2xl aspect-[4/3]" />
         <div className="space-y-4">
           <div className="h-8 bg-gray-200 rounded w-3/4" />
@@ -301,7 +301,7 @@ export default function ProductContent({ id }: { id: string }) {
   );
 
   if (!product) return (
-    <div className="max-w-3xl mx-auto px-4 py-20 text-center">
+    <div className="max-w-screen-2xl mx-auto px-4 py-20 text-center">
       <div className="text-5xl mb-4">😕</div>
       <h1 className="text-2xl font-bold text-gray-700 mb-3">Package not found</h1>
       <p className="text-gray-500 text-sm mb-6">This package may have been updated. Browse all packages below.</p>
@@ -319,7 +319,9 @@ export default function ProductContent({ id }: { id: string }) {
     <div className="pb-mobile">
       {/* All-categories sticky nav bar */}
       <CategoryBar />
-    <div className="max-w-5xl mx-auto px-4 py-6 md:py-10">
+    <div className="max-w-screen-2xl mx-auto px-4 py-6 md:py-10">
+      {/* Inner content wrapper — constrained for readability on wide screens */}
+      <div className="max-w-5xl mx-auto">
       <div className="grid md:grid-cols-2 gap-6 md:gap-8">
         <ImageGallery imgs={product.imgs} name={product.name} />
         <div>
@@ -393,13 +395,16 @@ export default function ProductContent({ id }: { id: string }) {
         </div>
       </div>
 
+      </div>{/* end max-w-5xl inner wrapper */}
+
       {/* Add-ons — full width below the 2-col layout */}
       <AddOns allProducts={allProducts} city={city} />
       {bookingOpen && <BookingModal product={product} onClose={() => setBookingOpen(false)} mode="book" />}
       {enquireOpen && <BookingModal product={product} onClose={() => setEnquireOpen(false)} mode="enquire" />}
 
-      {/* Mobile sticky bottom bar — sits above the mobile nav bar */}
-      <div className="fixed bottom-14 left-0 right-0 z-[110] md:hidden bg-white border-t border-gray-200 px-4 py-2.5 shadow-[0_-4px_16px_rgba(0,0,0,0.08)]">
+      {/* Mobile sticky bottom bar — sits above the mobile nav bar, with iOS safe area */}
+      <div className="fixed bottom-14 left-0 right-0 z-[110] md:hidden bg-white border-t border-gray-200 px-4 shadow-[0_-4px_16px_rgba(0,0,0,0.08)]"
+        style={{ paddingTop: '10px', paddingBottom: 'calc(10px + env(safe-area-inset-bottom, 0px))' }}>
         <div className="flex gap-2 max-w-lg mx-auto">
           <button onClick={() => setEnquireOpen(true)}
             className="flex-1 border-2 border-orange-400 text-orange-500 font-semibold py-2.5 text-sm rounded-2xl hover:bg-orange-50 transition-colors">
