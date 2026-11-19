@@ -261,6 +261,9 @@ function LeadsCRM() {
               className="text-sm font-medium px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
               🔄 Refresh
             </button>
+            <a href="/admin/analytics" className="text-sm font-medium px-3 py-1.5 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors">
+              📊 Analytics
+            </a>
             <a href="/admin" className="text-sm font-medium px-3 py-1.5 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors">
               + New Lead
             </a>
