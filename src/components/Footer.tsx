@@ -4,7 +4,7 @@ import { SERVICES, CITIES } from '@/lib/config';
 export default function Footer() {
   return (
     <footer className="bg-gray-900 text-gray-300 pt-12 pb-6 mt-16">
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-screen-2xl mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div>
             <div className="text-xl font-extrabold text-white mb-2">🎉 12th Hour Events</div>

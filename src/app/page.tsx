@@ -119,7 +119,7 @@ export default function Home() {
 
       {/* Services */}
       <section className="py-12 md:py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-screen-2xl mx-auto px-4">
           <h2 className="section-title">Our <span className="grad-text">Services</span></h2>
           <p className="section-sub">Everything you need for the perfect celebration</p>
 
@@ -199,7 +199,7 @@ export default function Home() {
 
       {/* Popular packages */}
       <section className="py-12 md:py-16">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-screen-2xl mx-auto px-4">
           <ScrollReveal>
             <h2 className="section-title">Popular <span className="grad-text">Packages</span></h2>
             <p className="section-sub">Top picks loved by thousands of customers</p>
@@ -227,7 +227,7 @@ export default function Home() {
 
       {/* Pinterest Edition packages */}
       <section className="py-12 md:py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-screen-2xl mx-auto px-4">
           <ScrollReveal>
             <h2 className="section-title">Pinterest <span className="grad-text">Edition</span></h2>
             <p className="section-sub">Trending décor styles straight from Pinterest, recreated for your event</p>
@@ -241,7 +241,7 @@ export default function Home() {
 
       {/* Theme Decoration packages */}
       <section className="py-12 md:py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-screen-2xl mx-auto px-4">
           <ScrollReveal>
             <h2 className="section-title">Theme <span className="grad-text">Decorations</span></h2>
             <p className="section-sub">Unicorn, Superhero, Barbie & 40+ more themes</p>
@@ -292,7 +292,7 @@ export default function Home() {
 
       {/* Why Us — Premium dark */}
       <section className="py-14 md:py-20 bg-[#080808]">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-screen-2xl mx-auto px-4">
           <div className="text-center mb-10">
             <div className="inline-flex items-center gap-2 border border-orange-500/30 bg-orange-500/10 text-orange-300 rounded-full px-4 py-1.5 text-xs font-bold mb-4 tracking-widest uppercase">
               🏆 Why 12th Hour
@@ -361,7 +361,7 @@ export default function Home() {
 
       {/* Testimonials — Premium */}
       <section className="py-14 md:py-20 bg-[#0c0c0c]">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-screen-2xl mx-auto px-4">
           {/* Header with Google badge */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
             <div>
@@ -466,7 +466,7 @@ export default function Home() {
 
       {/* Cities */}
       <section className="py-12 md:py-14">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-screen-2xl mx-auto px-4">
           <h2 className="section-title">We Serve <span className="grad-text">Pan India</span></h2>
           <p className="section-sub">Available in 14+ cities. More cities being added!</p>
           <div className="flex flex-wrap justify-center gap-2 md:gap-3">

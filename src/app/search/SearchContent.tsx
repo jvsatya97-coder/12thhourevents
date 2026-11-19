@@ -52,7 +52,7 @@ export default function SearchContent() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-screen-2xl mx-auto px-4 py-8">
         {loading ? (
           <div className="product-grid py-4">
             {[...Array(8)].map((_, i) => (

@@ -17,7 +17,7 @@ export default function Navbar() {
   return (
     <>
       <nav className="sticky top-0 z-50 bg-white shadow-md">
-        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
+        <div className="max-w-screen-2xl mx-auto px-4 flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 font-extrabold text-xl flex-shrink-0">
             <AnimatedLogo />

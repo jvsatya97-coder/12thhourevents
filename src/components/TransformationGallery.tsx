@@ -105,7 +105,7 @@ function SliderCard({ item }: { item: typeof TRANSFORMATIONS[0] }) {
 export default function TransformationGallery() {
   return (
     <section className="py-12 md:py-16 bg-gradient-to-br from-gray-900 to-gray-800">
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-screen-2xl mx-auto px-4">
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 bg-orange-500/20 border border-orange-500/30 text-orange-400 rounded-full px-4 py-1.5 text-sm font-semibold mb-4">
             ✨ Real Transformations

@@ -104,7 +104,7 @@ export default function ThemeStylePicker() {
         }}
       />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4">
+      <div className="relative z-10 max-w-screen-2xl mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 border border-white/10 bg-white/5 text-white/60 rounded-full px-4 py-1.5 text-xs font-bold mb-5 tracking-widest uppercase">

@@ -75,7 +75,7 @@ export default function ServicePageTemplate({ cat, name, emoji, slug, desc, faqs
 
       {/* Trust banner */}
       <section className="bg-orange-500 py-2.5 overflow-hidden">
-        <div className="flex gap-0 overflow-x-auto px-4 max-w-7xl mx-auto" style={{ scrollbarWidth: 'none' }}>
+        <div className="flex gap-0 overflow-x-auto px-4 max-w-screen-2xl mx-auto" style={{ scrollbarWidth: 'none' }}>
           {TRUST.map((t, i) => (
             <div key={i} className="flex-none flex items-center gap-1.5 text-sm text-white font-semibold whitespace-nowrap px-4 border-r border-orange-400 last:border-r-0">
               <span>{t.emoji}</span> <span>{t.label}</span>
@@ -85,7 +85,7 @@ export default function ServicePageTemplate({ cat, name, emoji, slug, desc, faqs
       </section>
 
       {/* Products with filters */}
-      <section className="py-12 max-w-7xl mx-auto px-4">
+      <section className="py-12 max-w-screen-2xl mx-auto px-4">
         <h2 className="section-title">{name} <span className="grad-text">Packages</span></h2>
         <p className="section-sub">Choose the perfect package for your celebration</p>
         <ProductGrid cat={cat} showFilters={true} />
@@ -130,7 +130,7 @@ export default function ServicePageTemplate({ cat, name, emoji, slug, desc, faqs
 
       {/* City links */}
       <section className="py-12 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-screen-2xl mx-auto px-4">
           <h2 className="section-title">{name} in <span className="grad-text">Your City</span></h2>
           <div className="flex flex-wrap justify-center gap-3 mt-6">
             {CITIES.map(c => (

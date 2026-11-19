@@ -39,7 +39,7 @@ export default function TrendingSection() {
   return (
     <>
       <section className="py-12 md:py-16 bg-gradient-to-br from-pink-50 via-orange-50 to-amber-50 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-screen-2xl mx-auto px-4">
           {/* Heading */}
           <div className="flex items-center justify-between mb-6">
             <div>

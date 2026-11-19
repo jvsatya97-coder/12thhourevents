@@ -37,7 +37,7 @@ export default function ServiceHero({ name, emoji, desc, bgImage }: Props) {
     <>
       {/* Category chips row */}
       <div className="bg-white border-b border-gray-100 py-2.5 overflow-hidden">
-        <div className="flex gap-2 overflow-x-auto px-4 max-w-7xl mx-auto" style={{ scrollbarWidth: 'none' }}>
+        <div className="flex gap-2 overflow-x-auto px-4 max-w-screen-2xl mx-auto" style={{ scrollbarWidth: 'none' }}>
           {SERVICES.map(s => (
             <Link key={s.slug} href={`/${s.slug}`}
               className="flex-none flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border border-gray-200 text-gray-600 hover:bg-orange-50 hover:border-orange-300 hover:text-orange-600 transition whitespace-nowrap bg-white">

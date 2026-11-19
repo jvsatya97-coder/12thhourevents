@@ -75,7 +75,7 @@ export default function CinematicShowcase() {
 
         {/* Content overlay */}
         <div className="absolute inset-0 flex items-end md:items-center">
-          <div className="max-w-7xl mx-auto px-4 w-full pb-8 md:pb-0">
+          <div className="max-w-screen-2xl mx-auto px-4 w-full pb-8 md:pb-0">
             <div className="max-w-xl">
               {/* Badge */}
               <div

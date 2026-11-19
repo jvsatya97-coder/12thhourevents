@@ -36,7 +36,7 @@ export default function CityServiceTemplate({ cat, serviceName, serviceSlug, emo
 
       <CategoryBar />
 
-      <section className="py-14 max-w-7xl mx-auto px-4">
+      <section className="py-14 max-w-screen-2xl mx-auto px-4">
         <h2 className="section-title">{serviceName} <span className="grad-text">Packages</span></h2>
         <p className="section-sub">Prices shown for {cityName}</p>
         <ProductGrid cat={cat} showFilters={true} />
@@ -44,7 +44,7 @@ export default function CityServiceTemplate({ cat, serviceName, serviceSlug, emo
 
       {/* Other services */}
       <section className="py-10 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-screen-2xl mx-auto px-4">
           <h2 className="text-xl font-bold text-center mb-6">More Services in {cityName}</h2>
           <div className="flex flex-wrap justify-center gap-3">
             {SERVICES.filter(s => s.slug !== serviceSlug).map(s => (

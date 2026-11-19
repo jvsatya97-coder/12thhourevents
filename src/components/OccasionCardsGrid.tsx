@@ -81,7 +81,7 @@ const OCCASIONS = [
 export default function OccasionCardsGrid() {
   return (
     <section className="py-14 md:py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-screen-2xl mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 border border-orange-200 bg-orange-50 text-orange-600 rounded-full px-4 py-1.5 text-xs font-bold mb-4 tracking-widest uppercase">

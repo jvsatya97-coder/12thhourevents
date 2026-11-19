@@ -47,7 +47,7 @@ export default function CityDealsBanner() {
         ))}
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-3 md:py-3.5 relative">
+      <div className="max-w-screen-2xl mx-auto px-4 py-3 md:py-3.5 relative">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
             {/* City emoji */}

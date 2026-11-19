@@ -72,7 +72,7 @@ export default function MidnightSetup() {
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full opacity-8 pointer-events-none"
         style={{ background: 'radial-gradient(circle, #ff6b00, transparent)' }} />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4">
+      <div className="relative z-10 max-w-screen-2xl mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 border border-orange-500/30 bg-orange-500/10 text-orange-300 rounded-full px-4 py-1.5 text-xs font-bold mb-5 tracking-widest uppercase">

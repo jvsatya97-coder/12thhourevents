@@ -62,7 +62,7 @@ export default function PremiumTestimonials() {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] pointer-events-none opacity-20"
         style={{ background: 'radial-gradient(ellipse at 50% 0%, #ff6b00 0%, transparent 70%)' }} />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4">
+      <div className="relative z-10 max-w-screen-2xl mx-auto px-4">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
           <div>
