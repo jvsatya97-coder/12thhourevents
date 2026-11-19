@@ -195,8 +195,50 @@ export function getOrig(p: Product, city: string): string {
   return isNaN(n) ? v : '₹' + n.toLocaleString('en-IN');
 }
 
+// ── UTM / source tracking ────────────────────────────────────────────────────
+// Called once on page load (in layout or a client component) to capture UTM params
+// and store them in sessionStorage so they survive navigation within the same tab.
+const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'gclid'];
+
+export function captureUtm() {
+  if (typeof window === 'undefined') return;
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const hasUtm = UTM_KEYS.some(k => params.has(k));
+    if (!hasUtm) return; // don't overwrite existing session UTMs if no params in URL
+    UTM_KEYS.forEach(k => {
+      const v = params.get(k);
+      if (v) sessionStorage.setItem(`12he_${k}`, v);
+      else sessionStorage.removeItem(`12he_${k}`);
+    });
+  } catch { /* sessionStorage blocked */ }
+}
+
+export function getStoredUtm(): Record<string, string> {
+  if (typeof window === 'undefined') return {};
+  const result: Record<string, string> = {};
+  try {
+    UTM_KEYS.forEach(k => {
+      const v = sessionStorage.getItem(`12he_${k}`);
+      if (v) result[k] = v;
+    });
+    // Derive source label for CRM display
+    if (result.utm_source) {
+      const src = result.utm_source.toLowerCase();
+      if (src.includes('google') || result.gclid) result.utm_lead_source = 'google';
+      else if (src.includes('facebook') || src.includes('instagram') || src.includes('meta')) result.utm_lead_source = 'social';
+      else if (src.includes('whatsapp')) result.utm_lead_source = 'whatsapp';
+      else result.utm_lead_source = src;
+    }
+  } catch { /* blocked */ }
+  return result;
+}
+
 export async function submitLead(data: Record<string, string>) {
-  try { await fetch(`${LEADS_URL}?${new URLSearchParams(data).toString()}&callback=_`, { mode: 'no-cors' }); } catch { }
+  // Merge UTM data so every lead carries its traffic source
+  const utms = getStoredUtm();
+  const payload = { ...data, ...utms };
+  try { await fetch(`${LEADS_URL}?${new URLSearchParams(payload).toString()}&callback=_`, { mode: 'no-cors' }); } catch { }
 }
 
 export function openWhatsApp(msg: string) {

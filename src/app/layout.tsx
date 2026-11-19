@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { Suspense } from 'react';
 import { CityProvider } from '@/context/CityContext';
 import { CompareProvider } from '@/context/CompareContext';
 import Navbar from '@/components/Navbar';
@@ -11,6 +12,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import BackToTop from '@/components/BackToTop';
 import CompareDrawer from '@/components/CompareDrawer';
 import GoogleTagManager from '@/components/GoogleTagManager';
+import UtmCapture from '@/components/UtmCapture';
 
 export const metadata: Metadata = {
   title: '12th Hour Events | Birthday & Party Decoration — Pan India',
@@ -95,6 +97,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <CompareProvider>
           <CityProvider>
             <GoogleTagManager />
+            <Suspense fallback={null}><UtmCapture /></Suspense>
             <Navbar />
             <StickyCategories />
             <CityDealsBanner />

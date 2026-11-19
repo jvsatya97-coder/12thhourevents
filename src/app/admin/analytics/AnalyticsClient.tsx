@@ -60,8 +60,8 @@ function getLeadsFromSheet(url: string): Promise<Lead[]> {
 
 function categorizeSource(source: string): keyof Omit<DayStats, 'date' | 'display' | 'leads' | 'completed' | 'cancelled'> {
   const s = (source || '').toLowerCase();
+  if (s === 'google' || s.includes('google') || s.includes('cpc') || s.includes('gclid')) return 'google';
   if (s.includes('whatsapp') || s === 'enquiry') return 'whatsapp';
-  if (s.includes('google') || s.includes('search') || s.includes('cpc')) return 'google';
   if (s.includes('social') || s.includes('instagram') || s.includes('facebook') || s.includes('meta')) return 'social';
   if (s.includes('direct') || s === 'website') return 'direct';
   return 'direct';
