@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
-import CityServiceTemplate, { generateCityMetadata } from '@/components/CityServiceTemplate';
+import CityServiceTemplate from '@/components/CityServiceTemplate';
+import { generateCityMetadata } from '@/lib/cityMetadata';
 
-export const metadata: Metadata = generateCityMetadata({ serviceName: 'Pinterest Edition', cityName: 'Ahmedabad' });
+export const metadata: Metadata = generateCityMetadata({ serviceName: 'Pinterest Edition', cityName: 'Ahmedabad', serviceSlug: 'pinterest-edition', citySlug: 'ahmedabad' });
 
 export default function Page() {
   return <CityServiceTemplate

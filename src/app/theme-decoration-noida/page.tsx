@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
-import CityServiceTemplate, { generateCityMetadata } from '@/components/CityServiceTemplate';
+import CityServiceTemplate from '@/components/CityServiceTemplate';
+import { generateCityMetadata } from '@/lib/cityMetadata';
 
-export const metadata: Metadata = generateCityMetadata({ serviceName: 'Theme Decoration', cityName: 'Noida' });
+export const metadata: Metadata = generateCityMetadata({ serviceName: 'Theme Decoration', cityName: 'Noida', serviceSlug: 'theme-decoration', citySlug: 'noida' });
 
 export default function Page() {
   return <CityServiceTemplate

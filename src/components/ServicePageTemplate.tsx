@@ -41,10 +41,19 @@ const DEFAULT_REVIEWS = [
 ];
 
 export function generateServiceMetadata(p: Props): Metadata {
+  const title = `${p.name} in India | 12th Hour Events — Same-Day Setup`;
+  const description = `Best ${p.name.toLowerCase()} in India ✓ Same-day setup ✓ 5000+ events done ✓ Transparent pricing ✓ WhatsApp booking in 2 mins. 12th Hour Events.`;
   return {
-    title: `${p.name} | 12th Hour Events — Pan India`,
-    description: p.desc,
-    openGraph: { title: `${p.name} | 12th Hour Events`, description: p.desc, type: 'website' },
+    title,
+    description,
+    alternates: { canonical: `https://12thhourevents.in/${p.slug}` },
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      url: `https://12thhourevents.in/${p.slug}`,
+    },
+    twitter: { card: 'summary_large_image', title, description },
   };
 }
 
@@ -62,10 +71,32 @@ export default function ServicePageTemplate({ cat, name, emoji, slug, desc, faqs
     }))
   };
 
+  const schemaBreadcrumb = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://12thhourevents.in" },
+      { "@type": "ListItem", "position": 2, "name": name, "item": `https://12thhourevents.in/${slug}` },
+    ]
+  };
+
+  const schemaService = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": name,
+    "url": `https://12thhourevents.in/${slug}`,
+    "provider": { "@type": "Organization", "name": "12th Hour Events", "url": "https://12thhourevents.in" },
+    "areaServed": { "@type": "Country", "name": "India" },
+    "description": desc,
+    "offers": { "@type": "AggregateOffer", "priceCurrency": "INR", "lowPrice": "999", "highPrice": "25000" }
+  };
+
   return (
     <div className="pb-mobile">
       {/* JSON-LD */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaFAQ) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaBreadcrumb) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaService) }} />
 
       {/* Category chips + city-aware hero with photo bg + search */}
       <ServiceHero name={name} emoji={emoji} desc={desc} bgImage={bgImage} />
