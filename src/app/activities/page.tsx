@@ -1,12 +1,15 @@
 import type { Metadata } from 'next';
 import ServicePageTemplate from '@/components/ServicePageTemplate';
+import { fetchProductsServer } from '@/lib/products';
 
 export const metadata: Metadata = {
   title: 'Kids Activities & Entertainment in Delhi NCR | 12th Hour Events',
   description: 'Fun kids party activities and entertainment in Delhi NCR. Clowns, magicians, face painting, games. Book on WhatsApp!',
 };
 
-export default function Page() {
+export default async function Page() {
+  const allProducts = await fetchProductsServer();
+  const initialProducts = allProducts.filter(p => p.cat.toLowerCase().trim() === 'act-artists');
   return <ServicePageTemplate
     cat="act-artists" name="Kids Activities" emoji="🎪" slug="activities"
     headline="Kids Party Activities & Entertainment 🎪"

@@ -64,6 +64,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="theme-color" content="#ff6b00" />
         <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=5" />
         <meta name="format-detection" content="telephone=yes" />
+        {/* Mark <html> as js-ready once JS executes — used to hide SEO-only server grid */}
+        <script dangerouslySetInnerHTML={{ __html: 'document.documentElement.classList.add("js-ready")' }} />
         {/* Google Ads / Facebook Pixel friendly — no blocking scripts */}
         {/* Organization Schema */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify({

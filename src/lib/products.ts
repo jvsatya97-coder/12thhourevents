@@ -95,7 +95,79 @@ export interface Product {
   city_prices: Record<string, string>; city_orig: Record<string, string>;
 }
 
-// In-memory cache — products loaded once per browser session
+// ── Shared parser used by both server and client fetches ────────────────────
+function parseProducts(raw: Record<string, string>[]): Product[] {
+  const products = raw.map((p) => {
+    const cp: Record<string, string> = {}, co: Record<string, string> = {};
+    Object.keys(p).forEach(k => {
+      const lk = k.toLowerCase(), v = String(p[k] || '').trim().replace(/,/g, '');
+      if (!v || v === '0') return;
+      if (lk.startsWith('price_')) cp[lk.slice(6)] = v;
+      else if (lk.startsWith('orig_')) co[lk.slice(5)] = v;
+    });
+
+    const imgs: string[] = [];
+    const main = toImgUrl(String(p.img || '').trim());
+    if (main) imgs.push(main);
+    for (let i = 1; i <= 9; i++) {
+      const e = toImgUrl(String(p[`img${i}`] || '').trim());
+      if (e && !imgs.includes(e)) imgs.push(e);
+    }
+    if (p.imgs) String(p.imgs).split(',').forEach((u: string) => {
+      const converted = toImgUrl(u.trim());
+      if (converted && !imgs.includes(converted)) imgs.push(converted);
+    });
+
+    const cats2 = String(p.cats2 || '').trim();
+    const sortRaw = parseInt(String(p.sort_order || '').trim());
+    const variantGroup = String(p.variant_group || '').trim();
+    return {
+      id: String(p.id || '').trim(),
+      name: String(p.name || '').trim(),
+      cat: String(p.cat || '').trim(),
+      sub: String(p.sub || '').trim(),
+      cats2: cats2 || undefined,
+      sort_order: isNaN(sortRaw) ? undefined : sortRaw,
+      variant_group: variantGroup || undefined,
+      price: String(p.price || '').trim().replace(/,/g, ''),
+      orig: String(p.orig || '').trim().replace(/,/g, ''),
+      disc: parseInt(String(p.disc || '0')) || 0,
+      emoji: String(p.emoji || '🎉').trim(),
+      img: main, imgs,
+      incs: Array.isArray(p.incs) ? p.incs : String(p.Inclusions || p.inclusions || '').split(/[\n,]+/).map((x: string) => x.trim()).filter(Boolean),
+      excs: Array.isArray(p.excs) ? p.excs : String(p.Exclusions || p.exclusions || '').split(/[\n,]+/).map((x: string) => x.trim()).filter(Boolean),
+      city_prices: cp, city_orig: co,
+    } as Product;
+  }).filter((p) => p.id && p.name);
+
+  // Expand cats2 — add a copy under second category
+  const expanded: Product[] = [];
+  for (const p of products) {
+    expanded.push(p);
+    if (p.cats2) expanded.push({ ...p, cat: p.cats2, cats2: undefined });
+  }
+  return expanded;
+}
+
+// ── Server-side fetch (called from Server Components / generateMetadata) ─────
+// Uses Next.js fetch cache: revalidates every 5 minutes so products stay fresh
+// without hammering the Google Sheets API on every request.
+export async function fetchProductsServer(): Promise<Product[]> {
+  try {
+    const res = await fetch(SHEET_URL, {
+      next: { revalidate: 300 }, // cache 5 minutes
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    if (!data?.products?.length) return [];
+    return parseProducts(data.products);
+  } catch {
+    return [];
+  }
+}
+
+// ── In-memory cache — products loaded once per browser session ───────────────
 let _cache: Product[] | null = null;
 let _fetching: Promise<Product[]> | null = null;
 
@@ -111,65 +183,8 @@ export async function fetchProducts(): Promise<Product[]> {
       });
       const data = await res.json();
       if (!data?.products?.length) { _cache = []; return []; }
-
-      const products = data.products.map((p: Record<string, string>) => {
-        const cp: Record<string, string> = {}, co: Record<string, string> = {};
-        Object.keys(p).forEach(k => {
-          const lk = k.toLowerCase(), v = String(p[k] || '').trim().replace(/,/g, '');
-          if (!v || v === '0') return;
-          if (lk.startsWith('price_')) cp[lk.slice(6)] = v;
-          else if (lk.startsWith('orig_')) co[lk.slice(5)] = v;
-        });
-
-        const imgs: string[] = [];
-        const main = toImgUrl(String(p.img || '').trim());
-        if (main) imgs.push(main);
-
-        // Support img1 through img9 columns
-        for (let i = 1; i <= 9; i++) {
-          const e = toImgUrl(String(p[`img${i}`] || '').trim());
-          if (e && !imgs.includes(e)) imgs.push(e);
-        }
-        // Support comma-separated imgs column
-        if (p.imgs) String(p.imgs).split(',').forEach((u: string) => {
-          const converted = toImgUrl(u.trim());
-          if (converted && !imgs.includes(converted)) imgs.push(converted);
-        });
-
-        const cats2 = String(p.cats2 || '').trim();
-        const sortRaw = parseInt(String(p.sort_order || '').trim());
-        const variantGroup = String(p.variant_group || '').trim();
-        return {
-          id: String(p.id || '').trim(),
-          name: String(p.name || '').trim(),
-          cat: String(p.cat || '').trim(),
-          sub: String(p.sub || '').trim(),
-          cats2: cats2 || undefined,
-          sort_order: isNaN(sortRaw) ? undefined : sortRaw,
-          variant_group: variantGroup || undefined,
-          price: String(p.price || '').trim().replace(/,/g, ''),
-          orig: String(p.orig || '').trim().replace(/,/g, ''),
-          disc: parseInt(String(p.disc || '0')) || 0,
-          emoji: String(p.emoji || '🎉').trim(),
-          img: main, imgs,
-          incs: Array.isArray(p.incs) ? p.incs : String(p.Inclusions || p.inclusions || '').split(/[\n,]+/).map((x: string) => x.trim()).filter(Boolean),
-          excs: Array.isArray(p.excs) ? p.excs : String(p.Exclusions || p.exclusions || '').split(/[\n,]+/).map((x: string) => x.trim()).filter(Boolean),
-          city_prices: cp, city_orig: co,
-        };
-      }).filter((p: Product) => p.id && p.name);
-
-      // Expand products that have a cats2 — add a copy under the second category
-      // The copy keeps the same id so product pages still work, but has cat = cats2
-      const expanded: Product[] = [];
-      for (const p of products) {
-        expanded.push(p);
-        if (p.cats2) {
-          expanded.push({ ...p, cat: p.cats2, cats2: undefined });
-        }
-      }
-
-      _cache = expanded;
-      return expanded;
+      _cache = parseProducts(data.products);
+      return _cache;
     } catch {
       _cache = [];
       return [];

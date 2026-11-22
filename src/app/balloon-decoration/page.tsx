@@ -1,12 +1,15 @@
 import type { Metadata } from 'next';
 import ServicePageTemplate from '@/components/ServicePageTemplate';
+import { fetchProductsServer } from '@/lib/products';
 
 export const metadata: Metadata = {
   title: 'Balloon Decorations | 12th Hour Events — Pan India',
   description: 'Professional balloon decoration for birthdays, anniversaries, room surprises and all events. Balloon arches, ceilings, walls, bouquets and room setups. Book on WhatsApp!',
 };
 
-export default function Page() {
+export default async function Page() {
+  const allProducts = await fetchProductsServer();
+  const initialProducts = allProducts.filter(p => p.cat.toLowerCase().trim() === 'balloon');
   return <ServicePageTemplate
     cat="balloon" name="Balloon Decorations" emoji="🎈" slug="balloon-decoration"
     headline="Balloon Decorations for Every Occasion 🎈"

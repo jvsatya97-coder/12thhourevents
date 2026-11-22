@@ -1,12 +1,15 @@
 import type { Metadata } from 'next';
 import ServicePageTemplate from '@/components/ServicePageTemplate';
+import { fetchProductsServer } from '@/lib/products';
 
 export const metadata: Metadata = {
   title: 'First Night Decoration in Delhi NCR | 12th Hour Events',
   description: 'Romantic first night / wedding night decoration in Delhi NCR. Roses, candles, fairy lights. Book on WhatsApp!',
 };
 
-export default function Page() {
+export default async function Page() {
+  const allProducts = await fetchProductsServer();
+  const initialProducts = allProducts.filter(p => p.cat.toLowerCase().trim() === 'firstnight');
   return <ServicePageTemplate
     cat="firstnight" name="First Night Decoration" emoji="🌹" slug="first-night-decoration"
     headline="First Night Decoration in Delhi NCR 🌹"

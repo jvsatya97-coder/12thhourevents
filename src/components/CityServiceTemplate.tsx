@@ -1,12 +1,15 @@
 'use client';
 import Link from 'next/link';
 import ProductGrid from '@/components/ProductGrid';
+import ProductGridServer from '@/components/ProductGridServer';
 import CategoryBar from '@/components/CategoryBar';
 import { SERVICES, DOMAIN } from '@/lib/config';
+import type { Product } from '@/lib/products';
 
 interface Props {
   cat: string; serviceName: string; serviceSlug: string; emoji: string;
   citySlug: string; cityName: string;
+  initialProducts?: Product[];
 }
 
 const CITY_FAQS: Record<string, { q: string; a: string }[]> = {
@@ -18,7 +21,7 @@ const CITY_FAQS: Record<string, { q: string; a: string }[]> = {
   ],
 };
 
-export default function CityServiceTemplate({ cat, serviceName, serviceSlug, emoji, citySlug, cityName }: Props) {
+export default function CityServiceTemplate({ cat, serviceName, serviceSlug, emoji, citySlug, cityName, initialProducts }: Props) {
   const faqs = CITY_FAQS[`${serviceSlug}-${citySlug}`] || CITY_FAQS.default;
   const pageUrl = `${DOMAIN}/${serviceSlug}-${citySlug}`;
 
@@ -100,11 +103,16 @@ export default function CityServiceTemplate({ cat, serviceName, serviceSlug, emo
 
       <CategoryBar />
 
-      {/* Products */}
+      {/* Products — server-rendered for SEO + interactive client grid for users */}
       <section className="py-14 max-w-screen-2xl mx-auto px-4">
         <h2 className="section-title">{serviceName} <span className="grad-text">Packages in {cityName}</span></h2>
         <p className="section-sub">All prices shown for {cityName} · inclusive of setup</p>
-        <ProductGrid cat={cat} showFilters={true} />
+        {/* Server grid: indexed by Google, hidden once JS loads */}
+        {initialProducts && initialProducts.length > 0 && (
+          <ProductGridServer products={initialProducts} city={citySlug} />
+        )}
+        {/* Interactive grid: sorting, filtering, city prices */}
+        <ProductGrid cat={cat} showFilters={true} initialProducts={initialProducts} />
       </section>
 
       {/* FAQ — great for SEO */}

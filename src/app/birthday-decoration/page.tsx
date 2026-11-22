@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import ServicePageTemplate from '@/components/ServicePageTemplate';
+import { fetchProductsServer } from '@/lib/products';
 
 export const metadata: Metadata = {
   title: 'Birthday Decoration in Delhi NCR | 12th Hour Events',
@@ -13,11 +14,14 @@ const FAQS = [
   { q: 'Do you set up at home?', a: 'Yes, we set up birthday decorations at home, hotels, banquet halls, and offices anywhere in Delhi NCR.' },
 ];
 
-export default function Page() {
+export default async function Page() {
+  const allProducts = await fetchProductsServer();
+  const initialProducts = allProducts.filter(p => p.cat.toLowerCase().trim() === 'bday');
   return <ServicePageTemplate
     cat="bday" name="Birthday Decoration" emoji="🎂" slug="birthday-decoration"
     headline="Birthday Decoration in Delhi NCR 🎂"
     desc="Make every birthday unforgettable with our premium decoration setups. Same-day available, transparent pricing, WhatsApp booking in 2 minutes!"
     faqs={FAQS}
+    initialProducts={initialProducts}
   />;
 }

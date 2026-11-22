@@ -1,12 +1,15 @@
 import type { Metadata } from 'next';
 import ServicePageTemplate from '@/components/ServicePageTemplate';
+import { fetchProductsServer } from '@/lib/products';
 
 export const metadata: Metadata = {
   title: 'Corporate Event Decoration in Delhi NCR | 12th Hour Events',
   description: 'Professional corporate event decoration in Delhi NCR. Product launches, office parties, award nights. Book on WhatsApp!',
 };
 
-export default function Page() {
+export default async function Page() {
+  const allProducts = await fetchProductsServer();
+  const initialProducts = allProducts.filter(p => p.cat.toLowerCase().trim() === 'corporate');
   return <ServicePageTemplate
     cat="corporate" name="Corporate Events" emoji="🏢" slug="corporate-events"
     headline="Corporate Event Decoration in Delhi NCR 🏢"

@@ -1,14 +1,17 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import ProductGrid from '@/components/ProductGrid';
+import ProductGridServer from '@/components/ProductGridServer';
 import ServiceHero from '@/components/ServiceHero';
 import CategoryBar from '@/components/CategoryBar';
 import { CITIES } from '@/lib/config';
+import type { Product } from '@/lib/products';
 
 interface Props {
   cat: string; name: string; emoji: string; slug: string;
   headline: string; desc: string;
   faqs: { q: string; a: string }[];
+  initialProducts?: Product[];
 }
 
 const TRUST = [
@@ -57,7 +60,7 @@ export function generateServiceMetadata(p: Props): Metadata {
   };
 }
 
-export default function ServicePageTemplate({ cat, name, emoji, slug, desc, faqs }: Props) {
+export default function ServicePageTemplate({ cat, name, emoji, slug, desc, faqs, initialProducts }: Props) {
   const reviews = SERVICE_REVIEWS[cat] || DEFAULT_REVIEWS;
   const bgImage = SERVICE_BG[slug];
 
@@ -115,11 +118,16 @@ export default function ServicePageTemplate({ cat, name, emoji, slug, desc, faqs
         </div>
       </section>
 
-      {/* Products with filters */}
+      {/* Products — server-rendered for SEO + interactive client grid for users */}
       <section className="py-12 max-w-screen-2xl mx-auto px-4">
         <h2 className="section-title">{name} <span className="grad-text">Packages</span></h2>
         <p className="section-sub">Choose the perfect package for your celebration</p>
-        <ProductGrid cat={cat} showFilters={true} />
+        {/* Server grid: indexed by Google, hidden once JS loads */}
+        {initialProducts && initialProducts.length > 0 && (
+          <ProductGridServer products={initialProducts} />
+        )}
+        {/* Interactive grid: sorting, filtering, city prices */}
+        <ProductGrid cat={cat} showFilters={true} initialProducts={initialProducts} />
       </section>
 
       {/* Reviews */}

@@ -105,6 +105,10 @@ body {
   }
 }
 
+/* SEO server grid — hidden once JS runs so the interactive grid takes over */
+/* Crawlers (no JS) see this; users see the interactive ProductGrid below it */
+.js-ready .seo-grid { display: none; }
+
 /* Hero */
 .hero-bg {
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);

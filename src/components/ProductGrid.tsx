@@ -6,7 +6,7 @@ import ProductCard from './ProductCard';
 
 type SortKey = 'featured' | 'price_asc' | 'price_desc' | 'discount' | 'name_asc';
 
-interface Props { cat?: string; limit?: number; title?: string; showFilters?: boolean; }
+interface Props { cat?: string; limit?: number; title?: string; showFilters?: boolean; initialProducts?: Product[]; }
 
 function sortProducts(products: Product[], sort: SortKey, city: string, cat?: string): Product[] {
   const copy = [...products];
@@ -41,25 +41,23 @@ function sortProducts(products: Product[], sort: SortKey, city: string, cat?: st
   return copy;
 }
 
-export default function ProductGrid({ cat, limit, title, showFilters = false }: Props) {
+export default function ProductGrid({ cat, limit, title, showFilters = false, initialProducts }: Props) {
   const { city } = useCity();
   const [baseProducts, setBaseProducts] = useState<Product[]>([]); // sorted by featured, all subs
   const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialProducts || initialProducts.length === 0);
   const [activeSub, setActiveSub] = useState<string>('All');
   const [activeSort, setActiveSort] = useState<SortKey>('featured');
   const [subs, setSubs] = useState<string[]>([]);
   const [showSortMenu, setShowSortMenu] = useState(false);
   const sortRef = useRef<HTMLDivElement>(null);
 
-  // Load products once
+  // Load products — use server-prefetched data if available, else fetch client-side
   useEffect(() => {
-    fetchProducts().then(all => {
+    const hydrate = (all: Product[]) => {
       let filtered = cat
         ? all.filter(p => p.cat.toLowerCase().trim() === cat.toLowerCase().trim())
         : all;
-      // When showing all categories (no cat filter), deduplicate by id
-      // so cats2 copies don't appear twice on the homepage
       if (!cat) {
         const seen = new Set<string>();
         filtered = filtered.filter(p => { if (seen.has(p.id)) return false; seen.add(p.id); return true; });
@@ -71,7 +69,14 @@ export default function ProductGrid({ cat, limit, title, showFilters = false }: 
       setBaseProducts(sorted);
       setProducts(limit ? sorted.slice(0, limit) : sorted);
       setLoading(false);
-    });
+    };
+
+    if (initialProducts && initialProducts.length > 0) {
+      // Server already fetched — use directly, no network call needed
+      hydrate(initialProducts);
+    } else {
+      fetchProducts().then(hydrate);
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cat]);
 

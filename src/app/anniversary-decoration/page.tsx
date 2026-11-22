@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import ServicePageTemplate from '@/components/ServicePageTemplate';
+import { fetchProductsServer } from '@/lib/products';
 
 export const metadata: Metadata = {
   title: 'Anniversary Decoration in Delhi NCR | 12th Hour Events',
@@ -12,11 +13,14 @@ const FAQS = [
   { q: 'Do you do hotel room anniversary decoration?', a: 'Yes, we coordinate with hotels across Delhi NCR for in-room anniversary setups. We handle all permissions.' },
 ];
 
-export default function Page() {
+export default async function Page() {
+  const allProducts = await fetchProductsServer();
+  const initialProducts = allProducts.filter(p => p.cat.toLowerCase().trim() === 'anniv');
   return <ServicePageTemplate
     cat="anniv" name="Anniversary Decoration" emoji="❤️" slug="anniversary-decoration"
     headline="Anniversary Decoration in Delhi NCR ❤️"
     desc="Celebrate your love story with our romantic anniversary decoration setups. Roses, candles, fairy lights — same-day available!"
     faqs={FAQS}
+    initialProducts={initialProducts}
   />;
 }

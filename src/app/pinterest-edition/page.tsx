@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import ServicePageTemplate, { generateServiceMetadata } from '@/components/ServicePageTemplate';
+import { fetchProductsServer } from '@/lib/products';
 
 const props = {
   cat: 'pinterest',
@@ -34,6 +35,8 @@ const props = {
 
 export const metadata: Metadata = generateServiceMetadata(props);
 
-export default function Page() {
-  return <ServicePageTemplate {...props} />;
+export default async function Page() {
+  const allProducts = await fetchProductsServer();
+  const initialProducts = allProducts.filter(p => p.cat.toLowerCase().trim() === props.cat);
+  return <ServicePageTemplate {...props} initialProducts={initialProducts} />;
 }

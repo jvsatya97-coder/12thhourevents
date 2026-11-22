@@ -1,12 +1,15 @@
 import type { Metadata } from 'next';
 import ServicePageTemplate from '@/components/ServicePageTemplate';
+import { fetchProductsServer } from '@/lib/products';
 
 export const metadata: Metadata = {
   title: 'Baby Shower Decoration in Delhi NCR | 12th Hour Events',
   description: 'Beautiful baby shower decoration in Delhi NCR. It\'s a boy, it\'s a girl, gender neutral themes. Book on WhatsApp!',
 };
 
-export default function Page() {
+export default async function Page() {
+  const allProducts = await fetchProductsServer();
+  const initialProducts = allProducts.filter(p => p.cat.toLowerCase().trim() === 'baby');
   return <ServicePageTemplate
     cat="baby" name="Baby Shower" emoji="👶" slug="baby-shower"
     headline="Baby Shower Decoration in Delhi NCR 👶"
