@@ -1,10 +1,8 @@
 import { MetadataRoute } from 'next';
 import { SERVICES, CITIES, DOMAIN } from '@/lib/config';
-import { fetchProducts } from '@/lib/products';
 
-export const dynamic = 'force-dynamic';
-
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+// Static sitemap — no external fetch, always reliable for Google
+export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
   const urls: MetadataRoute.Sitemap = [];
 
@@ -36,25 +34,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       });
     });
   });
-
-  // ── Product/package pages ──────────────────────────────────────────────────
-  try {
-    const products = await fetchProducts();
-    // Deduplicate by id
-    const seen = new Set<string>();
-    products.forEach(p => {
-      if (seen.has(p.id) || p.cat === 'addons') return;
-      seen.add(p.id);
-      urls.push({
-        url: `${DOMAIN}/product/${encodeURIComponent(p.id)}`,
-        lastModified: now,
-        changeFrequency: 'weekly',
-        priority: 0.7,
-      });
-    });
-  } catch {
-    // If products can't be fetched at build time, skip — won't break sitemap
-  }
 
   return urls;
 }
