@@ -46,9 +46,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     // Fall through to default
   }
 
+  // Product not found (deleted) — tell Google not to index this URL
   return {
     title: 'Decoration Package | 12th Hour Events',
     description: 'View decoration package details. Same-day setup available. Book on WhatsApp in 2 mins!',
+    robots: { index: false, follow: false },
   };
 }
 
