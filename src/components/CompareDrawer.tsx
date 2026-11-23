@@ -1,7 +1,7 @@
 'use client';
 import { useCompare } from '@/context/CompareContext';
 import { useCity } from '@/context/CityContext';
-import { getPrice, getOrig } from '@/lib/products';
+import { getPrice, getOrig, toThumbUrl } from '@/lib/products';
 import Link from 'next/link';
 
 const ROWS = [
@@ -76,7 +76,7 @@ export default function CompareDrawer() {
                   <div key={p.id} className="relative">
                     <div className="rounded-xl overflow-hidden bg-orange-100 aspect-square mb-1.5">
                       {p.imgs[0] ? (
-                        <img src={p.imgs[0]} alt={p.name} className="w-full h-full object-cover" />
+                        <img src={toThumbUrl(p.imgs[0])} alt={p.name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-3xl">{p.emoji}</div>
                       )}

@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { fetchProducts, getPrice, Product } from '@/lib/products';
+import { fetchProducts, getPrice, Product, toThumbUrl } from '@/lib/products';
 import { useCity } from '@/context/CityContext';
 
 const SUGGESTIONS = [
@@ -154,7 +154,7 @@ export default function SmartSearch({ placeholder = 'Search birthday, balloons, 
                   >
                     <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-orange-100">
                       {p.imgs[0]
-                        ? <img src={p.imgs[0]} alt="" className="w-full h-full object-cover" />
+                        ? <img src={toThumbUrl(p.imgs[0])} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                         : <div className="w-full h-full flex items-center justify-center text-xl">{p.emoji}</div>
                       }
                     </div>

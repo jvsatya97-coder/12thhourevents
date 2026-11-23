@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { fetchProducts, getPrice, Product } from '@/lib/products';
+import { fetchProducts, getPrice, Product, toThumbUrl } from '@/lib/products';
 import { useCity } from '@/context/CityContext';
 import BookingModal from '@/components/BookingModal';
 
@@ -86,7 +86,7 @@ export default function TrendingSection() {
                   {/* Image */}
                   <div className="relative h-32 md:h-40 bg-orange-100 overflow-hidden">
                     {p.imgs[0] ? (
-                      <img src={p.imgs[0]} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <img src={toThumbUrl(p.imgs[0])} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-5xl">{p.emoji}</div>
                     )}
