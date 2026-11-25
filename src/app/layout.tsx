@@ -12,6 +12,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import BackToTop from '@/components/BackToTop';
 import CompareDrawer from '@/components/CompareDrawer';
 import GoogleTagManager from '@/components/GoogleTagManager';
+import MetaPixel from '@/components/MetaPixel';
 import UtmCapture from '@/components/UtmCapture';
 
 export const metadata: Metadata = {
@@ -171,6 +172,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <CompareProvider>
           <CityProvider>
             <GoogleTagManager />
+            <MetaPixel />
             <Suspense fallback={null}><UtmCapture /></Suspense>
             <Navbar />
             <StickyCategories />

@@ -23,6 +23,13 @@ export interface WATrackParams {
   source?: string;     // e.g. "navbar", "footer", "product-card"
 }
 
+export interface LeadTrackParams {
+  productName?: string;
+  city?: string;
+  price?: string;
+  source?: 'book' | 'enquire';
+}
+
 export function trackWhatsApp(params: WATrackParams = {}) {
   if (typeof window === 'undefined' || !window.gtag) return;
 
@@ -49,6 +56,50 @@ export function trackWhatsApp(params: WATrackParams = {}) {
     currency: 'INR',
     transaction_id: `wa_${Date.now()}`,
   });
+}
+
+/**
+ * Track a form lead submission — fired when BookingModal form is submitted.
+ * This is a higher-intent signal than a WhatsApp click, so Google Ads can
+ * optimise bids toward people who actually fill in name + phone.
+ */
+export function trackLead(params: LeadTrackParams = {}) {
+  if (typeof window === 'undefined' || !window.gtag) return;
+
+  const priceNum = params.price
+    ? parseFloat(params.price.replace(/[^0-9.]/g, '')) || 200
+    : 200;
+
+  const eventData = {
+    event_category: 'Lead',
+    event_label: params.source === 'enquire' ? 'Enquiry Form' : 'Booking Form',
+    product_name: params.productName ?? '',
+    city: params.city ?? '',
+    value: priceNum,
+    currency: 'INR',
+  };
+
+  // GA4 — generate_lead is a recommended GA4 event
+  window.gtag('event', 'generate_lead', eventData);
+
+  // Google Ads conversion — same conversion action as WhatsApp but form-sourced
+  window.gtag('event', 'conversion', {
+    send_to: 'AW-CONVERSION_ID/CONVERSION_LABEL', // ← same placeholder; filled with real IDs
+    value: priceNum,
+    currency: 'INR',
+    transaction_id: `form_${Date.now()}`,
+  });
+
+  // Meta Pixel (if loaded)
+  if (typeof window !== 'undefined' && (window as unknown as { fbq?: (...a: unknown[]) => void }).fbq) {
+    const fbq = (window as unknown as { fbq: (...a: unknown[]) => void }).fbq;
+    fbq('track', 'Lead', {
+      content_name: params.productName,
+      content_category: params.source === 'enquire' ? 'enquiry' : 'booking',
+      value: priceNum,
+      currency: 'INR',
+    });
+  }
 }
 
 // Auto-track all wa.me link clicks on the page

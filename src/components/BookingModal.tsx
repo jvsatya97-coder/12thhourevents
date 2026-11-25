@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useCity } from '@/context/CityContext';
 import { Product, getPrice, submitLead, openWhatsApp } from '@/lib/products';
+import { trackLead } from '@/lib/tracking';
 
 interface Props { product: Product; onClose: () => void; mode?: 'book' | 'enquire'; }
 
@@ -62,6 +63,15 @@ export default function BookingModal({ product, onClose, mode = 'book' }: Props)
     if (Object.keys(errs).length) { setErrors(errs); return; }
 
     setLoading(true);
+
+    // Fire conversion tracking BEFORE opening WhatsApp
+    trackLead({
+      productName: product.name,
+      city,
+      price,
+      source: isEnquiry ? 'enquire' : 'book',
+    });
+
     await submitLead({
       name: form.name,
       phone: form.phone,
