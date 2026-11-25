@@ -36,7 +36,7 @@ function RecentCard({ p, city }: { p: Product; city: string }) {
     : p.price ? `₹${parseInt(p.price).toLocaleString('en-IN')}` : '';
 
   return (
-    <Link href={`/product/${encodeURIComponent(p.id)}`}
+    <Link href={city ? `/product/${city}/${encodeURIComponent(p.id)}` : `/product/${encodeURIComponent(p.id)}`}
       className="card flex gap-3 p-2.5 items-center hover:border-orange-200 border border-transparent transition-all">
       <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-orange-50">
         {currentSrc && !failed ? (

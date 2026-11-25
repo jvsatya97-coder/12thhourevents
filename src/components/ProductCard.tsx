@@ -56,7 +56,7 @@ export default function ProductCard({ p }: { p: Product }) {
 
   return (
     <>
-    <Link href={`/product/${encodeURIComponent(p.id)}`} className="card block group relative">
+    <Link href={city ? `/product/${city}/${encodeURIComponent(p.id)}` : `/product/${encodeURIComponent(p.id)}`} className="card block group relative">
       {/* Image */}
       <div className="relative overflow-hidden" style={{ aspectRatio: '1/1' }}>
         {imgSrc && !imgError ? (

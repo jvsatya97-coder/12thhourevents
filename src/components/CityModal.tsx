@@ -3,14 +3,24 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useCity } from '@/context/CityContext';
 import { CITIES } from '@/lib/config';
 
-/** If the current path is a city-specific page like /theme-decoration-ahmedabad,
- *  return the base slug (theme-decoration) and the current city slug (ahmedabad).
- *  Returns null if not a city page. */
-function parseCityPage(pathname: string): { base: string; citySlug: string } | null {
+/** If the current path is a category-city page like /theme-decoration-ahmedabad,
+ *  return the base slug and city slug. Returns null if not this pattern. */
+function parseCategoryCity(pathname: string): { base: string; citySlug: string } | null {
   for (const c of CITIES) {
     if (pathname.endsWith(`-${c.slug}`)) {
       return { base: pathname.slice(1, -(c.slug.length + 1)), citySlug: c.slug };
     }
+  }
+  return null;
+}
+
+/** If the current path is /product/[city]/[id], return the city and id. */
+function parseProductCity(pathname: string): { citySlug: string; id: string } | null {
+  const match = pathname.match(/^\/product\/([^/]+)\/(.+)$/);
+  if (!match) return null;
+  const [, slug, id] = match;
+  if (CITIES.some(c => c.slug === slug)) {
+    return { citySlug: slug, id };
   }
   return null;
 }
@@ -22,10 +32,19 @@ export default function CityModal({ onClose }: { onClose: () => void }) {
 
   const handleSelect = (slug: string) => {
     setCity(slug);
-    // If on a city-specific page, navigate to the same page in the new city
-    const parsed = parseCityPage(pathname);
-    if (parsed && parsed.citySlug !== slug) {
-      router.push(`/${parsed.base}-${slug}`);
+    // If on a category-city page, navigate to same category in new city
+    const catParsed = parseCategoryCity(pathname);
+    if (catParsed && catParsed.citySlug !== slug) {
+      router.push(`/${catParsed.base}-${slug}`);
+      onClose();
+      return;
+    }
+    // If on a product city page, navigate to same product in new city
+    const prodParsed = parseProductCity(pathname);
+    if (prodParsed && prodParsed.citySlug !== slug) {
+      router.push(`/product/${slug}/${prodParsed.id}`);
+      onClose();
+      return;
     }
     onClose();
   };

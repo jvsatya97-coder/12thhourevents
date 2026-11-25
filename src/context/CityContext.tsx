@@ -7,8 +7,18 @@ interface CityCtx { city: string; cityName: string; setCity: (s: string) => void
 
 const CityContext = createContext<CityCtx>({ city: 'delhi', cityName: 'Delhi NCR', setCity: () => {} });
 
-/** Detect city slug from a pathname like /birthday-decoration-bangalore → 'bangalore' */
+/** Detect city slug from pathnames like:
+ *  /birthday-decoration-bangalore → 'bangalore'
+ *  /product/bangalore/SOME_ID → 'bangalore'
+ */
 function detectCityFromPath(pathname: string): string | null {
+  // Check /product/[city]/[id] pattern first
+  const productMatch = pathname.match(/^\/product\/([^/]+)\//);
+  if (productMatch) {
+    const slug = productMatch[1];
+    if (CITIES.some(c => c.slug === slug)) return slug;
+  }
+  // Check category-city pattern like /theme-decoration-bangalore
   for (const c of CITIES) {
     if (pathname.endsWith(`-${c.slug}`) || pathname.includes(`-${c.slug}/`)) {
       return c.slug;
