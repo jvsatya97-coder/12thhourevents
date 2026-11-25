@@ -5,7 +5,17 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { SERVICES } from '@/lib/config';
+import { SERVICES, CITIES } from '@/lib/config';
+
+/** Detect city slug from pathname e.g. /birthday-decoration-bangalore → 'bangalore' */
+function detectCityFromPath(pathname: string): string | null {
+  for (const c of CITIES) {
+    if (pathname.endsWith(`-${c.slug}`) || pathname.includes(`-${c.slug}/`)) {
+      return c.slug;
+    }
+  }
+  return null;
+}
 
 const EXTRA = [
   { slug: 'theme-decoration', name: 'All Themes', emoji: '🎨' },
@@ -27,6 +37,7 @@ const CATS = [
 
 export default function StickyCategories() {
   const pathname = usePathname();
+  const citySlug = detectCityFromPath(pathname);
 
   return (
     <div className="sticky top-16 z-40 bg-white border-b border-gray-100 shadow-sm">
@@ -35,11 +46,13 @@ export default function StickyCategories() {
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {CATS.map(cat => {
-          const isActive = pathname === `/${cat.slug}` || pathname.startsWith(`/${cat.slug}/`);
+          const isActive = pathname === `/${cat.slug}` || pathname.startsWith(`/${cat.slug}-`) || pathname.startsWith(`/${cat.slug}/`);
+          // Link to city-specific page if we're on a city page, else category index
+          const href = citySlug ? `/${cat.slug}-${citySlug}` : `/${cat.slug}`;
           return (
             <Link
               key={cat.slug}
-              href={`/${cat.slug}`}
+              href={href}
               className={`flex-none flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 ${
                 isActive
                   ? 'text-white shadow-sm'
