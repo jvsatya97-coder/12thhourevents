@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { Product, fetchProducts, getPrice } from '@/lib/products';
+import { Product, fetchProducts, getPrice, sortProductsFeatured } from '@/lib/products';
 import { useCity } from '@/context/CityContext';
 import ProductCard from './ProductCard';
 
@@ -11,14 +11,7 @@ interface Props { cat?: string; limit?: number; title?: string; showFilters?: bo
 function sortProducts(products: Product[], sort: SortKey, city: string, cat?: string): Product[] {
   const copy = [...products];
   if (sort === 'featured') {
-    // sort_order only applies when it comes from the product's PRIMARY category.
-    // A product cross-listed into this category via cats2 should not steal the top
-    // spots — it gets sorted to the bottom of the pinned group.
-    return copy.sort((a, b) => {
-      const aOrder = (!cat || a.cat === cat) ? (a.sort_order ?? Infinity) : Infinity;
-      const bOrder = (!cat || b.cat === cat) ? (b.sort_order ?? Infinity) : Infinity;
-      return aOrder - bOrder;
-    });
+    return sortProductsFeatured(copy, city, cat);
   }
   if (sort === 'price_asc' || sort === 'price_desc') {
     copy.sort((a, b) => {

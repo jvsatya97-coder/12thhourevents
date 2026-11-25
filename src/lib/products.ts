@@ -196,6 +196,32 @@ export async function fetchProducts(): Promise<Product[]> {
   return _fetching;
 }
 
+/**
+ * Sort products for display — shared between server and client.
+ * Pinned products (sort_order set, in primary category) come first.
+ * Un-pinned: city-specific price first → higher discount → alphabetical.
+ */
+export function sortProductsFeatured(products: Product[], city: string, cat?: string): Product[] {
+  return [...products].sort((a, b) => {
+    const aOrder = (!cat || a.cat === cat) ? (a.sort_order ?? Infinity) : Infinity;
+    const bOrder = (!cat || b.cat === cat) ? (b.sort_order ?? Infinity) : Infinity;
+    if (aOrder !== bOrder) return aOrder - bOrder;
+
+    // Secondary: city-specific price products first
+    const aHasCity = !!(a.city_prices?.[city]);
+    const bHasCity = !!(b.city_prices?.[city]);
+    if (aHasCity !== bHasCity) return aHasCity ? -1 : 1;
+
+    // Tertiary: higher discount
+    const aDisc = parseFloat(String(a.disc || '0')) || 0;
+    const bDisc = parseFloat(String(b.disc || '0')) || 0;
+    if (bDisc !== aDisc) return bDisc - aDisc;
+
+    // Final: alphabetical
+    return a.name.localeCompare(b.name);
+  });
+}
+
 export function getPrice(p: Product, city: string): string {
   const v = p.city_prices[city] || p.price || '';
   if (!v) return '';

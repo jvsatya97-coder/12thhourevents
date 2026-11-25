@@ -14,9 +14,10 @@ import { Product, getPrice, getOrig } from '@/lib/products';
 interface Props {
   products: Product[];
   city?: string;
+  citySlug?: string; // for city-aware product URLs
 }
 
-export default function ProductGridServer({ products, city = 'delhi' }: Props) {
+export default function ProductGridServer({ products, city = 'delhi', citySlug }: Props) {
   if (!products.length) return null;
 
   return (
@@ -34,7 +35,7 @@ export default function ProductGridServer({ products, city = 'delhi' }: Props) {
         return (
           <Link
             key={p.id}
-            href={`/product/${encodeURIComponent(p.id)}`}
+            href={citySlug ? `/product/${citySlug}/${encodeURIComponent(p.id)}` : `/product/${encodeURIComponent(p.id)}`}
             className="card overflow-hidden group block"
           >
             {/* Image — plain img tag, no client-side fallback needed for crawlers */}

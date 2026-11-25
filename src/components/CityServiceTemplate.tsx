@@ -4,7 +4,7 @@ import ProductGrid from '@/components/ProductGrid';
 import ProductGridServer from '@/components/ProductGridServer';
 import CategoryBar from '@/components/CategoryBar';
 import { SERVICES, DOMAIN } from '@/lib/config';
-import type { Product } from '@/lib/products';
+import { type Product, sortProductsFeatured } from '@/lib/products';
 
 interface Props {
   cat: string; serviceName: string; serviceSlug: string; emoji: string;
@@ -23,6 +23,8 @@ const CITY_FAQS: Record<string, { q: string; a: string }[]> = {
 
 export default function CityServiceTemplate({ cat, serviceName, serviceSlug, emoji, citySlug, cityName, initialProducts }: Props) {
   const faqs = CITY_FAQS[`${serviceSlug}-${citySlug}`] || CITY_FAQS.default;
+  // Sort server-rendered products so pinned items appear first (same order as client grid)
+  const sortedInitial = initialProducts ? sortProductsFeatured(initialProducts, citySlug, cat) : undefined;
   const pageUrl = `${DOMAIN}/${serviceSlug}-${citySlug}`;
 
   const schemaLocalBusiness = {
@@ -108,11 +110,11 @@ export default function CityServiceTemplate({ cat, serviceName, serviceSlug, emo
         <h2 className="section-title">{serviceName} <span className="grad-text">Packages in {cityName}</span></h2>
         <p className="section-sub">All prices shown for {cityName} · inclusive of setup</p>
         {/* Server grid: indexed by Google, hidden once JS loads */}
-        {initialProducts && initialProducts.length > 0 && (
-          <ProductGridServer products={initialProducts} city={citySlug} />
+        {sortedInitial && sortedInitial.length > 0 && (
+          <ProductGridServer products={sortedInitial} city={citySlug} citySlug={citySlug} />
         )}
         {/* Interactive grid: sorting, filtering, city prices */}
-        <ProductGrid cat={cat} showFilters={true} initialProducts={initialProducts} />
+        <ProductGrid cat={cat} showFilters={true} initialProducts={sortedInitial} />
       </section>
 
       {/* FAQ — great for SEO */}
