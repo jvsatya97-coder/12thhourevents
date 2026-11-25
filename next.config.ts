@@ -30,11 +30,21 @@ const redirects = cities.flatMap(city =>
   }))
 );
 
+// Redirect old product URLs without city → /product/delhi/[id]
+// These were indexed before city was added to the URL structure
+const productRedirects = [
+  {
+    source: '/product/:id',
+    destination: '/product/delhi/:id',
+    permanent: true,
+  },
+];
+
 const nextConfig: NextConfig = {
   images: { unoptimized: true },
   typescript: { ignoreBuildErrors: true },
   async redirects() {
-    return redirects;
+    return [...redirects, ...productRedirects];
   },
 };
 export default nextConfig;
