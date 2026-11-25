@@ -8,6 +8,7 @@ import ProductCard from '@/components/ProductCard';
 import CategoryBar from '@/components/CategoryBar';
 import RecentlyViewed, { saveRecentlyViewed } from '@/components/RecentlyViewed';
 import ShareButton from '@/components/ShareButton';
+import CityModal from '@/components/CityModal';
 import { SERVICES } from '@/lib/config';
 
 /* ─── Phone + Pincode capture ──────────────────────────────────────────────── */
@@ -251,6 +252,7 @@ export default function ProductContent({ id }: { id: string }) {
   const [loading, setLoading] = useState(true);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [enquireOpen, setEnquireOpen] = useState(false);
+  const [cityModalOpen, setCityModalOpen] = useState(false);
   const { city, cityName } = useCity();
 
   useEffect(() => {
@@ -345,7 +347,13 @@ export default function ProductContent({ id }: { id: string }) {
             {orig && orig !== price && <span className="text-gray-400 text-lg line-through">{orig}</span>}
             {product.disc > 0 && <span className="disc-badge">{product.disc}% OFF</span>}
           </div>
-          <p className="text-xs text-gray-400 mb-4">📍 Price shown for <strong>{cityName}</strong> · Inclusive of setup</p>
+          {/* City switcher — tap to change city, price updates live */}
+          <button
+            onClick={() => setCityModalOpen(true)}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-600 border border-orange-200 bg-orange-50 rounded-full px-3 py-1 mb-4 hover:bg-orange-100 transition-colors"
+          >
+            📍 {cityName} <span className="text-orange-400 text-[10px]">▼ change</span>
+          </button>
 
           {/* Style variants */}
           <StyleVariants product={product} allProducts={allProducts} city={city} />
@@ -406,6 +414,7 @@ export default function ProductContent({ id }: { id: string }) {
       </div>
       {bookingOpen && <BookingModal product={product} onClose={() => setBookingOpen(false)} mode="book" />}
       {enquireOpen && <BookingModal product={product} onClose={() => setEnquireOpen(false)} mode="enquire" />}
+      {cityModalOpen && <CityModal onClose={() => setCityModalOpen(false)} />}
 
       {/* Mobile sticky bottom bar — sits above the mobile nav bar, with iOS safe area */}
       <div className="fixed bottom-14 left-0 right-0 z-[110] md:hidden bg-white border-t border-gray-200 px-4 shadow-[0_-4px_16px_rgba(0,0,0,0.08)]"
