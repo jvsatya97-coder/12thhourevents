@@ -1,5 +1,12 @@
 'use client';
+import { usePathname } from 'next/navigation';
+
 export default function WAFloat() {
+  const pathname = usePathname();
+  // On product pages, the fixed "Book Now" bar sits at bottom-14 (56px).
+  // We need extra clearance on mobile so the WA button doesn't overlap it.
+  const isProductPage = /^\/product\//.test(pathname);
+
   return (
     <>
       <style>{`
@@ -30,7 +37,7 @@ export default function WAFloat() {
       <a
         href="https://wa.me/918073552837?text=Hi! I want to book a decoration."
         target="_blank" rel="noopener noreferrer"
-        className="wa-float fixed bottom-20 right-4 md:bottom-8 md:right-6 z-50 w-14 h-14 md:w-14 md:h-14 rounded-full shadow-2xl flex items-center justify-center text-2xl"
+        className={`wa-float fixed ${isProductPage ? 'bottom-32' : 'bottom-20'} right-4 md:bottom-8 md:right-6 z-50 w-14 h-14 md:w-14 md:h-14 rounded-full shadow-2xl flex items-center justify-center text-2xl`}
         style={{ background: '#25d366' }}
         aria-label="Chat on WhatsApp"
       >

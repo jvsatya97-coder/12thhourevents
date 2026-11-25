@@ -54,86 +54,94 @@ export default function ProductCard({ p }: { p: Product }) {
     setEnquireOpen(true);
   };
 
+  const href = city ? `/product/${city}/${encodeURIComponent(p.id)}` : `/product/${encodeURIComponent(p.id)}`;
+
   return (
     <>
-    <Link href={city ? `/product/${city}/${encodeURIComponent(p.id)}` : `/product/${encodeURIComponent(p.id)}`} className="card block group relative">
-      {/* Image */}
-      <div className="relative overflow-hidden" style={{ aspectRatio: '1/1' }}>
-        {imgSrc && !imgError ? (
-          <img
-            src={imgSrc}
-            alt={p.name}
-            className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
-            loading="lazy"
-            decoding="async"
-            referrerPolicy="no-referrer"
-            onError={handleImgError}
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-orange-100 to-amber-100 flex flex-col items-center justify-center gap-1">
-            <span className="text-5xl">{p.emoji}</span>
-            <span className="text-xs text-orange-400 font-medium">View Package</span>
-          </div>
-        )}
-        {/* Discount badge */}
-        {p.disc > 0 && (
-          <div className="absolute top-2 left-2 disc-badge">{p.disc}% OFF</div>
-        )}
-        {/* Wishlist heart */}
-        <WishlistButton id={p.id} />
-        {/* Category chip */}
-        {p.sub && (
-          <div className="absolute bottom-2 left-2 bg-black/50 backdrop-blur-sm text-white text-[10px] font-medium px-2 py-0.5 rounded-full">
-            {p.sub}
-          </div>
-        )}
-        {/* Multiple images indicator */}
-        {p.imgs.length > 1 && (
-          <div className="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-            📷 {p.imgs.length}
-          </div>
-        )}
-        {/* Urgency badge */}
-        {showUrgency && (
-          <div className="absolute top-2 right-2 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
-            🔥 {slots} left
-          </div>
-        )}
-      </div>
-
-      {/* Content */}
-      <div className="p-3 md:p-4">
-        <h3 className="font-semibold text-gray-800 text-sm leading-tight mb-1.5 line-clamp-2">{p.name}</h3>
-
-        {/* Star rating row */}
-        <div className="flex items-center gap-1 mb-2">
-          <span className="text-orange-400 text-xs">{'★'.repeat(5)}</span>
-          <span className="text-xs font-semibold text-gray-700">{rating}</span>
-          <span className="text-xs text-gray-400">({reviews})</span>
+    {/* Outer wrapper — not a link so buttons inside don't conflict */}
+    <div className="card group relative flex flex-col">
+      {/* Clickable top area: image + name + price navigates to product */}
+      <Link href={href} className="block flex-1">
+        {/* Image */}
+        <div className="relative overflow-hidden" style={{ aspectRatio: '1/1' }}>
+          {imgSrc && !imgError ? (
+            <img
+              src={imgSrc}
+              alt={p.name}
+              className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
+              loading="lazy"
+              decoding="async"
+              referrerPolicy="no-referrer"
+              onError={handleImgError}
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-orange-100 to-amber-100 flex flex-col items-center justify-center gap-1">
+              <span className="text-5xl">{p.emoji}</span>
+              <span className="text-xs text-orange-400 font-medium">View Package</span>
+            </div>
+          )}
+          {/* Discount badge */}
+          {p.disc > 0 && (
+            <div className="absolute top-2 left-2 disc-badge">{p.disc}% OFF</div>
+          )}
+          {/* Wishlist heart — WishlistButton already calls e.stopPropagation() */}
+          <WishlistButton id={p.id} />
+          {/* Category chip */}
+          {p.sub && (
+            <div className="absolute bottom-2 left-2 bg-black/50 backdrop-blur-sm text-white text-[10px] font-medium px-2 py-0.5 rounded-full">
+              {p.sub}
+            </div>
+          )}
+          {/* Multiple images indicator */}
+          {p.imgs.length > 1 && (
+            <div className="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+              📷 {p.imgs.length}
+            </div>
+          )}
+          {/* Urgency badge */}
+          {showUrgency && (
+            <div className="absolute top-2 right-2 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
+              🔥 {slots} left
+            </div>
+          )}
         </div>
 
-        {/* Price row */}
-        <div className="flex items-center gap-2 mb-3">
-          <span className="font-bold text-orange-600 text-base md:text-lg">{price || '—'}</span>
-          {orig && orig !== price && <span className="text-gray-400 text-xs line-through">{orig}</span>}
-        </div>
+        {/* Content — name + rating + price */}
+        <div className="p-3 md:p-4 pb-2">
+          <h3 className="font-semibold text-gray-800 text-sm leading-tight mb-1.5 line-clamp-2">{p.name}</h3>
 
-        {/* CTA */}
-        <div className="flex gap-2">
-          <button onClick={handleEnquire}
-            className="flex-1 border-2 border-orange-400 text-orange-500 font-semibold text-xs py-2 rounded-xl hover:bg-orange-50 transition-colors justify-center">
+          {/* Star rating row */}
+          <div className="flex items-center gap-1 mb-2">
+            <span className="text-orange-400 text-xs">{'★'.repeat(5)}</span>
+            <span className="text-xs font-semibold text-gray-700">{rating}</span>
+            <span className="text-xs text-gray-400">({reviews})</span>
+          </div>
+
+          {/* Price row */}
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-orange-600 text-base md:text-lg">{price || '—'}</span>
+            {orig && orig !== price && <span className="text-gray-400 text-xs line-through">{orig}</span>}
+          </div>
+        </div>
+      </Link>
+
+      {/* Buttons — outside the Link so taps work cleanly on mobile */}
+      <div className="px-3 md:px-4 pb-3">
+        <div className="flex gap-2 mb-2">
+          <button onClick={() => setEnquireOpen(true)}
+            className="flex-1 border-2 border-orange-400 text-orange-500 font-semibold text-xs py-2 rounded-xl hover:bg-orange-50 transition-colors text-center">
             💬 Enquire
           </button>
-          <button onClick={handleBook}
-            className="flex-1 btn-pink text-xs py-2 justify-center">
+          <button onClick={() => setBookingOpen(true)}
+            className="flex-1 btn-pink text-xs py-2 text-center">
             📋 Book
           </button>
         </div>
         {/* Compare button */}
         <button
-          onClick={e => { e.preventDefault(); if (!compareFull) compareAdd(p); }}
+          onClick={() => { if (!compareFull) compareAdd(p); }}
           disabled={compareFull}
-          className={`mt-2 w-full text-xs font-semibold py-1.5 rounded-xl border transition-colors ${
+          className={`w-full text-xs font-semibold py-1.5 rounded-xl border transition-colors ${
             inCompare
               ? 'bg-orange-600 text-white border-orange-600'
               : compareFull
@@ -144,7 +152,7 @@ export default function ProductCard({ p }: { p: Product }) {
           {inCompare ? '✓ Added to Compare' : compareFull ? 'Compare full (3/3)' : '⚖️ Compare'}
         </button>
       </div>
-    </Link>
+    </div>
 
     {bookingOpen && <BookingModal product={p} onClose={() => setBookingOpen(false)} mode="book" />}
     {enquireOpen && <BookingModal product={p} onClose={() => setEnquireOpen(false)} mode="enquire" />}

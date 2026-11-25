@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { trackWhatsApp } from '@/lib/tracking';
 
 const QUICK_REPLIES = [
@@ -15,6 +16,10 @@ const CHAT_INTRO = "Hi there! 👋 How can I help you celebrate today?";
 const RESPONSE_DELAY_MS = 800;
 
 export default function WAChat() {
+  const pathname = usePathname();
+  // On product pages, the fixed "Book Now" bar sits at bottom-14 (56px).
+  // Raise the WA button on mobile to avoid overlap.
+  const isProductPage = /^\/product\//.test(pathname);
   const [open, setOpen] = useState(false);
   const [replied, setReplied] = useState(false);
   const [showBubble, setShowBubble] = useState(false);
@@ -36,7 +41,7 @@ export default function WAChat() {
     <>
       {/* Chat panel */}
       {open && (
-        <div className="fixed bottom-24 right-4 md:bottom-6 md:right-6 z-[150] w-[min(340px,calc(100vw-32px))] rounded-3xl shadow-2xl overflow-hidden border border-gray-100"
+        <div className={`fixed ${isProductPage ? 'bottom-[172px]' : 'bottom-24'} right-4 md:bottom-6 md:right-6 z-[150] w-[min(340px,calc(100vw-32px))] rounded-3xl shadow-2xl overflow-hidden border border-gray-100`}
           style={{ boxShadow: '0 8px 40px rgba(0,0,0,0.18)' }}>
 
           {/* Header */}
@@ -97,7 +102,7 @@ export default function WAChat() {
       )}
 
       {/* Floating trigger button */}
-      <div className="fixed bottom-[72px] right-4 md:bottom-5 md:right-6 z-[150] flex flex-col items-end gap-2">
+      <div className={`fixed ${isProductPage ? 'bottom-[120px]' : 'bottom-[72px]'} right-4 md:bottom-5 md:right-6 z-[150] flex flex-col items-end gap-2`}>
         {/* Notification bubble */}
         {showBubble && !open && (
           <button
