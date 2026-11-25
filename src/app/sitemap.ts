@@ -1,8 +1,9 @@
 import { MetadataRoute } from 'next';
 import { SERVICES, CITIES, DOMAIN } from '@/lib/config';
+import { fetchProductsServer } from '@/lib/products';
 
-// Static sitemap — no external fetch, always reliable for Google
-export default function sitemap(): MetadataRoute.Sitemap {
+// Dynamic sitemap — includes all product × city URLs
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   const urls: MetadataRoute.Sitemap = [];
 
@@ -34,6 +35,36 @@ export default function sitemap(): MetadataRoute.Sitemap {
       });
     });
   });
+
+  // ── Product pages — /product/[city]/[id] ──────────────────────────────────
+  // One URL per product × city — each has a unique title, description and price.
+  // Falls back gracefully if the sheet can't be reached (returns []).
+  try {
+    const products = await fetchProductsServer();
+    // Deduplicate by id (sheet can have same product in multiple cats)
+    const seen = new Set<string>();
+    for (const p of products) {
+      if (seen.has(p.id)) continue;
+      seen.add(p.id);
+
+      const encodedId = encodeURIComponent(p.id);
+
+      CITIES.forEach(c => {
+        // Only include cities where this product has a price
+        const hasPrice = !!(p.city_prices?.[c.slug] || p.price);
+        if (!hasPrice) return;
+
+        urls.push({
+          url: `${DOMAIN}/product/${c.slug}/${encodedId}`,
+          lastModified: now,
+          changeFrequency: 'weekly',
+          priority: 0.7,
+        });
+      });
+    }
+  } catch {
+    // Skip product URLs if fetch fails — static pages still get indexed
+  }
 
   return urls;
 }

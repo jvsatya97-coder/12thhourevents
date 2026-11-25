@@ -32,13 +32,20 @@ export function CityProvider({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
 
+  const persistCity = (slug: string) => {
+    try { localStorage.setItem('12he_city', slug); } catch {}
+    try {
+      document.cookie = `12he_city=${slug}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
+    } catch {}
+  };
+
   useEffect(() => {
     setMounted(true);
     // 1. Try to detect city from current URL — takes priority
     const fromUrl = detectCityFromPath(pathname);
     if (fromUrl) {
       setRaw(fromUrl);
-      try { localStorage.setItem('12he_city', fromUrl); } catch {}
+      persistCity(fromUrl);
       return;
     }
     // 2. Fall back to saved preference
@@ -46,9 +53,10 @@ export function CityProvider({ children }: { children: ReactNode }) {
       const saved = localStorage.getItem('12he_city');
       if (saved && CITIES.some(c => c.slug === saved)) {
         setRaw(saved);
+        persistCity(saved);
       }
     } catch {}
-  }, [pathname]);
+  }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Also sync on pathname changes after mount
   useEffect(() => {
@@ -56,13 +64,13 @@ export function CityProvider({ children }: { children: ReactNode }) {
     const fromUrl = detectCityFromPath(pathname);
     if (fromUrl) {
       setRaw(fromUrl);
-      try { localStorage.setItem('12he_city', fromUrl); } catch {}
+      persistCity(fromUrl);
     }
-  }, [pathname, mounted]);
+  }, [pathname, mounted]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const setCity = (s: string) => {
     setRaw(s);
-    try { localStorage.setItem('12he_city', s); } catch {}
+    persistCity(s);
   };
 
   const cityName = CITIES.find(c => c.slug === city)?.name || 'Delhi NCR';

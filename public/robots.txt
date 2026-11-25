@@ -8,5 +8,10 @@ Disallow: /api/
 Disallow: /_next/
 Disallow: /search?*
 
+# Legacy product URLs redirect to city-aware URLs — block so Google
+# doesn't waste crawl budget on the redirect chain.
+# Canonical city URLs (/product/bangalore/ID etc.) are still indexed.
+Disallow: /product/$
+
 # Sitemap
 Sitemap: https://12thhourevents.in/sitemap.xml

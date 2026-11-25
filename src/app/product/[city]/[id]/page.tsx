@@ -25,10 +25,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       const description = `Book ${product.name} in ${cityName}${price ? ` from ${price}` : ''}. Same-day setup available. ${product.incs.slice(0, 3).join(', ')}. Book now on WhatsApp!`;
       const canonical = `${DOMAIN}/product/${city}/${encodeURIComponent(product.id)}`;
 
+      // Build hreflang alternates for all city variants so Google treats
+      // them as intentional city-specific pages, not duplicate content.
+      const languages: Record<string, string> = { 'x-default': canonical };
+      CITIES.forEach(c => {
+        languages[`en-IN-${c.slug}`] = `${DOMAIN}/product/${c.slug}/${encodeURIComponent(product.id)}`;
+      });
+
       return {
         title,
         description,
-        alternates: { canonical },
+        alternates: { canonical, languages },
         openGraph: {
           title,
           description,
