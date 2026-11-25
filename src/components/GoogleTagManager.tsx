@@ -17,7 +17,7 @@ import { initWhatsAppAutoTracking } from '@/lib/tracking';
 // sent to placeholder IDs (they'll show errors in GA debugger,
 // but won't break the site).
 // ─────────────────────────────────────────────────────────────
-const GA4_ID = 'G-XXXXXXXXXX';   // ← replace with real GA4 Measurement ID
+const GA4_ID = 'G-TRX3KRN14L';   // ← replace with real GA4 Measurement ID
 const ADS_ID = 'AW-XXXXXXXXXX';  // ← replace with real Google Ads ID
 
 export default function GoogleTagManager() {
