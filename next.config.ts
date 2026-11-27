@@ -6,24 +6,16 @@ const cities = [
   'kolkata', 'lucknow', 'ahmedabad', 'thane',
 ];
 
-const categories = [
-  'first-night-decoration',
-  'room-decoration',
-  'pinterest-edition',
-  'theme-decoration',
-  'baby-shower',
-  'birthday-decoration',
-  'anniversary-decoration',
-  'balloon-decoration',
-  'bachelorette-party',
-  'corporate-events',
-  'activities',
-  'welcome-baby',
+// Only redirect category-city combos that DON'T have a real page.
+// All other categories have city-specific pages (e.g. /birthday-decoration-delhi)
+// so Next.js serves those directly — no redirect needed or wanted.
+const ghostCategories = [
+  'first-night-decoration', // no city pages exist for this category
 ];
 
-// Generate redirects: /category-city → /category
+// Generate redirects: /ghost-category-city → /ghost-category
 const redirects = cities.flatMap(city =>
-  categories.map(cat => ({
+  ghostCategories.map(cat => ({
     source: `/${cat}-${city}`,
     destination: `/${cat}`,
     permanent: true,
