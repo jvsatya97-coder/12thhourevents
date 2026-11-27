@@ -5,6 +5,7 @@ import { fetchProductsServer } from '@/lib/products';
 export const metadata: Metadata = {
   title: 'Balloon Decorations | 12th Hour Events — Pan India',
   description: 'Professional balloon decoration for birthdays, anniversaries, room surprises and all events. Balloon arches, ceilings, walls, bouquets and room setups. Book on WhatsApp!',
+  alternates: { canonical: 'https://12thhourevents.in/balloon-decoration' },
 };
 
 export default async function Page() {

@@ -5,6 +5,7 @@ import { fetchProductsServer } from '@/lib/products';
 export const metadata: Metadata = {
   title: 'Corporate Event Decoration in Delhi NCR | 12th Hour Events',
   description: 'Professional corporate event decoration in Delhi NCR. Product launches, office parties, award nights. Book on WhatsApp!',
+  alternates: { canonical: 'https://12thhourevents.in/corporate-events' },
 };
 
 export default async function Page() {

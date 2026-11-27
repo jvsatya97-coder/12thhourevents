@@ -5,6 +5,7 @@ import { fetchProductsServer } from '@/lib/products';
 export const metadata: Metadata = {
   title: 'Anniversary Decoration in Delhi NCR | 12th Hour Events',
   description: 'Romantic anniversary decoration setups in Delhi NCR. Roses, candles, balloons, fairy lights. Book on WhatsApp in 2 minutes!',
+  alternates: { canonical: 'https://12thhourevents.in/anniversary-decoration' },
 };
 
 const FAQS = [

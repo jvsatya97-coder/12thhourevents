@@ -5,6 +5,7 @@ import { fetchProductsServer } from '@/lib/products';
 export const metadata: Metadata = {
   title: 'Baby Shower Decoration in Delhi NCR | 12th Hour Events',
   description: 'Beautiful baby shower decoration in Delhi NCR. It\'s a boy, it\'s a girl, gender neutral themes. Book on WhatsApp!',
+  alternates: { canonical: 'https://12thhourevents.in/baby-shower' },
 };
 
 export default async function Page() {

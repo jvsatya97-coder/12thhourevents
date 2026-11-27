@@ -5,6 +5,7 @@ import { fetchProductsServer } from '@/lib/products';
 export const metadata: Metadata = {
   title: 'Bachelorette Party Decoration in Delhi NCR | 12th Hour Events',
   description: 'Fun bachelorette party decoration in Delhi NCR. Bride tribe, neon, disco themes. Book on WhatsApp!',
+  alternates: { canonical: 'https://12thhourevents.in/bachelorette-party' },
 };
 
 export default async function Page() {

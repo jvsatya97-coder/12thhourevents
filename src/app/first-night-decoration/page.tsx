@@ -5,6 +5,7 @@ import { fetchProductsServer } from '@/lib/products';
 export const metadata: Metadata = {
   title: 'First Night Decoration in Delhi NCR | 12th Hour Events',
   description: 'Romantic first night / wedding night decoration in Delhi NCR. Roses, candles, fairy lights. Book on WhatsApp!',
+  alternates: { canonical: 'https://12thhourevents.in/first-night-decoration' },
 };
 
 export default async function Page() {

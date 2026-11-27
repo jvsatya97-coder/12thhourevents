@@ -5,6 +5,7 @@ import { fetchProductsServer } from '@/lib/products';
 export const metadata: Metadata = {
   title: 'Birthday Decoration in Delhi NCR | 12th Hour Events',
   description: 'Book the best birthday decoration in Delhi NCR. Balloon setups, theme decorations, surprise setups. Same-day available. WhatsApp to book in 2 mins!',
+  alternates: { canonical: 'https://12thhourevents.in/birthday-decoration' },
 };
 
 const FAQS = [
