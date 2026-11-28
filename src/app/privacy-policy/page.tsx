@@ -27,7 +27,7 @@ export default function PrivacyPolicyPage() {
               12th Hour Events (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;) is a party decoration and kids entertainment service based in India. We operate at <strong>12thhourevents.in</strong> and serve customers across Hyderabad, Bangalore, Delhi NCR, Mumbai, and other cities.
             </p>
             <p className="text-gray-600 leading-relaxed mt-3">
-              For any privacy-related queries, contact us at: <a href="mailto:contact@12thhourevents.in" className="text-purple-600 hover:underline">contact@12thhourevents.in</a> or WhatsApp: <a href="https://wa.me/918073552837" className="text-purple-600 hover:underline">+91 80735 52837</a>
+              For any privacy-related queries, contact us at: <a href="mailto:12thhourevents@gmail.com" className="text-purple-600 hover:underline">12thhourevents@gmail.com</a> or WhatsApp: <a href="https://wa.me/918073552837" className="text-purple-600 hover:underline">+91 80735 52837</a>
             </p>
           </section>
 
@@ -97,7 +97,7 @@ export default function PrivacyPolicyPage() {
               <li>Opt out of marketing communications at any time</li>
             </ul>
             <p className="text-gray-600 leading-relaxed mt-3">
-              To exercise these rights, WhatsApp us at <a href="https://wa.me/918073552837" className="text-purple-600 hover:underline">+91 80735 52837</a> or email <a href="mailto:contact@12thhourevents.in" className="text-purple-600 hover:underline">contact@12thhourevents.in</a>.
+              To exercise these rights, WhatsApp us at <a href="https://wa.me/918073552837" className="text-purple-600 hover:underline">+91 80735 52837</a> or email <a href="mailto:12thhourevents@gmail.com" className="text-purple-600 hover:underline">12thhourevents@gmail.com</a>.
             </p>
           </section>
 
@@ -123,7 +123,7 @@ export default function PrivacyPolicyPage() {
             <div className="mt-3 bg-purple-50 rounded-xl p-5 text-gray-700">
               <p><strong>12th Hour Events</strong></p>
               <p>📞 WhatsApp: <a href="https://wa.me/918073552837" className="text-purple-600 hover:underline">+91 80735 52837</a></p>
-              <p>📧 Email: <a href="mailto:contact@12thhourevents.in" className="text-purple-600 hover:underline">contact@12thhourevents.in</a></p>
+              <p>📧 Email: <a href="mailto:12thhourevents@gmail.com" className="text-purple-600 hover:underline">12thhourevents@gmail.com</a></p>
               <p>🌐 Website: <a href="https://12thhourevents.in" className="text-purple-600 hover:underline">12thhourevents.in</a></p>
             </div>
           </section>
