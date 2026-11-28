@@ -35,6 +35,14 @@ export default function ContactPage() {
               <p className="text-gray-500 text-xs mt-1">Available 365 days a year including holidays</p>
             </div>
             <div className="card p-6">
+              <div className="text-3xl mb-3">📧</div>
+              <h3 className="font-bold text-lg mb-1">Email Us</h3>
+              <p className="text-gray-600 text-sm mb-3">For quotes, queries or collaborations</p>
+              <a href="mailto:12thhourevents@gmail.com" className="text-purple-600 font-semibold hover:underline">
+                12thhourevents@gmail.com
+              </a>
+            </div>
+            <div className="card p-6">
               <div className="text-3xl mb-3">📍</div>
               <h3 className="font-bold text-lg mb-1">Service Areas</h3>
               <p className="text-gray-600 text-sm">Delhi, Noida, Gurgaon, Faridabad, Ghaziabad, and 9 more cities across India.</p>

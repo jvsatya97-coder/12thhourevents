@@ -39,6 +39,8 @@ export default function Footer() {
               <li><Link href="/contact" className="text-sm text-gray-400 hover:text-orange-400">Contact Us</Link></li>
               <li><Link href="/pinterest-edition" className="text-sm text-gray-400 hover:text-orange-400">📌 Pinterest Edition</Link></li>
               <li><a href="https://wa.me/918073552837" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-400 hover:text-orange-400">WhatsApp Us</a></li>
+              <li><a href="mailto:12thhourevents@gmail.com" className="text-sm text-gray-400 hover:text-orange-400">📧 Email Us</a></li>
+              <li><Link href="/privacy-policy" className="text-sm text-gray-400 hover:text-orange-400">Privacy Policy</Link></li>
             </ul>
           </div>
         </div>
